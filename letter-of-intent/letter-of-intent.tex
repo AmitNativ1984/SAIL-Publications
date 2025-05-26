@@ -1,0 +1,66 @@
+\documentclass{article}
+\usepackage[preprint, nonatbib]{Styles/neurips_2025}
+\usepackage[backend=biber]{biblatex}
+\addbibresource{references.bib}
+
+% \bibliographystyle{plainnat}
+
+\title{Swarm Autonomy with Event-Driven Control and Spiking Neural Networks}
+
+\author{
+    Amit Nativ \\ 
+    Supervisor: Oren Gal \\
+    \\
+    Swarm \& AI Lab \\
+    Hatter Department of Marine Technologies \\
+    Leon H. Charney School of Marine Sciences \\
+    University of Haifa \\
+    \\
+    \today
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+    Quadrotors exhibit remarkable agility and speed when manually piloted through cluttered environments, yet achieving comparable autonomous capabilities in unknown conditions remains challenging, largely due to traditional visual sensor limitations and energy constraints. Biological sensing and processing is asynchronous and sparse, leading to low-latency and energy-efficient perception and action even in simple creatures such as small insects. Recently, event cameras, also known as neuromorphic cameras, have seen increased interest in the robotics community. Unlike traditional cameras, these bio-inspired imaging sensors produce asynchronous, sparse visual data streams at very low latency, high dynamic range and low-energy consumption, making them well suited for high-speed flight. Spiking neural networks (SNNs), are a biologically inspired approach to neural networks, mirroring the functionality of the brain more closely than Artificial Neural Networks (ANNs). Their computational units, spiking neurons, allow for dynamic system representation, with spikes serving as the medium for asynchronous sparse communication among neurons. This research aims to explore the potential of combining event cameras and SNNs to develop end-to-end control policies for agile quadrotors. Additionally, the research will investigate emergent swarm behavior in multi-agent systems, where local SNN-based policies lead to complex collective behaviors without centralized control. This approach has the potential to significantly enhance the capabilities of single and multi-agent UAV swarm systems, enabling them to navigate and operate effectively in cluttered and dynamic environments.
+\end{abstract}
+
+\section{Introduction}
+
+\section{Research Questions}
+\begin{itemize}
+    \item How can spiking neural networks be leverged to control agents using sparse, asynchronous event-based visual data?
+    \item How can local SNN-based policies produce emergent swarm behavior?
+\end{itemize}
+
+\section{Research Objectives}
+The research will revolve around the following objectives:    
+\begin{itemize}
+    \item \textbf{End-to-end control for agile UAVs flight in the wild with event cameras and SNNs:}
+    Event-based cameras produce sparse, asynchronous visual input streams with high throughput, low latency and high dynamic range. Our goal is to leverage this sensor with SNNs, which are well suited for asynchronous sparse signals, and develop a novel end-to-end control framework that will lead to significant improvements in control, robustness and energy consumption of high-speed UAVs in the wild.
+          
+    \item \textbf{Develop decentralized navigation and control for UAV swarms in cluttered enviroments:} 
+    Expand the single agent control policy to a swarm of agents, so that the swarm will exhibit emergent behavior. As each agent is controlled independently by a local SNN policy and receives local event-based visual input, we plan to improve the swarm's robustness to navigate through cluttered environments and avoid obstacles at high speeds.
+            
+    \item \textbf{Emergent swarm behavior with SNN based controllers:}
+    Develop a framework for collective decision making and emergent behavior in swarms based on visual event based input and SNNs, such as flocking, foraging and exploration. The goal is to develop a framework that will allow the swarm to adapt to dynamic environments and exhibit complex behaviors without centralized control.
+\end{itemize}
+
+\section{Background}
+
+\section{Methodology}
+
+1. Flightmare simulator
+2. MAVLab simulator
+3. Event-based cameras
+4. SNNtorch
+
+
+\section{Novelty and Contribution}
+
+\section{References}
+\printbibliography
+
+\end{document}
