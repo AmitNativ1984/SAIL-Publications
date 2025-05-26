@@ -29,7 +29,7 @@
 *.ind
 *.bst
 *.bib
-*.sty
+# *.sty
 *.bcf
 
 elsarticle-template.tex
