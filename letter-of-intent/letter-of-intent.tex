@@ -43,6 +43,7 @@ This research explores how end-to-end event-based vision and control with SNNs c
 \begin{itemize}
     \item How can spiking neural networks be leverged to control agents using sparse, asynchronous event-based visual data?
     \item How can local SNN-based policies produce emergent swarm behavior?
+    \item How can events be effectively represented and processed by SNNs to enable high-speed navigation and control in cluttered environments?
     \item How can SNNs be optimized for neuromorphic hardware to improve energy efficiency and real-time performance?
 \end{itemize}
 
@@ -76,7 +77,7 @@ An event is triggered at a single pixel as soon as the magnitude of brightness c
     \label{eq:event_generation_model}
 \end{equation}
     
-Where v$C>0$, $\Delta t_k$ is the time since the last event and $p_k \in \left\{-1,1\right\}$ is the polarity of the brightness change. From Eq.~\eqref{eq:event_generation_model}, the event generation model is dependent on:
+Where $C>0$, $\Delta t_k$ is the time since the last event and $p_k \in \left\{-1,1\right\}$ is the polarity of the brightness change. From Eq.~\eqref{eq:event_generation_model}, the event generation model is dependent on:
 
 \begin{enumerate}
     \item \textbf{The contrast sensitivity threshold:} $C$ is a temporal contrast threshold that can be adjusted to control the sensitivity of the camera.
@@ -97,7 +98,18 @@ Where v$C>0$, $\Delta t_k$ is the time since the last event and $p_k \in \left\{
     
 \end{enumerate}
 
-\subsubsection{Event Input Representation}
+\subsubsection{Event Representations}
+Extracting meaningful information from the event stream is a crucial step in event-based vision. An event alone does not provide enough information for estimation, and so additional information, in the form of past events or extra knowledge, is needed. Different methods have been proposed, and the choice of representation depends on the specific task and application. Depending on how many events are processed simultaneously, two categories of algorithms can be distinguished: (i) methods that operate on an \textit{event-by-event basis}, where the state of the system (the estimated unknowns) can change upon the arrival of a single event, thus achieving minimum latency, and \textit{(ii)} methods that operate on \textit{groups or packets of events}, which introduce some latency. Events are commonly transformed into alternative representations, that facilitate the extraction of meaningful information. Next, popular representations are reviewed.
+
+\subparagraph{Individual events:} $e_k \doteq (\textbf{x}_k,t_k,p_k)$ are used by event-by-event processing methods, such as SNN. The SNN has additional information, built up from past events or given by additional knowledge, that is fused with incoming events asynchronously to produce an output \cite{paredes-vallesUnsupervisedLearningHierarchical2020,paredes-vallesFullyNeuromorphicVision2023b}.
+
+\subparagraph{Event packets:} Events $\mathcal{E} \doteq \{e_k\}^{N_e}_{k=1}$ in a spatio-temptoal neighborhood are processed together to produce an output. Choosing the appropriate packet size $N_e$ is critical to statisfy the assumptions of the algorithms (e.g., constant motion speed during the span of the packet), which varies with the task \cite{muegglerContinuousTimeVisualInertialOdometry2018, DenseContinuousTimeOptical, bhattacharyaMonocularEventBasedVision2024}
+
+
+
+
+
+
 
 \subsection{Spiking Neural Networks}
 \subsection{Full Neuromorphic Control}
