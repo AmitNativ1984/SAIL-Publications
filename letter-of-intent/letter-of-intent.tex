@@ -1,6 +1,7 @@
 \documentclass{article}
 \usepackage[preprint, nonatbib]{Styles/neurips_2025}
 \usepackage[backend=biber]{biblatex}
+\usepackage{amsmath}
 \addbibresource{references.bib}
 
 % \bibliographystyle{plainnat}
@@ -60,13 +61,47 @@ The research will revolve around the following objectives:
 
 \section{Background}
 \subsection{Vision Based Agile Flight in Cluttered Environments}
-Various approaches have been studied in the litrature for vision based agile flight in cluttered environments. Particulary, in a traditional robotic design, The navigation task is divided into mapping, planning, and control. This line of work first requires computationally-intensive algorithms, such as Simultaneous Localization and Mapping (SLAM), to infer the 3D structure of the environment from 2D noisy image data \cite{zhouSwarmMicroFlying2022, scaramuzzaVisionControlledMicroFlying2014}. Given a 3D map of an environment, planning algorithms generate feasible trajectories that follow the shortest collision-free path from start to goal utilizing the vehicle’s full dynamic capabilities. Finally, a controller is used to follow the trajectory precisely, such as model predictive control \cite{falangaPAMPCPerceptionAwareModel2018}. Dividing the navigation task into a sequence of subtasks allows for simplifying the problem, resulting in an interpretable system from the engineering prespective. However, it leads to a pipeline that is sensitive to unmodeled effects due to a lack of interactions between each component. Also, the system requires additional latency for passing or waiting for the information \cite{loquercioLearningHighSpeedFlight2021}. Recently, learning-based methods attempted to address the aforementioned limitations. For instance, in \cite{loquercioLearningHighSpeedFlight2021} researchers propose to directly map noisy sensory observations to collisionfree trajectories in a receding-horizon fashion. This direct mapping forgoes the need for 3D environment mapping and collision waypoints planning. Though it reduces processing latency and increases robustness to noisy perception, a controller is still required to track the trajectory. Other works propose to learn end-to-end policies directly from sensory observations to control commands using imitation learning. Without relying on an expert, deep reinforcement learning has the potential to find more optimal policies for a variety of tasks. For aerial robots, Deep RL was successfully applied to high-speed flight in cluttered enviroments \cite{songLearningPerceptionAwareAgile2023}, drone racing \cite{kaufmannChampionlevelDroneRacing2023}. End-to-end vision-to-control learned policies show promising results in robustness, latency and speed, and surpass classical methods and panners 
+Various approaches have been studied in the litrature for vision based agile flight in cluttered environments. In a traditional robotic design, the navigation task is divided into mapping, planning, and control. This line of work first requires computationally-intensive algorithms, such as Simultaneous Localization and Mapping (SLAM), to infer the 3D structure of the environment from 2D noisy image data \cite{zhouSwarmMicroFlying2022, scaramuzzaVisionControlledMicroFlying2014}. Given a 3D map of an environment, planning algorithms generate feasible trajectories that follow the shortest collision-free path from start to goal utilizing the vehicle’s full dynamic capabilities. Finally, a controller is used to follow the trajectory precisely, such as model predictive control \cite{falangaPAMPCPerceptionAwareModel2018}. Dividing the navigation task into a sequence of subtasks allows for simplifying the problem, resulting in an interpretable system from the engineering prespective. However, it leads to a pipeline that is sensitive to unmodeled effects due to a lack of interactions between each component. Also, the system requires additional latency for passing or waiting for the information \cite{loquercioLearningHighSpeedFlight2021}. Learning-based methods attempt to address the aforementioned limitations. For instance, in \cite{loquercioLearningHighSpeedFlight2021} researchers propose to directly map noisy sensory observations to collision free trajectories in a receding-horizon fashion. This direct mapping forgoes the need for 3D environment mapping and collision waypoints planning. This method reduces processing latency and increass roboutness and success rates of speeds up to 10m/s, but a controller is still required to track the trajectory. Other works propose to learn end-to-end policies directly from sensory observations to control commands using imitation learning and deep reinforcement learning (RL). Without relying on an expert, RL has the potential to find more optimal policies for a variety of tasks. For aerial robots, deep RL was successfully applied to high-speed flight in cluttered enviroments \cite{songLearningPerceptionAwareAgile2023} and drone racing \cite{kaufmannChampionlevelDroneRacing2023}, winning a race against world-champion human pilots. End-to-end vision-to-control learned policies show promising results in robustness, latency and speed, and surpass classical methods and planners.
 
-\subsection{Event-Cameras}
+\subsection{Event-Cameras and Event-Based Vision}
+Event cameras are bio-inspired sensors that differ from conventional frame cameras: Instead of capturing images at a fixed rate, they asynchronously measure per-pixel brightness changes, and output a data rate sequence of digital "events" or "spikes", with each event representing a change of brightness (on logarithmic scale) of predefined magnitude at a specific pixel location and time. Each pixel memorizes the log intensity each time it sends an event, and continuously monitors for chage of sufficient magnitude from thier memorized value. When the change exceeds a certain threshold, the camera sends an event. Each event is represented as a tuple $e_k(\textbf{x}_k,t_k,p_k)$,
+where $\textbf{x}_k$ represents the pixel coordinates. The indepent timestamp of the event $t_k$, and the 1-bit polarity of the change (i.e., brightness increase "ON" or decrease "OFF") $p_k$. Compared to traditional cameras, event cameras offer several advantages: \textit{Low latency:} Each pixel operates asynchronously with no need for global exposure time, allowing for sub-millisecond latency in capturing changes, while traditional cameras have tens of milliseconds latency. \textit{Low power consumption:} Event cameras transmit only changes in brightness, significantly reducing redundant data and power usage, typically around 10 mW vs. 1W. \textit{High dynamic range:} Operating on a logarithmic scale, event cameras can handle a wide range of lighting conditions, achieving dynamic ranges greater than 120 dB compared to 60 dB for standard cameras. 
+
+However, this paradigm shift is not without challenges, especially: \textit{Coping with different space-time output:} The output of event cameras is fundamentally different from that of standard cameras: events are asynchronous and spatially sparse, whereas images are synchronous and dense. For this reason, framebased vision algorithms designed for image sequences are not directly applicable to event data. \textit{Coping with different photometric sensing:} In contrast to the grayscale information that standard cameras provide, each event contains binary (increase/decrease) brightness change information and no intensity information. Brightness changes depend not only on the scene brightness, but also on the current and past relative motion between the scene and the camera. \textit{Lack of data:} Because event cameras are relatively new, event data is much more rare than image data, and there is a lack of large-scale datasets for training and evaluation. 
+
+\subsubsection{Event Generation Model}
+An event is triggered at a single pixel as soon as the magnitude of brightness change on a logarithmic scale reaches a theshold. Neglecting sensor noise, and given $L\doteq \log(I)$ is the log brightness, we can model the event generation process as follows \cite{gallegoEventbasedVisionSurvey2022}:
+\begin{equation}
+    L(\textbf{x}_k,t_k) - L(\textbf{x}_k,t_k-\Delta t_k) = p_k C,
+    \label{eq:event_generation_model}
+\end{equation}
+    
+Where v$C>0$, $\Delta t_k$ is the time since the last event and $p_k \in \left\{-1,1\right\}$ is the polarity of the brightness change. From Eq.~\eqref{eq:event_generation_model}, the event generation model is dependent on:
+
+\begin{enumerate}
+    \item \textbf{The contrast sensitivity threshold:} $C$ is a temporal contrast threshold that can be adjusted to control the sensitivity of the camera.
+    \item \textbf{Temporal Brightness Changes:} For a small $\Delta t_k$, Eq.~\eqref{eq:event_generation_model} can be approximated using Taylor's expansion, which allows us to interpert the events as providing information about the temporal derivative \cite{gallegoEventbasedVisionSurvey2022}:
+        \begin{equation}
+            \frac{\partial L}{\partial t}(\textbf{x}_k,t_k) \approx \frac{p_k C}{\Delta t_k}
+            \label{eq:temporal_derivative_brightness}
+        \end{equation}
+    Eq.~\eqref{eq:temporal_derivative_brightness} gives an indirect way to measure brightness from events.
+    \item \textbf{Moving Edges:} Consider a given pixel $\textbf{x}_k=$ with a local brightness gradient $\nabla L(\textbf{x}_k)$, undergoing the motion $\textbf{u}=(u,v)$. Assuming constant illuimation brightness consistency, events are caused from the movements of edges in the scene \cite{gallegoEventbasedVisionSurvey2022, gallegoEventbasedCameraPose2015}:
+    
+        \begin{equation}
+            -\nabla L(\textbf{x}_k) \cdot \textbf{u}\Delta t = C
+            \label{eq:moving_edges_event}
+        \end{equation}
+    Eq.~\eqref{eq:moving_edges_event} shows that if th motion is parallel to the edge, no event is generated, while if the motion is perpendicular to the edge, events are generates at the highest rate. 
+    In this research, most of the events in the scene are expected to be of this type, caused by the ego-motion of the camera.
+    
+\end{enumerate}
+
+\subsubsection{Event Input Representation}
+
 \subsection{Spiking Neural Networks}
 \subsection{Full Neuromorphic Control}
 \subsection{Swarm Intelligence and Emergent Behavior}
-
 
 \section{Methodology}
 
