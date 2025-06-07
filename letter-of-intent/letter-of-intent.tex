@@ -2,6 +2,7 @@
 \usepackage[preprint, nonatbib]{Styles/neurips_2025}
 \usepackage[backend=biber]{biblatex}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \addbibresource{references.bib}
 
 % \bibliographystyle{plainnat}
@@ -65,38 +66,41 @@ The research will revolve around the following objectives:
 Various approaches have been studied in the litrature for vision based agile flight in cluttered environments. In a traditional robotic design, the navigation task is divided into mapping, planning, and control. This line of work first requires computationally-intensive algorithms, such as Simultaneous Localization and Mapping (SLAM), to infer the 3D structure of the environment from 2D noisy image data \cite{zhouSwarmMicroFlying2022, scaramuzzaVisionControlledMicroFlying2014}. Given a 3D map of an environment, planning algorithms generate feasible trajectories that follow the shortest collision-free path from start to goal utilizing the vehicle’s full dynamic capabilities. Finally, a controller is used to follow the trajectory precisely, such as model predictive control \cite{falangaPAMPCPerceptionAwareModel2018}. Dividing the navigation task into a sequence of subtasks allows for simplifying the problem, resulting in an interpretable system from the engineering prespective. However, it leads to a pipeline that is sensitive to unmodeled effects due to a lack of interactions between each component. Also, the system requires additional latency for passing or waiting for the information \cite{loquercioLearningHighSpeedFlight2021}. Learning-based methods attempt to address the aforementioned limitations. For instance, in \cite{loquercioLearningHighSpeedFlight2021} researchers propose to directly map noisy sensory observations to collision free trajectories in a receding-horizon fashion. This direct mapping forgoes the need for 3D environment mapping and collision waypoints planning. This method reduces processing latency and increass roboutness and success rates of speeds up to 10m/s, but a controller is still required to track the trajectory. Other works propose to learn end-to-end policies directly from sensory observations to control commands using imitation learning and deep reinforcement learning (RL). Without relying on an expert, RL has the potential to find more optimal policies for a variety of tasks. For aerial robots, deep RL was successfully applied to high-speed flight in cluttered enviroments \cite{songLearningPerceptionAwareAgile2023} and drone racing \cite{kaufmannChampionlevelDroneRacing2023}, winning a race against world-champion human pilots. End-to-end vision-to-control learned policies show promising results in robustness, latency and speed, and surpass classical methods and planners.
 
 \subsection{Event-Cameras and Event-Based Vision}
-Event cameras are bio-inspired sensors that differ from conventional frame cameras: Instead of capturing images at a fixed rate, they asynchronously measure per-pixel brightness changes, and output a data rate sequence of digital "events" or "spikes", with each event representing a change of brightness (on logarithmic scale) of predefined magnitude at a specific pixel location and time. Each pixel memorizes the log intensity each time it sends an event, and continuously monitors for chage of sufficient magnitude from thier memorized value. When the change exceeds a certain threshold, the camera sends an event. Each event is represented as a tuple $e_k(\textbf{x}_k,t_k,p_k)$,
-where $\textbf{x}_k$ represents the pixel coordinates. The indepent timestamp of the event $t_k$, and the 1-bit polarity of the change (i.e., brightness increase "ON" or decrease "OFF") $p_k$. Compared to traditional cameras, event cameras offer several advantages: \textit{Low latency:} Each pixel operates asynchronously with no need for global exposure time, allowing for sub-millisecond latency in capturing changes, while traditional cameras have tens of milliseconds latency. \textit{Low power consumption:} Event cameras transmit only changes in brightness, significantly reducing redundant data and power usage, typically around 10 mW vs. 1W. \textit{High dynamic range:} Operating on a logarithmic scale, event cameras can handle a wide range of lighting conditions, achieving dynamic ranges greater than 120 dB compared to 60 dB for standard cameras. 
+Event cameras are bio-inspired sensors that differ from conventional frame cameras: Instead of capturing images at a fixed rate, they asynchronously measure per-pixel brightness changes, and output a data rate sequence of digital "events" or "spikes", with each event representing a change of brightness (on logarithmic scale) of predefined magnitude at a specific pixel location and time. Each pixel memorizes the log intensity each time it sends an event, and continuously monitors for change of sufficient magnitude from thier memorized value. When the change exceeds a certain threshold, the camera sends an event. Each event is represented as a tuple $e_k(\textbf{x}_k,t_k,p_k)$,
+where $\textbf{x}_k$ represents the pixel coordinates, the indepent timestamp of the event $t_k$, and the 1-bit polarity of the change (i.e., brightness increase "ON" or decrease "OFF") $p_k$. Compared to traditional cameras, event cameras offer several advantages: \textit{Low latency:} Each pixel operates asynchronously with no need for global exposure time, allowing for sub-millisecond latency in capturing changes, while traditional cameras have tens of milliseconds latency. \textit{Low power consumption:} Event cameras transmit only changes in brightness, significantly reducing redundant data and power usage, typically around 10 mW vs. 1W. \textit{High dynamic range:} Operating on a logarithmic scale, event cameras can handle a wide range of lighting conditions, achieving dynamic ranges greater than 120 dB compared to 60 dB for standard cameras. 
 
 However, this paradigm shift is not without challenges, especially: \textit{Coping with different space-time output:} The output of event cameras is fundamentally different from that of standard cameras: events are asynchronous and spatially sparse, whereas images are synchronous and dense. For this reason, framebased vision algorithms designed for image sequences are not directly applicable to event data. \textit{Coping with different photometric sensing:} In contrast to the grayscale information that standard cameras provide, each event contains binary (increase/decrease) brightness change information and no intensity information. Brightness changes depend not only on the scene brightness, but also on the current and past relative motion between the scene and the camera. \textit{Lack of data:} Because event cameras are relatively new, event data is much more rare than image data, and there is a lack of large-scale datasets for training and evaluation. 
 
 \subsubsection{Event Generation Model}
-An event is triggered at a single pixel as soon as the magnitude of brightness change on a logarithmic scale reaches a theshold. Neglecting sensor noise, and given $L\doteq \log(I)$ is the log brightness, we can model the event generation process as follows \cite{gallegoEventbasedVisionSurvey2022}:
+An event is triggered at a single pixel as soon as the magnitude of brightness changes on a logarithmic scale reaches a theshold. Neglecting sensor noise, we can model the event generation process as follows \cite{gallegoEventbasedVisionSurvey2022}:
 \begin{equation}
-    L(\textbf{x}_k,t_k) - L(\textbf{x}_k,t_k-\Delta t_k) = p_k C,
+    \log(I(\textbf{x}_k,t_k)) - \log(I\textbf{x}_k,t_k-\Delta t_k) = \pm C,
     \label{eq:event_generation_model}
 \end{equation}
     
-Where $C>0$, $\Delta t_k$ is the time since the last event and $p_k \in \left\{-1,1\right\}$ is the polarity of the brightness change. From Eq.~\eqref{eq:event_generation_model}, the event generation model is dependent on:
+Where $C>0$ is the camera threshold that can be adjusted to control the sensitivity of the camera. $\Delta t_k$ is the time since the last event. From Eq.~\eqref{eq:event_generation_model}, and following the rule of integration, it is possible to reconstruct the \textit{relative} intensity of the scene from the stream of events. The reconstructed image does not suffer from motion blur and has a very high dynamic range \cite{rebecqHighSpeedHigh2019}. 
 
-\begin{enumerate}
-    \item \textbf{The contrast sensitivity threshold:} $C$ is a temporal contrast threshold that can be adjusted to control the sensitivity of the camera.
-    \item \textbf{Temporal Brightness Changes:} For a small $\Delta t_k$, Eq.~\eqref{eq:event_generation_model} can be approximated using Taylor's expansion, which allows us to interpert the events as providing information about the temporal derivative \cite{gallegoEventbasedVisionSurvey2022}:
-        \begin{equation}
-            \frac{\partial L}{\partial t}(\textbf{x}_k,t_k) \approx \frac{p_k C}{\Delta t_k}
-            \label{eq:temporal_derivative_brightness}
-        \end{equation}
-    Eq.~\eqref{eq:temporal_derivative_brightness} gives an indirect way to measure brightness from events.
-    \item \textbf{Moving Edges:} Consider a given pixel $\textbf{x}_k=$ with a local brightness gradient $\nabla L(\textbf{x}_k)$, undergoing the motion $\textbf{u}=(u,v)$. Assuming constant illuimation brightness consistency, events are caused from the movements of edges in the scene \cite{gallegoEventbasedVisionSurvey2022, gallegoEventbasedCameraPose2015}:
-    
-        \begin{equation}
-            -\nabla L(\textbf{x}_k) \cdot \textbf{u}\Delta t = C
-            \label{eq:moving_edges_event}
-        \end{equation}
-    Eq.~\eqref{eq:moving_edges_event} shows that if th motion is parallel to the edge, no event is generated, while if the motion is perpendicular to the edge, events are generates at the highest rate. 
-    In this research, most of the events in the scene are expected to be of this type, caused by the ego-motion of the camera.
-    
-\end{enumerate}
+However, reconstructing the image from events adds latency and requires additional processing. Instead, it is often more efficient to process the events directly without reconstructing the image, especially in high-speed scenarios where latency is critical. Two schools of approaches can be distinguished, and the choice of method depends on the specific application and the required latency:
+
+\subparagraph{Event-by-event methods:} These methods process each event as it arrives, allowing for immediate responses to changes in the scene. They are suitable for real-time applications where very low latency is crucial, such as in high-speed motion and dynamic environments. Following Eq.~\eqref{eq:event_generation_model}, events are generated by either temporal brightness changes, or by moving edges in the scene (assuming constant illumination and brightness) caused by the relative motion of the camera with respect to the scene. Let $L(x,y,t)=\log(I(x,y,t))$, and an intensity gradient (an edge) $\nabla L(\textbf{x}_k,t_k)$, undergoing a relative motion $\textbf{u}$ with respect to the camera, the event generation model for a small $\Delta t$ can be expressed as follows \cite{gallegoEventbasedVisionSurvey2022, gallegoEventbasedCameraPose2015}:
+\begin{equation}
+    -\nabla L(\textbf{x}_k,t_k) \cdot \textbf{u}\Delta t = \pm C
+    \label{eq:moving_edges_event}
+\end{equation}
+Event-by-event methods have been proven successful in tasks such as optical flow and simultaneouse localization and mapping (SLAM) under extreme conditions \cite{vidalUltimateSLAMCombining2018, cuadradoOpticalFlowEstimation2023,gehrigERAFTDenseOptical2021, sunAutonomousQuadrotorFlight2021}
+
+\subparagraph{Batch methods:} These methods process typically involve accumulating events over a time window or a fixed number of events, and then processing them to extract information or estimate parameters. These methods offer better performance in noisy environments, at the cost of increased latency (still much lower than traditional cameras). The spatio-temporal volume of events in the batch depends on the scene and its dynamics reltaive to the camera, but it is impossible to understand the underlying scene simply looking at the event cloud. Contrast maximization methods wrap the spatio temporal volume of events by solving an optimzation problem to maximize the contrast of the events. The objective function is to maximize the focus of the resulting image (max the variance) called Image of Wraped Events (IWE). This is done by iterating through the parameters of the motion dynamics with graident based methods, until a certain maximum is reached \cite{gallegoUnifyingContrastMaximization2018a, gallegoEventbasedVisionSurvey2022, gallegoFocusAllYou2019}. This method has been successfully applied to problems such rotational motion estimation and compenstaion \cite{gallegoAccurateAngularVelocity2017,xingEROAMEventbasedCamera2024}, motion segmentation \cite{stoffregenEventBasedMotionSegmentation2019}. Constrast maximzation problmes have also been successfully applied to rapid decision making in robotics. For instance, by seprating the motion caused by the ego-motion of the drone and an obstacle, a drone was able to doge an obstacle with relative speeds of up to 10 m/s, with compute latency of 3.5 m/s simply on a CPU. In \cite{forraiEventbasedAgileObject2023} similar principles were used to catch a fast moving object with a quadropad.
+
+\subsubsection{Learning with Event Cameras} Recent advancements in artificial neural networks have paved the way for many successful applications of standard cameras. However, the sparse and asynchronous nature of event cameras presents unique challenges to ANNs, which are typically designed for synchronous and dense data. To address this, three main approaches have emerged.
+
+\subparagraph{Synchronous, Dense ANNs} In this type of approach, the continuous stream of events is converted into a 3D voxel grid $(x,y,t)$ representation: the value of each voxel is binary, according the polarity of the accumetlated events within the voxel during the time window. This representation is similar to 2D images at high frame rates, with binary values. This method is used for image deblurring and upsampling low frame rate video to a very high frame rate with only a small memroy footprint \cite{tulyakovTimeLensEventbasedVideo2021}. This is a very common approach to process events with ANNs, but it is not ideal in the event-based paradigm because it quantizes event timestamps. 
+
+\subparagraph{Asynchronous, Sparse Graph Neural Networks} Graph neural networks (GNNs) are a class of neural networks that operate on graph-structured data. GNNs respect the sparse and asynchronous nature of event data by treating events as nodes in a graph. Each event is then connected to its neighboring events within a certain radius. This approach allows for the processing of events in a way that respects their sparse temporal and spatial relationships, and was proven succesful in tasks such object classification and action recognition \cite{biGraphBasedSpatioTemporalFeature2020, dengVoxelGraphCNN2021}
+
+\subparagraph{Asynchronous, SNNs}
+
+
+
 
 \subsubsection{Event Representations}
 Extracting meaningful information from the event stream is a crucial step in event-based vision. An event alone does not provide enough information for estimation, and so additional information, in the form of past events or extra knowledge, is needed. Different methods have been proposed, and the choice of representation depends on the specific task and application. Depending on how many events are processed simultaneously, two categories of algorithms can be distinguished: (i) methods that operate on an \textit{event-by-event basis}, where the state of the system (the estimated unknowns) can change upon the arrival of a single event, thus achieving minimum latency, and \textit{(ii)} methods that operate on \textit{groups or packets of events}, which introduce some latency. Events are commonly transformed into alternative representations, that facilitate the extraction of meaningful information. Next, popular representations are reviewed.
@@ -105,11 +109,31 @@ Extracting meaningful information from the event stream is a crucial step in eve
 
 \subparagraph{Event packets:} Events $\mathcal{E} \doteq \{e_k\}^{N_e}_{k=1}$ in a spatio-temptoal neighborhood are processed together to produce an output. Choosing the appropriate packet size $N_e$ is critical to statisfy the assumptions of the algorithms (e.g., constant motion speed during the span of the packet), which varies with the task \cite{muegglerContinuousTimeVisualInertialOdometry2018, DenseContinuousTimeOptical, bhattacharyaMonocularEventBasedVision2024}
 
+\subparagraph{Event frame/image or 2D histogram:} The events in a spatio-temporal neighborhood are converted in a simple way (e.g., by counting events or accumulating polarity pixel-wise) into an image (2D grid) that can be fed to imagebased computer vision algorithms. However, this practice is not ideal in the event-based paradigm because it quantizes event timestamps, can discard sparsity, and the resulting images are highly sensitive to the number of events used
 
+\subparagraph{Time surface (TS):} A TS is a 2D map where each pixel stores the timestamp of the last event, creating an image in which the intensity reflects recent motion history. TSs compress information but may lose effectiveness in textured scenes with frequent pixel activity.
 
+\subparagraph{Voxel Grid:} A space-time (3D) histogram of events, where each voxel represents a pixel and time interval. This representation preserves more temporal information by avoiding collapse onto a 2D grid. Event polarity can be accumulated within a voxel or spread among neighboring voxels using a kernel, enabling sub-voxel accuracy through interpolation.
 
+\subparagraph{3D point set:} Events in a spatio-temporal neighborhood are treated as points in 3D space, $(xk,yk,tk) \in \mathbb{R}^3$. Thus the temporal dimension becomes a geometric one. It is a sparse representation, and is used on point-based geometric processing methods, such as plane fitting or PointNet
 
+---
 
+\subsection{Image Reconstrunction from Events:} From Eq.~\eqref{eq:event_generation_model} and Eq.~\eqref{eq:moving_edges_event}, and following the rule of integration, it is possible to reconstruct the relative intensity of the scene from the events. The reconstruct images do not suffer from motion blur and have a very high dynamic range \cite{rebecqHighSpeedHigh2019}
+
+\subsection{Directly Processing Events Without Image Reconstruction:} There are two scholls of approaches: 
+\begin{enumerate}
+    \item \textbf{Event-by-event} methods, following Eq.~\eqref{eq:event_generation_model} 
+    \item 
+    \item \textbf{Batch} methods (contrast maximization), which process a batch of events together
+    
+   
+
+    The batch event over a time window, or number of last $n$ events are processed together. The limitation of this approach is that the latency is sacrificed, depending on how many events are processed together, or the time window used. The batch methods are more robust to noise, and can be used to estimate the camera motion, or the 3D structure of the environment \cite{rebecqHighSpeedHigh2019, DenseContinuousTimeOptical, bhattacharyaMonocularEventBasedVision2024}.
+
+\end{enumerate}
+
+----
 
 \subsection{Spiking Neural Networks}
 \subsection{Full Neuromorphic Control}
