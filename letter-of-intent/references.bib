@@ -1,3 +1,291 @@
+@misc{dengVoxelGraphCNN2021,
+  title = {A {{Voxel Graph CNN}} for {{Object Classification}} with {{Event Cameras}}},
+  author = {Deng, Yongjian and Chen, Hao and Liu, Hai and Li, Youfu},
+  year = {2021},
+  month = jun,
+  journal = {arXiv.org},
+  urldate = {2025-06-07},
+  abstract = {Event cameras attract researchers' attention due to their low power consumption, high dynamic range, and extremely high temporal resolution. Learning models on event-based object classification have recently achieved massive success by accumulating sparse events into dense frames to apply traditional 2D learning methods. Yet, these approaches necessitate heavy-weight models and are with high computational complexity due to the redundant information introduced by the sparse-to-dense conversion, limiting the potential of event cameras on real-life applications. This study aims to address the core problem of balancing accuracy and model complexity for event-based classification models. To this end, we introduce a novel graph representation for event data to exploit their sparsity better and customize a lightweight voxel graph convolutional neural network ({\textbackslash}textit\{EV-VGCNN\}) for event-based classification. Specifically, (1) using voxel-wise vertices rather than previous point-wise inputs to explicitly exploit regional 2D semantics of event streams while keeping the sparsity;(2) proposing a multi-scale feature relational layer ({\textbackslash}textit\{MFRL\}) to extract spatial and motion cues from each vertex discriminatively concerning its distances to neighbors. Comprehensive experiments show that our model can advance state-of-the-art classification accuracy with extremely low model complexity (merely 0.84M parameters).},
+  howpublished = {https://arxiv.org/abs/2106.00216v3},
+  langid = {english},
+  keywords = {.toread,Event Camera},
+  file = {/home/amit/Zotero/storage/TNU26CWX/Deng et al. - 2021 - A Voxel Graph CNN for Object Classification with Event Cameras.pdf}
+}
+
+
+@article{biGraphBasedSpatioTemporalFeature2020,
+  title = {Graph-{{Based Spatio-Temporal Feature Learning}} for {{Neuromorphic Vision Sensing}}},
+  author = {Bi, Yin and Chadha, Aaron and Abbas, Alhabib and Bourtsoulatze, Eirina and Andreopoulos, Yiannis},
+  year = {2020},
+  journal = {IEEE Transactions on Image Processing},
+  volume = {29},
+  pages = {9084--9098},
+  issn = {1057-7149, 1941-0042},
+  doi = {10.1109/TIP.2020.3023597},
+  urldate = {2025-06-07},
+  abstract = {Neuromorphic vision sensing (NVS) devices represent visual information as sequences of asynchronous discrete events (a.k.a., ``spikes'') in response to changes in scene reflectance. Unlike conventional active pixel sensing (APS), NVS allows for significantly higher event sampling rates at substantially increased energy efficiency and robustness to illumination changes. However, feature representation for NVS is far behind its APS-based counterparts, resulting in lower performance in high-level computer vision tasks. To fully utilize its sparse and asynchronous nature, we propose a compact graph representation for NVS, which allows for end-to-end learning with graph convolution neural networks. We couple this with a novel end-to-end feature learning framework that accommodates both appearancebased and motion-based tasks. The core of our framework comprises a spatial feature learning module, which utilizes residual-graph convolutional neural networks (RG-CNN), for end-to-end learning of appearance-based features directly from graphs. We extend this with our proposed Graph2Grid block and temporal feature learning module for efficiently modelling temporal dependencies over multiple graphs and a long temporal extent. We show how our framework can be configured for object classification, action recognition and action similarity labeling. Importantly, our approach preserves the spatial and temporal coherence of spike events, while requiring less computation and memory. The experimental validation shows that our proposed framework outperforms all recent methods on standard datasets. Finally, to address the absence of large real-world NVS datasets for complex recognition tasks, we introduce, evaluate and make available the American Sign Language letters (ASL-DVS), as well as human action dataset (UCF101-DVS, HMDB51-DVS and ASLAN-DVS).},
+  copyright = {https://ieeexplore.ieee.org/Xplorehelp/downloads/license-information/IEEE.html},
+  langid = {english},
+  keywords = {.toread,Cameras,Event Camera,Feature extraction,graph convolutional neural networks,human action recognition,Important,Labeling,Lighting,Neuromorphic vision sensing,Neuromorphics,object classification,Sensors,spatio-temporal feature learning,Task analysis},
+  file = {/home/amit/Zotero/storage/HTLXUKC6/Bi et al. - 2020 - Graph-Based Spatio-Temporal Feature Learning for Neuromorphic Vision Sensing.pdf;/home/amit/Zotero/storage/5Y7VMSE7/9199543.html}
+}
+
+@misc{tulyakovTimeLensEventbasedVideo2021,
+  title = {{{TimeLens}}: {{Event-based Video Frame Interpolation}}},
+  shorttitle = {{{TimeLens}}},
+  author = {Tulyakov, Stepan and Gehrig, Daniel and Georgoulis, Stamatios and Erbach, Julius and Gehrig, Mathias and Li, Yuanyou and Scaramuzza, Davide},
+  year = {2021},
+  month = jun,
+  number = {arXiv:2106.07286},
+  eprint = {2106.07286},
+  primaryclass = {cs},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.2106.07286},
+  urldate = {2025-06-07},
+  abstract = {State-of-the-art frame interpolation methods generate intermediate frames by inferring object motions in the image from consecutive key-frames. In the absence of additional information, first-order approximations, i.e. optical flow, must be used, but this choice restricts the types of motions that can be modeled, leading to errors in highly dynamic scenarios. Event cameras are novel sensors that address this limitation by providing auxiliary visual information in the blind-time between frames. They asynchronously measure per-pixel brightness changes and do this with high temporal resolution and low latency. Event-based frame interpolation methods typically adopt a synthesis-based approach, where predicted frame residuals are directly applied to the key-frames. However, while these approaches can capture non-linear motions they suffer from ghosting and perform poorly in low-texture regions with few events. Thus, synthesis-based and flow-based approaches are complementary. In this work, we introduce Time Lens, a novel indicates equal contribution method that leverages the advantages of both. We extensively evaluate our method on three synthetic and two real benchmarks where we show an up to 5.21 dB improvement in terms of PSNR over state-of-the-art frame-based and event-based methods. Finally, we release a new large-scale dataset in highly dynamic scenarios, aimed at pushing the limits of existing methods.},
+  archiveprefix = {arXiv},
+  keywords = {Computer Science - Computer Vision and Pattern Recognition},
+  file = {/home/amit/Zotero/storage/NVDGUQ9Y/Tulyakov et al. - 2021 - TimeLens Event-based Video Frame Interpolation.pdf;/home/amit/Zotero/storage/42SIEUGH/2106.html}
+}
+
+
+@inproceedings{stoffregenEventBasedMotionSegmentation2019,
+  title = {Event-{{Based Motion Segmentation}} by {{Motion Compensation}}},
+  booktitle = {2019 {{IEEE}}/{{CVF International Conference}} on {{Computer Vision}} ({{ICCV}})},
+  author = {Stoffregen, Timo and Gallego, Guillermo and Drummond, Tom and Kleeman, Lindsay and Scaramuzza, Davide},
+  year = {2019},
+  month = oct,
+  eprint = {1904.01293},
+  primaryclass = {cs},
+  pages = {7243--7252},
+  doi = {10.1109/ICCV.2019.00734},
+  urldate = {2025-06-07},
+  abstract = {In contrast to traditional cameras, whose pixels have a common exposure time, event-based cameras are novel bio-inspired sensors whose pixels work independently and asynchronously output intensity changes (called "events"), with microsecond resolution. Since events are caused by the apparent motion of objects, event-based cameras sample visual information based on the scene dynamics and are, therefore, a more natural fit than traditional cameras to acquire motion, especially at high speeds, where traditional cameras suffer from motion blur. However, distinguishing between events caused by different moving objects and by the camera's ego-motion is a challenging task. We present the first per-event segmentation method for splitting a scene into independently moving objects. Our method jointly estimates the event-object associations (i.e., segmentation) and the motion parameters of the objects (or the background) by maximization of an objective function, which builds upon recent results on event-based motion-compensation. We provide a thorough evaluation of our method on a public dataset, outperforming the state-of-the-art by as much as 10\%. We also show the first quantitative evaluation of a segmentation algorithm for event cameras, yielding around 90\% accuracy at 4 pixels relative displacement.},
+  archiveprefix = {arXiv},
+  keywords = {.toread,Computer Science - Computer Vision and Pattern Recognition,Event Camera},
+  file = {/home/amit/Zotero/storage/EMRWZIAG/Stoffregen et al. - 2019 - Event-Based Motion Segmentation by Motion Compensation.pdf;/home/amit/Zotero/storage/L6KHK4RV/1904.html}
+}
+
+
+@misc{xingEROAMEventbasedCamera2024,
+  title = {{{EROAM}}: {{Event-based Camera Rotational Odometry}} and {{Mapping}} in {{Real-time}}},
+  shorttitle = {{{EROAM}}},
+  author = {Xing, Wanli and Lin, Shijie and Yang, Linhan and Zhang, Zeqing and Du, Yanjun and Lei, Maolin and Pan, Yipeng and Pan, Jia},
+  year = {2024},
+  month = nov,
+  number = {arXiv:2411.11004},
+  eprint = {2411.11004},
+  primaryclass = {cs},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.2411.11004},
+  urldate = {2025-06-07},
+  abstract = {This paper presents EROAM, a novel event-based rotational odometry and mapping system that achieves real-time, accurate camera rotation estimation. Unlike existing approaches that rely on event generation models or contrast maximization, EROAM employs a spherical event representation by projecting events onto a unit sphere and introduces Event Spherical Iterative Closest Point (ES-ICP), a novel geometric optimization framework designed specifically for event camera data. The spherical representation simplifies rotational motion formulation while enabling continuous mapping for enhanced spatial resolution. Combined with parallel point-to-line optimization, EROAM achieves efficient computation without compromising accuracy. Extensive experiments on both synthetic and real-world datasets show that EROAM significantly outperforms state-of-the-art methods in terms of accuracy, robustness, and computational efficiency. Our method maintains consistent performance under challenging conditions, including high angular velocities and extended sequences, where other methods often fail or show significant drift. Additionally, EROAM produces high-quality panoramic reconstructions with preserved fine structural details.},
+  archiveprefix = {arXiv},
+  keywords = {Computer Science - Computer Vision and Pattern Recognition,Computer Science - Robotics,Event Camera}
+}
+
+@article{gallegoAccurateAngularVelocity2017,
+  title = {Accurate {{Angular Velocity Estimation With}} an {{Event Camera}}},
+  author = {Gallego, Guillermo and Scaramuzza, Davide},
+  year = {2017},
+  month = apr,
+  journal = {IEEE Robotics and Automation Letters},
+  volume = {2},
+  number = {2},
+  pages = {632--639},
+  issn = {2377-3766},
+  doi = {10.1109/LRA.2016.2647639},
+  urldate = {2025-06-07},
+  abstract = {We present an algorithm to estimate the rotational motion of an event camera. In contrast to traditional cameras, which produce images at a fixed rate, event cameras have independent pixels that respond asynchronously to brightness changes, with microsecond resolution. Our method leverages the type of information conveyed by these novel sensors (i.e., edges) to directly estimate the angular velocity of the camera, without requiring optical flow or image intensity estimation. The core of the method is a contrast maximization design. The method performs favorably against ground truth data and gyroscopic measurements from an Inertial Measurement Unit, even in the presence of very high-speed motions (close to 1000 deg/s).},
+  keywords = {.toread,Angular velocity,Cameras,Computer vision for other robotic applications,Estimation,Event Camera,Image edge detection,localization,Optical imaging,Robot vision systems,Trajectory},
+  file = {/home/amit/Zotero/storage/L2QYF98V/Gallego and Scaramuzza - 2017 - Accurate Angular Velocity Estimation With an Event Camera.pdf;/home/amit/Zotero/storage/4WK7KS4C/7805257.html}
+}
+
+
+@inproceedings{gallegoFocusAllYou2019,
+  title = {Focus {{Is All You Need}}: {{Loss Functions For Event-based Vision}}},
+  shorttitle = {Focus {{Is All You Need}}},
+  booktitle = {2019 {{IEEE}}/{{CVF Conference}} on {{Computer Vision}} and {{Pattern Recognition}} ({{CVPR}})},
+  author = {Gallego, Guillermo and Gehrig, Mathias and Scaramuzza, Davide},
+  year = {2019},
+  month = jun,
+  eprint = {1904.07235},
+  primaryclass = {cs},
+  pages = {12272--12281},
+  doi = {10.1109/CVPR.2019.01256},
+  urldate = {2025-06-07},
+  abstract = {Event cameras are novel vision sensors that output pixel-level brightness changes ("events") instead of traditional video frames. These asynchronous sensors offer several advantages over traditional cameras, such as, high temporal resolution, very high dynamic range, and no motion blur. To unlock the potential of such sensors, motion compensation methods have been recently proposed. We present a collection and taxonomy of twenty two objective functions to analyze event alignment in motion compensation approaches (Fig. 1). We call them Focus Loss Functions since they have strong connections with functions used in traditional shape-from-focus applications. The proposed loss functions allow bringing mature computer vision tools to the realm of event cameras. We compare the accuracy and runtime performance of all loss functions on a publicly available dataset, and conclude that the variance, the gradient and the Laplacian magnitudes are among the best loss functions. The applicability of the loss functions is shown on multiple tasks: rotational motion, depth and optical flow estimation. The proposed focus loss functions allow to unlock the outstanding properties of event cameras.},
+  archiveprefix = {arXiv},
+  keywords = {.toread,Computer Science - Computer Vision and Pattern Recognition,Computer Science - Machine Learning,Computer Science - Robotics,Event Camera,Event Cameras,important,Important},
+  file = {/home/amit/Zotero/storage/Q6X6D6T2/Gallego et al. - 2019 - Focus Is All You Need Loss Functions For Event-based Vision.pdf;/home/amit/Zotero/storage/KS4JPWXE/1904.html}
+}
+
+
+@inproceedings{gallegoUnifyingContrastMaximization2018a,
+  title = {A {{Unifying Contrast Maximization Framework}} for {{Event Cameras}}, with {{Applications}} to {{Motion}}, {{Depth}}, and {{Optical Flow Estimation}}},
+  booktitle = {2018 {{IEEE}}/{{CVF Conference}} on {{Computer Vision}} and {{Pattern Recognition}}},
+  author = {Gallego, Guillermo and Rebecq, Henri and Scaramuzza, Davide},
+  year = {2018},
+  month = jun,
+  eprint = {1804.01306},
+  primaryclass = {cs},
+  pages = {3867--3876},
+  doi = {10.1109/CVPR.2018.00407},
+  urldate = {2025-06-07},
+  abstract = {We present a unifying framework to solve several computer vision problems with event cameras: motion, depth and optical flow estimation. The main idea of our framework is to find the point trajectories on the image plane that are best aligned with the event data by maximizing an objective function: the contrast of an image of warped events. Our method implicitly handles data association between the events, and therefore, does not rely on additional appearance information about the scene. In addition to accurately recovering the motion parameters of the problem, our framework produces motion-corrected edge-like images with high dynamic range that can be used for further scene analysis. The proposed method is not only simple, but more importantly, it is, to the best of our knowledge, the first method that can be successfully applied to such a diverse set of important vision tasks with event cameras.},
+  archiveprefix = {arXiv},
+  keywords = {.toread,Computer Science - Computer Vision and Pattern Recognition,Computer Science - Robotics,event camera,Event Camera,Neuromorphic processing,Neuromorphic Processing},
+  file = {/home/amit/Zotero/storage/GY4T2Y3Y/Gallego et al. - 2018 - A Unifying Contrast Maximization Framework for Event Cameras, with Applications to Motion, Depth, an.pdf;/home/amit/Zotero/storage/QLGI6KVF/1804.html}
+}
+
+@misc{chakravarthiRecentEventCamera2024,
+  title = {Recent {{Event Camera Innovations}}: {{A Survey}}},
+  shorttitle = {Recent {{Event Camera Innovations}}},
+  author = {Chakravarthi, Bharatesh and Verma, Aayush Atul and Daniilidis, Kostas and Fermuller, Cornelia},
+  year = {2024},
+  month = aug,
+  number = {arXiv:2408.13627},
+  eprint = {2408.13627},
+  primaryclass = {cs},
+  doi = {10.48550/arXiv.2408.13627},
+  urldate = {2025-03-20},
+  abstract = {Event-based vision, inspired by the human visual system, offers transformative capabilities such as low latency, high dynamic range, and reduced power consumption. This paper presents a comprehensive survey of event cameras, tracing their evolution over time. It introduces the fundamental principles of event cameras, compares them with traditional frame cameras, and highlights their unique characteristics and operational differences. The survey covers various event camera models from leading manufacturers, key technological milestones, and influential research contributions. It explores diverse application areas across different domains and discusses essential real-world and synthetic datasets for research advancement. Additionally, the role of event camera simulators in testing and development is discussed. This survey aims to consolidate the current state of event cameras and inspire further innovation in this rapidly evolving field. To support the research community, a {\textbackslash}href\{https://github.com/chakravarthi589/Event-based-Vision\_Resources\}\{GitHub\} page categorizes past and future research articles and consolidates valuable resources.},
+  archiveprefix = {arXiv},
+  keywords = {Computer Science - Computer Vision and Pattern Recognition,Event Camera,important,Neuromorphic processing,Neuromorphic processor},
+  file = {/home/amit/Zotero/storage/CJGF5WJ3/Chakravarthi et al. - 2024 - Recent Event Camera Innovations A Survey.pdf;/home/amit/Zotero/storage/MF8NXKM7/Chakravarthi et al. - 2024 - Recent Event Camera Innovations A Survey.pdf;/home/amit/Zotero/storage/X4H9U5TQ/2408.html}
+}
+
+
+@article{sunAutonomousQuadrotorFlight2021,
+  title = {Autonomous {{Quadrotor Flight}} despite {{Rotor Failure}} with {{Onboard Vision Sensors}}: {{Frames}} vs. {{Events}}},
+  shorttitle = {Autonomous {{Quadrotor Flight}} despite {{Rotor Failure}} with {{Onboard Vision Sensors}}},
+  author = {Sun, Sihao and Cioffi, Giovanni and de Visser, Coen and Scaramuzza, Davide},
+  year = {2021},
+  month = apr,
+  journal = {IEEE Robotics and Automation Letters},
+  volume = {6},
+  number = {2},
+  eprint = {2102.13406},
+  primaryclass = {cs},
+  pages = {580--587},
+  issn = {2377-3766, 2377-3774},
+  doi = {10.1109/LRA.2020.3048875},
+  urldate = {2025-06-07},
+  abstract = {Fault-tolerant control is crucial for safety-critical systems, such as quadrotors. State-of-art flight controllers can stabilize and control a quadrotor even when subjected to the complete loss of a rotor. However, these methods rely on external sensors, such as GPS or motion capture systems, for state estimation. To the best of our knowledge, this has not yet been achieved with only onboard sensors. In this paper, we propose the first algorithm that combines fault-tolerant control and onboard vision-based state estimation to achieve position control of a quadrotor subjected to complete failure of one rotor. Experimental validations show that our approach is able to accurately control the position of a quadrotor during a motor failure scenario, without the aid of any external sensors. The primary challenge to vision-based state estimation stems from the inevitable high-speed yaw rotation (over 20 rad/s) of the damaged quadrotor, causing motion blur to cameras, which is detrimental to visual inertial odometry (VIO). We compare two types of visual inputs to the vision-based state estimation algorithm: standard frames and events. Experimental results show the advantage of using an event camera especially in low light environments due to its inherent high dynamic range and high temporal resolution. We believe that our approach will render autonomous quadrotors safer in both GPS denied or degraded environments. We release both our controller and VIO algorithm open source.},
+  archiveprefix = {arXiv},
+  keywords = {.toread,Agile Flight,Computer Science - Robotics,Neuromorphic Processing},
+  file = {/home/amit/Zotero/storage/NH57JFN9/Sun et al. - 2021 - Autonomous Quadrotor Flight despite Rotor Failure with Onboard Vision Sensors Frames vs. Events.pdf;/home/amit/Zotero/storage/NTD9XMQ9/2102.html}
+}
+
+
+@misc{rebecqHighSpeedHigh2019,
+  title = {High {{Speed}} and {{High Dynamic Range Video}} with an {{Event Camera}}},
+  author = {Rebecq, Henri and Ranftl, Ren{\'e} and Koltun, Vladlen and Scaramuzza, Davide},
+  year = {2019},
+  month = jun,
+  journal = {arXiv.org},
+  urldate = {2025-06-07},
+  abstract = {Event cameras are novel sensors that report brightness changes in the form of a stream of asynchronous "events" instead of intensity frames. They offer significant advantages with respect to conventional cameras: high temporal resolution, high dynamic range, and no motion blur. While the stream of events encodes in principle the complete visual signal, the reconstruction of an intensity image from a stream of events is an ill-posed problem in practice. Existing reconstruction approaches are based on hand-crafted priors and strong assumptions about the imaging process as well as the statistics of natural images. In this work we propose to learn to reconstruct intensity images from event streams directly from data instead of relying on any hand-crafted priors. We propose a novel recurrent network to reconstruct videos from a stream of events, and train it on a large amount of simulated event data. During training we propose to use a perceptual loss to encourage reconstructions to follow natural image statistics. We further extend our approach to synthesize color images from color event streams. Our network surpasses state-of-the-art reconstruction methods by a large margin in terms of image quality ({$>$} 20\%), while comfortably running in real-time. We show that the network is able to synthesize high framerate videos ({$>$} 5,000 frames per second) of high-speed phenomena (e.g. a bullet hitting an object) and is able to provide high dynamic range reconstructions in challenging lighting conditions. We also demonstrate the effectiveness of our reconstructions as an intermediate representation for event data. We show that off-the-shelf computer vision algorithms can be applied to our reconstructions for tasks such as object classification and visual-inertial odometry and that this strategy consistently outperforms algorithms that were specifically designed for event data.},
+  howpublished = {https://arxiv.org/abs/1906.07165v1},
+  langid = {english},
+  keywords = {.toread,Neuromorphic processing,Nueromorphic Processing},
+  file = {/home/amit/Zotero/storage/FT7KDMEQ/Rebecq et al. - 2019 - High Speed and High Dynamic Range Video with an Event Camera.pdf}
+}
+
+@article{muegglerContinuousTimeVisualInertialOdometry2018,
+  title = {Continuous-{{Time Visual-Inertial Odometry}} for {{Event Cameras}}},
+  author = {Mueggler, Elias and Gallego, Guillermo and Rebecq, Henri and Scaramuzza, Davide},
+  year = {2018},
+  month = dec,
+  journal = {IEEE Transactions on Robotics},
+  volume = {34},
+  number = {6},
+  eprint = {1702.07389},
+  primaryclass = {cs},
+  pages = {1425--1440},
+  issn = {1552-3098, 1941-0468},
+  doi = {10.1109/TRO.2018.2858287},
+  urldate = {2025-06-06},
+  abstract = {Event cameras are bio-inspired vision sensors that output pixel-level brightness changes instead of standard intensity frames. They offer significant advantages over standard cameras, namely a very high dynamic range, no motion blur, and a latency in the order of microseconds. However, due to the fundamentally different structure of the sensor's output, new algorithms that exploit the high temporal resolution and the asynchronous nature of the sensor are required. Recent work has shown that a continuous-time representation of the event camera pose can deal with the high temporal resolution and asynchronous nature of this sensor in a principled way. In this paper, we leverage such a continuous-time representation to perform visual-inertial odometry with an event camera. This representation allows direct integration of the asynchronous events with micro-second accuracy and the inertial measurements at high frequency. The event camera trajectory is approximated by a smooth curve in the space of rigid-body motions using cubic splines. This formulation significantly reduces the number of variables in trajectory estimation problems. We evaluate our method on real data from several scenes and compare the results against ground truth from a motion-capture system. We show that our method provides improved accuracy over the result of a state-of-the-art visual odometry method for event cameras. We also show that both the map orientation and scale can be recovered accurately by fusing events and inertial data. To the best of our knowledge, this is the first work on visual-inertial fusion with event cameras using a continuous-time framework.},
+  archiveprefix = {arXiv},
+  keywords = {Computer Science - Computer Vision and Pattern Recognition,Computer Science - Robotics,Neuromorphic processing},
+  file = {/home/amit/Zotero/storage/9HUY3PIL/Mueggler et al. - 2018 - Continuous-Time Visual-Inertial Odometry for Event Cameras.pdf;/home/amit/Zotero/storage/E89BYFWS/1702.html}
+}
+
+@article{paredes-vallesUnsupervisedLearningHierarchical2020,
+  title = {Unsupervised {{Learning}} of a {{Hierarchical Spiking Neural Network}} for {{Optical Flow Estimation}}: {{From Events}} to {{Global Motion Perception}}},
+  shorttitle = {Unsupervised {{Learning}} of a {{Hierarchical Spiking Neural Network}} for {{Optical Flow Estimation}}},
+  author = {{Paredes-Vall{\'e}s}, Federico and Scheper, Kirk Y. W. and de Croon, Guido C. H. E.},
+  year = {2020},
+  month = aug,
+  journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  volume = {42},
+  number = {8},
+  eprint = {1807.10936},
+  primaryclass = {cs},
+  pages = {2051--2064},
+  issn = {0162-8828, 2160-9292, 1939-3539},
+  doi = {10.1109/TPAMI.2019.2903179},
+  urldate = {2025-06-06},
+  abstract = {The combination of spiking neural networks and event-based vision sensors holds the potential of highly efficient and high-bandwidth optical flow estimation. This paper presents the first hierarchical spiking architecture in which motion (direction and speed) selectivity emerges in an unsupervised fashion from the raw stimuli generated with an event-based camera. A novel adaptive neuron model and stable spike-timing-dependent plasticity formulation are at the core of this neural network governing its spike-based processing and learning, respectively. After convergence, the neural architecture exhibits the main properties of biological visual motion systems, namely feature extraction and local and global motion perception. Convolutional layers with input synapses characterized by single and multiple transmission delays are employed for feature and local motion perception, respectively; while global motion selectivity emerges in a final fully-connected layer. The proposed solution is validated using synthetic and real event sequences. Along with this paper, we provide the cuSNN library, a framework that enables GPU-accelerated simulations of large-scale spiking neural networks. Source code and samples are available at https://github.com/tudelft/cuSNN.},
+  archiveprefix = {arXiv},
+  keywords = {.toread,Computer Science - Computer Vision and Pattern Recognition,important,Neuromorphic processing},
+  file = {/home/amit/Zotero/storage/9ML4YFHD/Paredes-Vallés et al. - 2020 - Unsupervised Learning of a Hierarchical Spiking Neural Network for Optical Flow Estimation From Eve.pdf;/home/amit/Zotero/storage/7K7X9VDK/1807.html}
+}
+
+@misc{gallegoEventbasedCameraPose2015,
+  title = {Event-Based {{Camera Pose Tracking}} Using a {{Generative Event Model}}},
+  author = {Gallego, Guillermo and Forster, Christian and Mueggler, Elias and Scaramuzza, Davide},
+  year = {2015},
+  month = oct,
+  number = {arXiv:1510.01972},
+  eprint = {1510.01972},
+  primaryclass = {cs},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.1510.01972},
+  urldate = {2025-06-06},
+  abstract = {Event-based vision sensors mimic the operation of biological retina and they represent a major paradigm shift from traditional cameras. Instead of providing frames of intensity measurements synchronously, at artificially chosen rates, event-based cameras provide information on brightness changes asynchronously, when they occur. Such non-redundant pieces of information are called "events". These sensors overcome some of the limitations of traditional cameras (response time, bandwidth and dynamic range) but require new methods to deal with the data they output. We tackle the problem of event-based camera localization in a known environment, without additional sensing, using a probabilistic generative event model in a Bayesian filtering framework. Our main contribution is the design of the likelihood function used in the filter to process the observed events. Based on the physical characteristics of the sensor and on empirical evidence of the Gaussian-like distribution of spiked events with respect to the brightness change, we propose to use the contrast residual as a measure of how well the estimated pose of the event-based camera and the environment explain the observed events. The filter allows for localization in the general case of six degrees-of-freedom motions.},
+  archiveprefix = {arXiv},
+  keywords = {Computer Science - Computer Vision and Pattern Recognition,Computer Science - Robotics,Neuromorphic processing},
+  file = {/home/amit/Zotero/storage/3SZ6D4X7/Gallego et al. - 2015 - Event-based Camera Pose Tracking using a Generative Event Model.pdf;/home/amit/Zotero/storage/K4NHXG2E/1510.html}
+}
+
+@inproceedings{falangaPAMPCPerceptionAwareModel2018,
+  title = {{{PAMPC}}: {{Perception-Aware Model Predictive Control}} for {{Quadrotors}}},
+  shorttitle = {{{PAMPC}}},
+  booktitle = {2018 {{IEEE}}/{{RSJ International Conference}} on {{Intelligent Robots}} and {{Systems}} ({{IROS}})},
+  author = {Falanga, Davide and Foehn, Philipp and Lu, Peng and Scaramuzza, Davide},
+  year = {2018},
+  month = oct,
+  pages = {1--8},
+  issn = {2153-0866},
+  doi = {10.1109/IROS.2018.8593739},
+  urldate = {2025-06-03},
+  abstract = {We present the first perception-aware model predictive control framework for quadrotors that unifies control and planning with respect to action and perception objectives. Our framework leverages numerical optimization to compute trajectories that satisfy the system dynamics and require control inputs within the limits of the platform. Simultaneously, it optimizes perception objectives for robust and reliable sensing by maximizing the visibility of a point of interest and minimizing its velocity in the image plane. Considering both perception and action objectives for motion planning and control is challenging due to the possible conflicts arising from their respective requirements. For example, for a quadrotor to track a reference trajectory, it needs to rotate to align its thrust with the direction of the desired acceleration. However, the perception objective might require to minimize such rotation to maximize the visibility of a point of interest. A model-based optimization framework, able to consider both perception and action objectives and couple them through the system dynamics, is therefore necessary. Our perception-aware model predictive control framework works in a receding-horizon fashion by iteratively solving a non-linear optimization problem. It is capable of running in real-time, fully onboard our lightweight, small-scale quadrotor using a low-power ARM computer, together with a visual-inertial odometry pipeline. We validate our approach in experiments demonstrating (I) the conflict between perception and action objectives, and (II) improved behavior in extremely challenging lighting conditions.},
+  keywords = {Agile Flight,Cameras,MPC,Optimization,Path planning,Planning,Predictive control,Robot vision systems,Trajectory},
+  file = {/home/amit/Zotero/storage/HDY9Q8S5/Falanga et al. - 2018 - PAMPC Perception-Aware Model Predictive Control for Quadrotors.pdf;/home/amit/Zotero/storage/R437M59W/8593739.html}
+}
+
+
+@article{scaramuzzaVisionControlledMicroFlying2014,
+  title = {Vision-{{Controlled Micro Flying Robots}}: {{From System Design}} to {{Autonomous Navigation}} and {{Mapping}} in {{GPS-Denied Environments}}},
+  shorttitle = {Vision-{{Controlled Micro Flying Robots}}},
+  author = {Scaramuzza, Davide and Achtelik, Michael C. and Doitsidis, Lefteris and Friedrich, Fraundorfer and Kosmatopoulos, Elias and Martinelli, Agostino and Achtelik, Markus W. and Chli, Margarita and Chatzichristofis, Savvas and Kneip, Laurent and Gurdan, Daniel and Heng, Lionel and Lee, Gim Hee and Lynen, Simon and Pollefeys, Marc and Renzaglia, Alessandro and Siegwart, Roland and Stumpf, Jan Carsten and Tanskanen, Petri and Troiani, Chiara and Weiss, Stephan and Meier, Lorenz},
+  year = {2014},
+  month = sep,
+  journal = {IEEE Robotics \& Automation Magazine},
+  volume = {21},
+  number = {3},
+  pages = {26--40},
+  issn = {1558-223X},
+  doi = {10.1109/MRA.2014.2322295},
+  urldate = {2025-06-03},
+  abstract = {Autonomous microhelicopters will soon play a major role in tasks like search and rescue, environment monitoring, security surveillance, and inspection. If they are further realized in small scale, they can also be used in narrow outdoor and indoor environments and represent only a limited risk for people. However, for such operations, navigating based only on global positioning system (GPS) information is not sufficient. Fully autonomous operation in cities or other dense environments requires microhelicopters to fly at low altitudes, where GPS signals are often shadowed, or indoors and to actively explore unknown environments while avoiding collisions and creating maps. This involves a number of challenges on all levels of helicopter design, perception, actuation, control, and navigation, which still have to be solved. The Swarm of Micro Flying Robots (SFLY) project was a European Union-funded project with the goal of creating a swarm of vision-controlled microaerial vehicles (MAVs) capable of autonomous navigation, three-dimensional (3-D) mapping, and optimal surveillance coverage in GPS-denied environments. The SFLY MAVs do not rely on remote control, radio beacons, or motion-capture systems but can fly all by themselves using only a single onboard camera and an inertial measurement unit (IMU). This article describes the technical challenges that have been faced and the results achieved from hardware design and embedded programming to vision-based navigation and mapping, with an overview of how all the modules work and how they have been integrated into the final system. Code, data sets, and videos are publicly available to the robotics community. Experimental results demonstrating three MAVs navigating autonomously in an unknown GPS-denied environment and performing 3-D mapping and optimal surveillance coverage are presented.},
+  keywords = {Aircraft navigation,Autonomous microhelicopters,Batteries,Drones,Global Positioning System,Helicopters,Intelligent vehicles,Mobile robots,Payloads,Robot navigation,Surveillance},
+  file = {/home/amit/Zotero/storage/KUBEAPAR/6880770.html}
+}
+
+
 @incollection{florenceIntegratedPerceptionControl2020,
   title = {Integrated {{Perception}} and {{Control}} at {{High Speed}}: {{Evaluating Collision Avoidance Maneuvers Without Maps}}},
   shorttitle = {Integrated {{Perception}} and {{Control}} at {{High Speed}}},
