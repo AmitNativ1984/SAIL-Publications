@@ -97,43 +97,9 @@ Event-by-event methods have been proven successful in tasks such as optical flow
 
 \subparagraph{Asynchronous, Sparse Graph Neural Networks} Graph neural networks (GNNs) are a class of neural networks that operate on graph-structured data. GNNs respect the sparse and asynchronous nature of event data by treating events as nodes in a graph. Each event is then connected to its neighboring events within a certain radius. This approach allows for the processing of events in a way that respects their sparse temporal and spatial relationships, and was proven succesful in tasks such object classification and action recognition \cite{biGraphBasedSpatioTemporalFeature2020, dengVoxelGraphCNN2021}
 
-\subparagraph{Asynchronous, SNNs}
-
-
-
-
-\subsubsection{Event Representations}
-Extracting meaningful information from the event stream is a crucial step in event-based vision. An event alone does not provide enough information for estimation, and so additional information, in the form of past events or extra knowledge, is needed. Different methods have been proposed, and the choice of representation depends on the specific task and application. Depending on how many events are processed simultaneously, two categories of algorithms can be distinguished: (i) methods that operate on an \textit{event-by-event basis}, where the state of the system (the estimated unknowns) can change upon the arrival of a single event, thus achieving minimum latency, and \textit{(ii)} methods that operate on \textit{groups or packets of events}, which introduce some latency. Events are commonly transformed into alternative representations, that facilitate the extraction of meaningful information. Next, popular representations are reviewed.
-
-\subparagraph{Individual events:} $e_k \doteq (\textbf{x}_k,t_k,p_k)$ are used by event-by-event processing methods, such as SNN. The SNN has additional information, built up from past events or given by additional knowledge, that is fused with incoming events asynchronously to produce an output \cite{paredes-vallesUnsupervisedLearningHierarchical2020,paredes-vallesFullyNeuromorphicVision2023b}.
-
-\subparagraph{Event packets:} Events $\mathcal{E} \doteq \{e_k\}^{N_e}_{k=1}$ in a spatio-temptoal neighborhood are processed together to produce an output. Choosing the appropriate packet size $N_e$ is critical to statisfy the assumptions of the algorithms (e.g., constant motion speed during the span of the packet), which varies with the task \cite{muegglerContinuousTimeVisualInertialOdometry2018, DenseContinuousTimeOptical, bhattacharyaMonocularEventBasedVision2024}
-
-\subparagraph{Event frame/image or 2D histogram:} The events in a spatio-temporal neighborhood are converted in a simple way (e.g., by counting events or accumulating polarity pixel-wise) into an image (2D grid) that can be fed to imagebased computer vision algorithms. However, this practice is not ideal in the event-based paradigm because it quantizes event timestamps, can discard sparsity, and the resulting images are highly sensitive to the number of events used
-
-\subparagraph{Time surface (TS):} A TS is a 2D map where each pixel stores the timestamp of the last event, creating an image in which the intensity reflects recent motion history. TSs compress information but may lose effectiveness in textured scenes with frequent pixel activity.
-
-\subparagraph{Voxel Grid:} A space-time (3D) histogram of events, where each voxel represents a pixel and time interval. This representation preserves more temporal information by avoiding collapse onto a 2D grid. Event polarity can be accumulated within a voxel or spread among neighboring voxels using a kernel, enabling sub-voxel accuracy through interpolation.
-
-\subparagraph{3D point set:} Events in a spatio-temporal neighborhood are treated as points in 3D space, $(xk,yk,tk) \in \mathbb{R}^3$. Thus the temporal dimension becomes a geometric one. It is a sparse representation, and is used on point-based geometric processing methods, such as plane fitting or PointNet
+\subparagraph{Asynchronous, SNNs} Spiking neural networks (SNNs) are inherently suited for processing asynchronous and sparse data, making them an ideal match for event-based vision. By integrating an event camera with an SNN deployed on a neuromorphic chip, such as Intel's Loihi, robots can process visual information at the sensor's native speed, enabling near-instant reactions to changes while consuming significantly less energy compared to frame-based systems. SNNs have demonstrated remarkable efficiency in handling event streams: for instance, an SNN-based optical flow estimation for driving scenarios, utilizing a U-Net architecture on event data, successfully produced dense flow maps after training with surrogate gradients \textbf{frontiersin.org}. Similarly, spiking networks have been applied to event-based segmentation tasks, with models like SpikeSEG and SpikeMS processing DVS inputs to segment scenes or detect motion directly from spike streams rather than images \textbf{pmc.ncbi.nlm.nih.gov, pmc.ncbi.nlm.nih.gov}. These methods achieve accuracy comparable to frame-based deep networks while consuming significantly less energy—often tens of times less \textbf{pmc.ncbi.nlm.nih.gov}. Such energy efficiency is crucial for mobile robots and drones operating with limited power resources. Although challenges persist in scaling and training these networks, recent advancements have been substantial. SNNs are establishing themselves as a promising solution in scenarios requiring rapid, efficient, and event-driven intelligence. In the coming years, spiking neural networks are expected to evolve from experimental systems to essential components of robotic platforms, leveraging their strengths in temporal processing and energy-efficient operation.
 
 ---
-
-\subsection{Image Reconstrunction from Events:} From Eq.~\eqref{eq:event_generation_model} and Eq.~\eqref{eq:moving_edges_event}, and following the rule of integration, it is possible to reconstruct the relative intensity of the scene from the events. The reconstruct images do not suffer from motion blur and have a very high dynamic range \cite{rebecqHighSpeedHigh2019}
-
-\subsection{Directly Processing Events Without Image Reconstruction:} There are two scholls of approaches: 
-\begin{enumerate}
-    \item \textbf{Event-by-event} methods, following Eq.~\eqref{eq:event_generation_model} 
-    \item 
-    \item \textbf{Batch} methods (contrast maximization), which process a batch of events together
-    
-   
-
-    The batch event over a time window, or number of last $n$ events are processed together. The limitation of this approach is that the latency is sacrificed, depending on how many events are processed together, or the time window used. The batch methods are more robust to noise, and can be used to estimate the camera motion, or the 3D structure of the environment \cite{rebecqHighSpeedHigh2019, DenseContinuousTimeOptical, bhattacharyaMonocularEventBasedVision2024}.
-
-\end{enumerate}
-
-----
 
 \subsection{Spiking Neural Networks}
 \subsection{Full Neuromorphic Control}
