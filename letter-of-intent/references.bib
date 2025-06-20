@@ -1,3 +1,105 @@
+@article{loquercioDeepDroneRacing2020,
+  title = {Deep {{Drone Racing}}: {{From Simulation}} to {{Reality With Domain Randomization}}},
+  shorttitle = {Deep {{Drone Racing}}},
+  author = {Loquercio, Antonio and Kaufmann, Elia and Ranftl, Ren{\'e} and Dosovitskiy, Alexey and Koltun, Vladlen and Scaramuzza, Davide},
+  year = {2020},
+  month = feb,
+  journal = {IEEE Transactions on Robotics},
+  volume = {36},
+  number = {1},
+  pages = {1--14},
+  issn = {1941-0468},
+  doi = {10.1109/TRO.2019.2942989},
+  urldate = {2025-06-19},
+  abstract = {Dynamically changing environments, unreliable state estimation, and operation under severe resource constraints are fundamental challenges that limit the deployment of small autonomous drones. We address these challenges in the context of autonomous, vision-based drone racing in dynamic environments. A racing drone must traverse a track with possibly moving gates at high speed. We enable this functionality by combining the performance of a state-of-the-art planning and control system with the perceptual awareness of a convolutional neural network. The resulting modular system is both platform independent and domain independent: it is trained in simulation and deployed on a physical quadrotor without any fine-tuning. The abundance of simulated data, generated via domain randomization, makes our system robust to changes of illumination and gate appearance. To the best of our knowledge, our approach is the first to demonstrate zero-shot sim-to-real transfer on the task of agile drone flight. We extensively test the precision and robustness of our system, both in simulation and on a physical platform, and show significant improvements over the state of the art.},
+  keywords = {.toread,Agile Flight,Drone racing,Drones,important,learning agile flight,learning for control,Navigation,RL,Robot sensing systems,Simulation,State estimation,Training,Trajectory},
+  file = {/home/amit/Zotero/storage/7HVREH9I/Loquercio et al. - 2020 - Deep Drone Racing From Simulation to Reality With Domain Randomization.pdf}
+}
+
+
+@article{penickaLearningMinimumTimeFlight2022,
+  title = {Learning {{Minimum-Time Flight}} in {{Cluttered Environments}}},
+  author = {Penicka, Robert and Song, Yunlong and Kaufmann, Elia and Scaramuzza, Davide},
+  year = {2022},
+  month = jul,
+  journal = {IEEE Robotics and Automation Letters},
+  volume = {7},
+  number = {3},
+  eprint = {2203.15052},
+  primaryclass = {cs},
+  pages = {7209--7216},
+  issn = {2377-3766, 2377-3774},
+  doi = {10.1109/LRA.2022.3181755},
+  urldate = {2025-06-03},
+  abstract = {We tackle the problem of minimum-time flight for a quadrotor through a sequence of waypoints in the presence of obstacles while exploiting the full quadrotor dynamics. Early works relied on simplified dynamics or polynomial trajectory representations that did not exploit the full actuator potential of the quadrotor, and, thus, resulted in suboptimal solutions. Recent works can plan minimum-time trajectories; yet, the trajectories are executed with control methods that do not account for obstacles. Thus, a successful execution of such trajectories is prone to errors due to model mismatch and in-flight disturbances. To this end, we leverage deep reinforcement learning and classical topological path planning to train robust neural-network controllers for minimum-time quadrotor flight in cluttered environments. The resulting neural network controller demonstrates substantially better performance of up to 19{\textbackslash}\% over state-of-the-art methods. More importantly, the learned policy solves the planning and control problem simultaneously online to account for disturbances, thus achieving much higher robustness. As such, the presented method achieves 100\% success rate of flying minimum-time policies without collision, while traditional planning and control approaches achieve only 40\%. The proposed method is validated in both simulation and the real world, with quadrotor speeds of up to 42km/h and accelerations of 3.6g.},
+  archiveprefix = {arXiv},
+  keywords = {.toread,Agile Flight,Computer Science - Robotics,important,Important,path planning},
+  file = {/home/amit/Zotero/storage/3DHIC32Y/Penicka et al. - 2022 - Learning Minimum-Time Flight in Cluttered Environments.pdf;/home/amit/Zotero/storage/HKRN8QXG/2203.html}
+}
+
+@misc{xuOmniDronesEfficientFlexible2023,
+  title = {{{OmniDrones}}: {{An Efficient}} and {{Flexible Platform}} for {{Reinforcement Learning}} in {{Drone Control}}},
+  shorttitle = {{{OmniDrones}}},
+  author = {Xu, Botian and Gao, Feng and Yu, Chao and Zhang, Ruize and Wu, Yi and Wang, Yu},
+  year = {2023},
+  month = sep,
+  journal = {arXiv.org},
+  urldate = {2025-06-11},
+  abstract = {In this work, we introduce OmniDrones, an efficient and flexible platform tailored for reinforcement learning in drone control, built on Nvidia's Omniverse Isaac Sim. It employs a bottom-up design approach that allows users to easily design and experiment with various application scenarios on top of GPU-parallelized simulations. It also offers a range of benchmark tasks, presenting challenges ranging from single-drone hovering to over-actuated system tracking. In summary, we propose an open-sourced drone simulation platform, equipped with an extensive suite of tools for drone learning. It includes 4 drone models, 5 sensor modalities, 4 control modes, over 10 benchmark tasks, and a selection of widely used RL baselines. To showcase the capabilities of OmniDrones and to support future research, we also provide preliminary results on these benchmark tasks. We hope this platform will encourage further studies on applying RL to practical drone systems.},
+  howpublished = {https://arxiv.org/abs/2309.12825v1},
+  langid = {english},
+  keywords = {simulator},
+  file = {/home/amit/Zotero/storage/SETMB7HQ/Xu et al. - 2023 - OmniDrones An Efficient and Flexible Platform for Reinforcement Learning in Drone Control.pdf}
+}
+
+
+@misc{songFlightmareFlexibleQuadrotor2020,
+  title = {Flightmare: {{A Flexible Quadrotor Simulator}}},
+  shorttitle = {Flightmare},
+  author = {Song, Yunlong and Naji, Selim and Kaufmann, Elia and Loquercio, Antonio and Scaramuzza, Davide},
+  year = {2020},
+  month = sep,
+  journal = {arXiv.org},
+  urldate = {2025-06-11},
+  abstract = {State-of-the-art quadrotor simulators have a rigid and highly-specialized structure: either are they really fast, physically accurate, or photo-realistic. In this work, we propose a novel quadrotor simulator: Flightmare. Flightmare is composed of two main components: a configurable rendering engine built on Unity and a flexible physics engine for dynamics simulation. Those two components are totally decoupled and can run independently of each other. This makes our simulator extremely fast: rendering achieves speeds of up to 230 Hz, while physics simulation of up to 200,000 Hz on a laptop. In addition, Flightmare comes with several desirable features: (i) a large multi-modal sensor suite, including an interface to extract the 3D point-cloud of the scene; (ii) an API for reinforcement learning which can simulate hundreds of quadrotors in parallel; and (iii) integration with a virtual-reality headset for interaction with the simulated environment. We demonstrate the flexibility of Flightmare by using it for two different robotic tasks: quadrotor control using deep reinforcement learning and collision-free path planning in a complex 3D environment.},
+  howpublished = {https://arxiv.org/abs/2009.00563v2},
+  langid = {english},
+  keywords = {.toread,Agile Flight,important,simulator},
+  file = {/home/amit/Zotero/storage/WJQPS7WI/Song et al. - 2020 - Flightmare A Flexible Quadrotor Simulator.pdf}
+}
+
+
+@misc{zhangV2CEVideoContinuous2023,
+  title = {{{V2CE}}: {{Video}} to {{Continuous Events Simulator}}},
+  shorttitle = {{{V2CE}}},
+  author = {Zhang, Zhongyang and Cui, Shuyang and Chai, Kaidong and Yu, Haowen and Dasgupta, Subhasis and Mahbub, Upal and Rahman, Tauhidur},
+  year = {2023},
+  month = sep,
+  journal = {arXiv.org},
+  urldate = {2025-06-11},
+  abstract = {Dynamic Vision Sensor (DVS)-based solutions have recently garnered significant interest across various computer vision tasks, offering notable benefits in terms of dynamic range, temporal resolution, and inference speed. However, as a relatively nascent vision sensor compared to Active Pixel Sensor (APS) devices such as RGB cameras, DVS suffers from a dearth of ample labeled datasets. Prior efforts to convert APS data into events often grapple with issues such as a considerable domain shift from real events, the absence of quantified validation, and layering problems within the time axis. In this paper, we present a novel method for video-to-events stream conversion from multiple perspectives, considering the specific characteristics of DVS. A series of carefully designed losses helps enhance the quality of generated event voxels significantly. We also propose a novel local dynamic-aware timestamp inference strategy to accurately recover event timestamps from event voxels in a continuous fashion and eliminate the temporal layering problem. Results from rigorous validation through quantified metrics at all stages of the pipeline establish our method unquestionably as the current state-of-the-art (SOTA).},
+  howpublished = {https://arxiv.org/abs/2309.08891v2},
+  langid = {english},
+  keywords = {.toread,Event Camera,important,Sim-to-real transfer,simulator},
+  file = {/home/amit/Zotero/storage/E7IHGDU3/Zhang et al. - 2023 - V2CE Video to Continuous Events Simulator.pdf}
+}
+
+@misc{gehrigVideoEventsRecycling2019,
+  title = {Video to {{Events}}: {{Recycling Video Datasets}} for {{Event Cameras}}},
+  shorttitle = {Video to {{Events}}},
+  author = {Gehrig, Daniel and Gehrig, Mathias and {Hidalgo-Carri{\'o}}, Javier and Scaramuzza, Davide},
+  year = {2019},
+  month = dec,
+  journal = {arXiv.org},
+  urldate = {2025-06-11},
+  abstract = {Event cameras are novel sensors that output brightness changes in the form of a stream of asynchronous "events" instead of intensity frames. They offer significant advantages with respect to conventional cameras: high dynamic range (HDR), high temporal resolution, and no motion blur. Recently, novel learning approaches operating on event data have achieved impressive results. Yet, these methods require a large amount of event data for training, which is hardly available due the novelty of event sensors in computer vision research. In this paper, we present a method that addresses these needs by converting any existing video dataset recorded with conventional cameras to synthetic event data. This unlocks the use of a virtually unlimited number of existing video datasets for training networks designed for real event data. We evaluate our method on two relevant vision tasks, i.e., object recognition and semantic segmentation, and show that models trained on synthetic events have several benefits: (i) they generalize well to real event data, even in scenarios where standard-camera images are blurry or overexposed, by inheriting the outstanding properties of event cameras; (ii) they can be used for fine-tuning on real data to improve over state-of-the-art for both classification and semantic segmentation.},
+  howpublished = {https://arxiv.org/abs/1912.03095v2},
+  langid = {english},
+  keywords = {.toread,Event Camera,important},
+  file = {/home/amit/Zotero/storage/HV2N5T69/Gehrig et al. - 2019 - Video to Events Recycling Video Datasets for Event Cameras.pdf}
+}
+
+
 @article{parkDesigningSpikingNeural2025,
   title = {Designing {{Spiking Neural Network-Based Reinforcement Learning}} for {{3D Robotic Arm Applications}}},
   author = {Park, Yuntae and Lee, Jiwoon and Sim, Donggyu and Cho, Youngho and Park, Cheolsoo},
@@ -804,46 +906,6 @@
   file = {/home/amit/Zotero/storage/DSFAFNHX/Vidal et al. - 2018 - Ultimate SLAM Combining Events, Images, and IMU for Robust Visual SLAM in HDR and High Speed Scenar.pdf;/home/amit/Zotero/storage/UTESSM8F/1709.html}
 }
 
-@misc{iaboniEventbasedSpikingNeural2024,
-  title = {Event-Based {{Spiking Neural Networks}} for {{Object Detection}}: {{A Review}} of {{Datasets}}, {{Architectures}}, {{Learning Rules}}, and {{Implementation}}},
-  shorttitle = {Event-Based {{Spiking Neural Networks}} for {{Object Detection}}},
-  author = {Iaboni, Craig and Abichandani, Pramod},
-  year = {2024},
-  month = nov,
-  number = {arXiv:2411.17006},
-  eprint = {2411.17006},
-  primaryclass = {cs},
-  publisher = {arXiv},
-  doi = {10.48550/arXiv.2411.17006},
-  urldate = {2025-05-30},
-  abstract = {Spiking Neural Networks (SNNs) represent a biologically inspired paradigm offering an energy-efficient alternative to conventional artificial neural networks (ANNs) for Computer Vision (CV) applications. This paper presents a systematic review of datasets, architectures, learning methods, implementation techniques, and evaluation methodologies used in CV-based object detection tasks using SNNs. Based on an analysis of 151 journal and conference articles, the review codifies: 1) the effectiveness of fully connected, convolutional, and recurrent architectures; 2) the performance of direct unsupervised, direct supervised, and indirect learning methods; and 3) the trade-offs in energy consumption, latency, and memory in neuromorphic hardware implementations. An open-source repository along with detailed examples of Python code and resources for building SNN models, event-based data processing, and SNN simulations are provided. Key challenges in SNN training, hardware integration, and future directions for CV applications are also identified.},
-  archiveprefix = {arXiv},
-  keywords = {Computer Science - Computer Vision and Pattern Recognition,Neuromorphic processing},
-  file = {/home/amit/Zotero/storage/6ACK8TL7/Iaboni and Abichandani - 2024 - Event-based Spiking Neural Networks for Object Detection A Review of Datasets, Architectures, Learn.pdf;/home/amit/Zotero/storage/KSTTLRA6/2411.html}
-}
-
-
-@article{maassNetworksSpikingNeurons1997a,
-  title = {Networks of Spiking Neurons: {{The}} Third Generation of Neural Network Models},
-  shorttitle = {Networks of Spiking Neurons},
-  author = {Maass, Wolfgang},
-  year = {1997},
-  month = dec,
-  journal = {Neural Networks},
-  volume = {10},
-  number = {9},
-  pages = {1659--1671},
-  issn = {08936080},
-  doi = {10.1016/S0893-6080(97)00011-7},
-  urldate = {2025-05-30},
-  abstract = {The computational power of formal models for networks of spiking neurons is compared with that of other neural network models based on McCulloch Pitts neurons (i.e., threshold gates), respectively, sigmoidal gates. In particular it is shown that networks of spiking neurons are, with regard to the number of neurons that are needed, computationally more powerful than these other neural network models. A concrete biologically relevant function is exhibited which can be computed by a single spiking neuron (for biologically reasonable values of its parameters), but which requires hundreds of hidden units on a sigmoidal neural net. On the other hand, it is known that any function that can be computed by a small sigmoidal neural net can also be computed by a small network of spiking neurons. This article does not assume prior knowledge about spiking neurons, and it contains an extensive list of references to the currently available literature on computations in networks of spiking neurons and relevant results from neurobiology. {\copyright} 1997 Elsevier Science Ltd. All rights reserved.},
-  copyright = {https://www.elsevier.com/tdm/userlicense/1.0/},
-  langid = {english},
-  keywords = {Neuromorphic processing},
-  file = {/home/amit/Zotero/storage/JBQH96PH/Maass - 1997 - Networks of spiking neurons The third generation of neural network models.pdf}
-}
-
-
 @online{bhattacharyaVisionTransformersEndtoEnd2025,
   title = {Vision {{Transformers}} for {{End-to-End Vision-Based Quadrotor Obstacle Avoidance}}},
   author = {Bhattacharya, Anish and Rao, Nishanth and Parikh, Dhruv and Kunapuli, Pratik and Wu, Yuwei and Tao, Yuezhan and Matni, Nikolai and Kumar, Vijay},
@@ -852,30 +914,10 @@
   eprinttype = {arXiv},
   eprintclass = {cs},
   doi = {10.48550/arXiv.2405.10391},
-  url = {http://arxiv.org/abs/2405.10391},
-  urldate = {2025-04-04},
   abstract = {We demonstrate the capabilities of an attention-based end-to-end approach for high-speed vision-based quadrotor obstacle avoidance in dense, cluttered environments, with comparison to various state-of-the-art learning architectures. Quadrotor unmanned aerial vehicles (UAVs) have tremendous maneuverability when flown fast; however, as flight speed increases, traditional model-based approaches to navigation via independent perception, mapping, planning, and control modules breaks down due to increased sensor noise, compounding errors, and increased processing latency. Thus, learning-based, end-to-end vision-to-control networks have shown to have great potential for online control of these fast robots through cluttered environments. We train and compare convolutional, U-Net, and recurrent architectures against vision transformer (ViT) models for depth image-to-control in high-fidelity simulation, observing that ViT models are more effective than others as quadrotor speeds increase and in generalization to unseen environments, while the addition of recurrence further improves performance while reducing quadrotor energy cost across all tested flight speeds. We assess performance at speeds of up to 7m/s in simulation and hardware. To the best of our knowledge, this is the first work to utilize vision transformers for end-to-end vision-based quadrotor control.},
   pubstate = {prepublished},
   keywords = {.toread,Agile Flight,Computer Science - Artificial Intelligence,Computer Science - Robotics,Electrical Engineering and Systems Science - Image and Video Processing,important,toread},
   file = {/home/amit/Zotero/storage/X7YD9L7F/Bhattacharya et al. - 2025 - Vision Transformers for End-to-End Vision-Based Quadrotor Obstacle Avoidance.pdf;/home/amit/Zotero/storage/2ZKJRV7X/2405.html;/home/amit/Zotero/storage/9C9Z7X6E/vitfly.html}
-}
-
-@misc{romeroDreamFlyModelBased2025a,
-  title = {Dream to {{Fly}}: {{Model-Based Reinforcement Learning}} for {{Vision-Based Drone Flight}}},
-  shorttitle = {Dream to {{Fly}}},
-  author = {Romero, Angel and Shenai, Ashwin and Geles, Ismail and Aljalbout, Elie and Scaramuzza, Davide},
-  year = {2025},
-  month = jan,
-  number = {arXiv:2501.14377},
-  eprint = {2501.14377},
-  primaryclass = {cs},
-  publisher = {arXiv},
-  doi = {10.48550/arXiv.2501.14377},
-  urldate = {2025-05-30},
-  abstract = {Autonomous drone racing has risen as a challenging robotic benchmark for testing the limits of learning, perception, planning, and control. Expert human pilots are able to agilely fly a drone through a race track by mapping the real-time feed from a single onboard camera directly to control commands. Recent works in autonomous drone racing attempting direct pixel-to-commands control policies (without explicit state estimation) have relied on either intermediate representations that simplify the observation space or performed extensive bootstrapping using Imitation Learning (IL). This paper introduces an approach that learns policies from scratch, allowing a quadrotor to autonomously navigate a race track by directly mapping raw onboard camera pixels to control commands, just as human pilots do. By leveraging model-based reinforcement learning{\textasciitilde}(RL) - specifically DreamerV3 - we train visuomotor policies capable of agile flight through a race track using only raw pixel observations. While model-free RL methods such as PPO struggle to learn under these conditions, DreamerV3 efficiently acquires complex visuomotor behaviors. Moreover, because our policies learn directly from pixel inputs, the perception-aware reward term employed in previous RL approaches to guide the training process is no longer needed. Our experiments demonstrate in both simulation and real-world flight how the proposed approach can be deployed on agile quadrotors. This approach advances the frontier of vision-based autonomous flight and shows that model-based RL is a promising direction for real-world robotics.},
-  archiveprefix = {arXiv},
-  keywords = {.toread,Agile Flight,Computer Science - Robotics},
-  file = {/home/amit/Zotero/storage/GHZRWZJR/Romero et al. - 2025 - Dream to Fly Model-Based Reinforcement Learning for Vision-Based Drone Flight.pdf;/home/amit/Zotero/storage/K52Y2VFV/2501.html}
 }
 
 @article{kaufmannChampionlevelDroneRacing2023,
@@ -889,8 +931,6 @@
   pages = {982--987},
   issn = {0028-0836, 1476-4687},
   doi = {10.1038/s41586-023-06419-4},
-  url = {https://www.nature.com/articles/s41586-023-06419-4},
-  urldate = {2025-05-29},
   abstract = {Abstract                            First-person view (FPV) drone racing is a televised sport in which professional competitors pilot high-speed aircraft through a 3D circuit. Each pilot sees the environment from the perspective of their drone by means of video streamed from an onboard camera. Reaching the level of professional pilots with an autonomous drone is challenging because the robot needs to fly at its physical limits while estimating its speed and location in the circuit exclusively from onboard sensors               1               . Here we introduce Swift, an autonomous system that can race physical vehicles at the level of the human world champions. The system combines deep reinforcement learning (RL) in simulation with data collected in the physical world. Swift competed against three human champions, including the world champions of two international leagues, in real-world head-to-head races. Swift won several races against each of the human champions and demonstrated the fastest recorded race time. This work represents a milestone for mobile robotics and machine intelligence               2               , which may inspire the deployment of hybrid learning-based solutions in other physical systems.},
   langid = {english},
   file = {/home/amit/Zotero/storage/WTHVDE7I/Kaufmann et al. - 2023 - Champion-level drone racing using deep reinforcement learning.pdf}
@@ -962,40 +1002,6 @@
   archiveprefix = {arXiv},
   keywords = {Agile Flight,Computer Science - Robotics,event camera,important},
   file = {/home/amit/Zotero/storage/MSAW85B8/Bhattacharya et al. - 2024 - Monocular Event-Based Vision for Obstacle Avoidance with a Quadrotor.pdf;/home/amit/Zotero/storage/CDWIDJZA/2411.html}
-}
-
-@misc{bhattacharyaVisionTransformersEndtoEnd2025,
-  title = {Vision {{Transformers}} for {{End-to-End Vision-Based Quadrotor Obstacle Avoidance}}},
-  author = {Bhattacharya, Anish and Rao, Nishanth and Parikh, Dhruv and Kunapuli, Pratik and Wu, Yuwei and Tao, Yuezhan and Matni, Nikolai and Kumar, Vijay},
-  year = {2025},
-  month = apr,
-  number = {arXiv:2405.10391},
-  eprint = {2405.10391},
-  primaryclass = {cs},
-  publisher = {arXiv},
-  doi = {10.48550/arXiv.2405.10391},
-  urldate = {2025-04-04},
-  abstract = {We demonstrate the capabilities of an attention-based end-to-end approach for high-speed vision-based quadrotor obstacle avoidance in dense, cluttered environments, with comparison to various state-of-the-art learning architectures. Quadrotor unmanned aerial vehicles (UAVs) have tremendous maneuverability when flown fast; however, as flight speed increases, traditional model-based approaches to navigation via independent perception, mapping, planning, and control modules breaks down due to increased sensor noise, compounding errors, and increased processing latency. Thus, learning-based, end-to-end vision-to-control networks have shown to have great potential for online control of these fast robots through cluttered environments. We train and compare convolutional, U-Net, and recurrent architectures against vision transformer (ViT) models for depth image-to-control in high-fidelity simulation, observing that ViT models are more effective than others as quadrotor speeds increase and in generalization to unseen environments, while the addition of recurrence further improves performance while reducing quadrotor energy cost across all tested flight speeds. We assess performance at speeds of up to 7m/s in simulation and hardware. To the best of our knowledge, this is the first work to utilize vision transformers for end-to-end vision-based quadrotor control.},
-  archiveprefix = {arXiv},
-  keywords = {.toread,Computer Science - Artificial Intelligence,Computer Science - Robotics,Electrical Engineering and Systems Science - Image and Video Processing,important,toread},
-  file = {/home/amit/Zotero/storage/X7YD9L7F/Bhattacharya et al. - 2025 - Vision Transformers for End-to-End Vision-Based Quadrotor Obstacle Avoidance.pdf;/home/amit/Zotero/storage/2ZKJRV7X/2405.html;/home/amit/Zotero/storage/9C9Z7X6E/vitfly.html}
-}
-
-@misc{chakravarthiRecentEventCamera2024,
-  title = {Recent {{Event Camera Innovations}}: {{A Survey}}},
-  shorttitle = {Recent {{Event Camera Innovations}}},
-  author = {Chakravarthi, Bharatesh and Verma, Aayush Atul and Daniilidis, Kostas and Fermuller, Cornelia},
-  year = {2024},
-  month = aug,
-  number = {arXiv:2408.13627},
-  eprint = {2408.13627},
-  primaryclass = {cs},
-  doi = {10.48550/arXiv.2408.13627},
-  urldate = {2025-03-20},
-  abstract = {Event-based vision, inspired by the human visual system, offers transformative capabilities such as low latency, high dynamic range, and reduced power consumption. This paper presents a comprehensive survey of event cameras, tracing their evolution over time. It introduces the fundamental principles of event cameras, compares them with traditional frame cameras, and highlights their unique characteristics and operational differences. The survey covers various event camera models from leading manufacturers, key technological milestones, and influential research contributions. It explores diverse application areas across different domains and discusses essential real-world and synthetic datasets for research advancement. Additionally, the role of event camera simulators in testing and development is discussed. This survey aims to consolidate the current state of event cameras and inspire further innovation in this rapidly evolving field. To support the research community, a {\textbackslash}href\{https://github.com/chakravarthi589/Event-based-Vision\_Resources\}\{GitHub\} page categorizes past and future research articles and consolidates valuable resources.},
-  archiveprefix = {arXiv},
-  keywords = {Computer Science - Computer Vision and Pattern Recognition,Event Camera,important,Neuromorphic processing,Neuromorphic processor},
-  file = {/home/amit/Zotero/storage/CJGF5WJ3/Chakravarthi et al. - 2024 - Recent Event Camera Innovations A Survey.pdf;/home/amit/Zotero/storage/MF8NXKM7/Chakravarthi et al. - 2024 - Recent Event Camera Innovations A Survey.pdf;/home/amit/Zotero/storage/X4H9U5TQ/2408.html}
 }
 
 @article{debieSwarmRoboticsSurvey2023,
