@@ -1,8 +1,15 @@
 \documentclass{article}
 \usepackage[preprint, nonatbib]{Styles/neurips_2025}
-\usepackage[backend=biber, sorting=none, style=numeric-comp]{biblatex}
+\usepackage[backend=biber,
+            sorting=none, 
+            style=numeric-comp,
+            url=false,
+            doi=false,
+            isbn=false
+            ]{biblatex}
 \usepackage{amsmath}
 \usepackage{amssymb}
+
 \addbibresource{references.bib}
 
 \title{Swarm Autonomy with Event-Driven Control and Spiking Neural Networks}
@@ -144,14 +151,25 @@ The final step in the end-to-end control framework is to transfer the learned co
 \paragraph{Few-Shot Transfer} After training the SNN in simulation, it will be fine-tuned in the real world using a small amount of real-world data. This will help to adapt the learned control policy to the real-world dynamics and improve its performance \cite{bhattacharyaMonocularEventBasedVision2024}.
 
 \subsection{Swarm Behavior}
-Building upon the end-to-end control framework developed for single-agent quadrotors, the next step involves extending this framework to a swarm of agents. The swarm will be designed to exhibit emergent behavior, where the collective actions of the agents lead to complex behaviors without centralized control. Each individual agent will be controlled  by a local SNN-based policy, and adpat its strategy based on the behavior of neighboring agents and visual event stream input. Training will be first performed in simulation environments extended to support multi agent environments. As a first stage, the swarm will be trained to avoid intra-swarm collisions while avoiding dynamic obstacles in a controlled setting. Then, the swarm will be trained to perform more complex tasks, such as flocking, foraging, and obstacle avoidance in the wild.  
+Building upon the end-to-end control framework developed for single-agent quadrotors, the next step involves extending this framework to a swarm of agents. The swarm will be designed to exhibit emergent behavior, where the collective actions of the agents lead to complex behaviors without centralized control. Each individual agent will be controlled  by a local SNN-based policy, and adpat its strategy based on the behavior of neighboring agents and visual event stream input. Training will be first performed in simulation environments extended to support multi agent environments. As a first stage, the swarm will be trained to avoid intra-swarm collisions while avoiding dynamic obstacles in a controlled setting and static formation. Then, the swarm will be trained to perform more complex tasks, such as collective obstacle avoidance in cluttered environments the wild.  
 
-\subsection{Implementation on Neuromorphic Hardware}
-To fully leverage the advantages of SNNs and event cameras, the end-to-end control framework and swarm behavior will be implemented on neuromorphic hardware. Neuromorphic chips are still in their infancy, but they are designed to efficiently process spiking neural networks and event-based data streams. These chips, such as Intel's Loihi or IBM's TrueNorth, offer significant advantages in terms of energy efficiency and real-time processing capabilities, making them ideal for deploying SNNs in robotics applications. The implementation will focus on optimizing the SNN architecture for neuromorphic hardware, ensuring that the control policies can run efficiently in real-time while consuming minimal power.
+\subsection{Neuromorphic Hardware and Benchmarking}
+To fully leverage the advantages of SNNs and event cameras, the end-to-end control framework and swarm behavior will be implemented on neuromorphic hardware. Neuromorphic chips are still in their infancy, but they are designed to efficiently process spiking neural networks and event-based data streams. These chips, such as Intel's Loihi or IBM's TrueNorth, are specifically designed to exploit sparse spiking activity and offer significant advantages in terms of energy efficiency and real-time processing capabilities. The implementation will focus on optimizing the SNN architecture for neuromorphic hardware, ensuring that the control policies can run efficiently in real-time while consuming minimal power. Finally, the performance of the control frameworks will be benchmarked against traditional frame-based systems and other state-of-the-art methods. The evaluation will focus energy consumption, latency, and robustness.
 
-\section{Novelty and Contribution}
+\section{Novelty and Impact}
+\paragraph{Novelty:} This research aims to address latency and energy challenges in autonomous high-speed flight by leveraging the unique capabilities of event cameras and spiking neural networks. While initial studies have demonstrated proof-of-concept SNN controlles for simple maneuvers or perception modules, fully end-to-end control pipelines that map asynchronous event streams to control commands remain scarce. Even more novel is the extension of this paradigm to multi-agent decentralized systems. By training SNNs directly from event streams to closed-loop control - and scaling this to swarms where each agent learns independently - this research introduces a new framework for efficient bio-inspired swarm autonomy. This approach is expected to advance energy efficiency and robustness of single and multi-agent robotic systems operating under power constraints, in high-speed and cluttered environments.
 
-\printbibliography[title=\section{References}]
+\paragraph{Impact:} The impact of this research is expected to be significant in several areas:
+\begin{itemize}
+    \item \textbf{Advancing High-Speed Autonomy:} By developing an end-to-end control framework that utilizes event cameras and SNNs, this research aims to improve latency and robusteness of robotic systems, enabling them to navigate and operate effectively in high-speed and cluttered environments.
+
+    \item \textbf{Energy Efficiency:} By leveraging the energy-efficient nature of event cameras and SNNs, this research aims to significantly reduce the energy consumption of autonomous systems, making them more suitable for long-duration missions and battery-powered applications.    
+    
+    \item \textbf{Enhancing Swarm Intelligence:} The research will explore how local SNN-based policies can lead to emergent swarm behavior, enabling multi-agent systems to adapt to dynamic environments and exhibit complex behaviors without centralized control. 
+
+\end{itemize}
+
+\printbibliography[heading=bibnumbered]
 
 
 \end{document}
