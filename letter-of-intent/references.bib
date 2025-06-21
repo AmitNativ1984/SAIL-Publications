@@ -620,13 +620,23 @@
   isbn = {978-3-031-25555-7}
 }
 
-@misc{DenseContinuousTimeOptical,
-  title = {Dense {{Continuous-Time Optical Flow From Event Cameras}} {\textbar} {{IEEE Journals}} \& {{Magazine}} {\textbar} {{IEEE Xplore}}},
-  urldate = {2025-05-30},
-  howpublished = {https://ieeexplore.ieee.org/document/10419040},
-  keywords = {Neuromorphic processing},
-  file = {/home/amit/Zotero/storage/LVL5ZK7E/10419040.html}
+@article{DenseContinuousTimeOptical,
+  title = {Dense {{Continuous-Time Optical Flow From Event Cameras}}},
+  author = {Gehrig, Mathias and Muglikar, Manasi and Scaramuzza, Davide},
+  year = {2024},
+  month = jul,
+  journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  volume = {46},
+  number = {7},
+  pages = {4736--4746},
+  issn = {1939-3539},
+  doi = {10.1109/TPAMI.2024.3361671},
+  urldate = {2025-06-21},
+  abstract = {We present a method for estimating dense continuous-time optical flow from event data. Traditional dense optical flow methods compute the pixel displacement between two images. Due to missing information, these approaches cannot recover the pixel trajectories in the blind time between two images. In this work, we show that it is possible to compute per-pixel, continuous-time optical flow using events from an event camera. Events provide temporally fine-grained information about movement in pixel space due to their asynchronous nature and microsecond response time. We leverage these benefits to predict pixel trajectories densely in continuous time via parameterized B{\'e}zier curves. To achieve this, we build a neural network with strong inductive biases for this task: First, we build multiple sequential correlation volumes in time using event data. Second, we use B{\'e}zier curves to index these correlation volumes at multiple timestamps along the trajectory. Third, we use the retrieved correlation to update the B{\'e}zier curve representations iteratively. Our method can optionally include image pairs to boost performance further. To the best of our knowledge, our model is the first method that can regress dense pixel trajectories from event data. To train and evaluate our model, we introduce a synthetic dataset (MultiFlow) that features moving objects and ground truth trajectories for every pixel. Our quantitative experiments not only suggest that our method successfully predicts pixel trajectories in continuous time but also that it is competitive in the traditional two-view pixel displacement metric on MultiFlow and DSEC-Flow. Open source code and datasets are released to the public.},
+  keywords = {Cameras,Correlation,Estimation,event cameras,Feature extraction,Motion estimation,optical flow,Optical flow,pixel tracking,Task analysis,Trajectory},
+  file = {/home/amit/Zotero/storage/PHLUD4MZ/Gehrig et al. - 2024 - Dense Continuous-Time Optical Flow From Event Cameras.pdf}
 }
+
 
 @article{falangaDynamicObstacleAvoidance2020,
   title = {Dynamic Obstacle Avoidance for Quadrotors with Event Cameras},
