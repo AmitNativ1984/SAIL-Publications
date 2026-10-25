@@ -1,0 +1,48 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\captionsetup{font=small, labelfont=bf, margin=1.5cm}
+\usepackage{placeins}
+\usepackage{float}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[numbers,square,sort&compress]{natbib}
+\usepackage{hyperref}
+\graphicspath{{figures/}}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{PhD Research Proposal\\
+Your Proposal Title}
+\author{Amit Nativ\\
+Supervisor: Dr. Oren Gal}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\input{sections/00-abstract}
+
+\newpage
+\tableofcontents
+\newpage
+
+\input{sections/01-introduction}
+\input{sections/02-research-objectives}
+\input{sections/03-related-work-and-scientific-background}
+\input{sections/04-preliminary-results}
+\input{sections/05-methodology}
+\input{sections/06-expected-contribution-and-research-direction}
+
+\bibliographystyle{unsrtnat}
+\bibliography{references,extra}
+
+\end{document}
