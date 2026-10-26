@@ -1,0 +1,14 @@
+% Shared style; curve data from surrogate_data.py (alpha = 2, k = 4, both derivatives peak at 1).
+\usetikzlibrary{arrows.meta}
+\pgfplotsset{
+  surr axis/.style={
+    width=7.6cm, height=5.2cm, domain=-4:4, samples=241, xmin=-4, xmax=4,
+    axis lines=left, xtick={0}, xticklabels={$U_{th}$}, xlabel={$U$},
+    tick label style={font=\small}, label style={font=\small},
+    legend style={font=\small, draw=none, fill=none, cells={anchor=west}},
+    legend cell align=left, clip=false}}
+\tikzset{
+  heavi/.style={black, very thick, no markers},
+  surr atan/.style={sfBlue, thick, no markers},
+  surr sig/.style={sfVermil, thick, no markers},
+}

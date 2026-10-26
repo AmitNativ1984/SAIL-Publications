@@ -1,0 +1,139 @@
+\documentclass[tikz,border=2pt]{standalone}
+\usepackage{sysfig}
+\definecolor{nA}{HTML}{1F77B4}\definecolor{nB}{HTML}{FF7F0E}\definecolor{nC}{HTML}{2CA02C}
+\definecolor{nD}{HTML}{D62728}\definecolor{nE}{HTML}{9467BD}
+% Gaussian receptive fields glyph for the population encoder
+\newcommand{\rfglyph}{\tikz[baseline=0pt, x=1mm, y=1mm, line width=0.5pt, sfOrange!80!black]{
+  \foreach \m in {1,2.5,4,5.5,7} {\draw[domain=\m-1.6:\m+1.6, samples=25, smooth] plot (\x, {2.2*exp(-((\x-\m)^2)/0.9)});}
+  \draw[black!50, line width=0.3pt] (-0.6,0) -- (8.6,0);}}
+% small spiking network glyph for the policy block: same topology as the ANN glyph, LIF nodes with a spike tick
+\newcommand{\snnglyph}{\tikz[x=1mm, y=1mm, baseline=0pt]{
+  \foreach \l/\n in {0/4,1/5,2/5,3/4} {\foreach \i in {1,...,\n} {\coordinate (m\l-\i) at (\l*6.5, {(\i-(\n+1)/2)*1.6});}}
+  \foreach \l/\n/\m in {0/4/5,1/5/5,2/5/4} {\pgfmathtruncatemacro{\nl}{\l+1}
+    \foreach \i in {1,...,\n} {\foreach \j in {1,...,\m} {\draw[sfOrange!60, line width=0.2pt] (m\l-\i) -- (m\nl-\j);}}}
+  \foreach \l/\n in {0/4,1/5,2/5,3/4} {\foreach \i in {1,...,\n} {\fill[sfOrange!25] (m\l-\i) circle (0.55); \draw[sfOrange!80!black, line width=0.35pt] (m\l-\i) circle (0.55);
+    \draw[sfOrange!80!black, line width=0.35pt] ($(m\l-\i)+(0,-0.3)$) -- ++(0,0.6);}}
+}}
+\begin{document}
+\begin{tikzpicture}[sf, node distance=5mm and 7mm]
+  \def\cell{0.55mm}
+  \def\vw{5mm}
+
+  % ---------- raw inputs (identical to the ANN figure) ----------
+  \node[inner sep=0pt, draw=black!60, line width=0.4pt] (img) {\includegraphics[width=18mm]{depth_sample.png}};
+  \node[font=\scriptsize, above=1pt of img] {Depth image ($320\times180$)};
+  \node[ann, frozen, right=5mm of img, trapezium, shape border rotate=270, trapezium stretches body, trapezium left angle=74, trapezium right angle=74, minimum height=15mm, minimum width=11.5mm, rounded corners=1pt, inner sep=1pt] (dce) {DCE\\encoder};
+  \node[inner sep=0pt] at ($(dce.east)+(0.3mm,3.6mm)$) {\snowflake};
+
+  \coordinate (vtop) at ($(dce.east)+(13mm, 16*\cell)$);
+  \coordinate (vmid) at ($(vtop)+(0,-32*\cell)$);
+  \coordinate (vbot) at ($(vmid)+(0,-17*\cell)$);
+  \fill[sfBlue!22] (vtop) rectangle ($(vmid)+(\vw,0)$);
+  \fill[black!12]  (vmid) rectangle ($(vbot)+(\vw,0)$);
+  \draw[line width=0.6pt] (vmid) -- ++(\vw,0);
+  \draw[line width=0.6pt] (vtop) rectangle ($(vbot)+(\vw,0)$);
+  \node[font=\scriptsize] at ($(vtop)!0.25!(vmid)+(0.5*\vw,0)$) {$z_t$};
+  \node[font=\scriptsize] at ($(vmid)!0.5!(vbot)+(0.5*\vw,0)$) {$s_t$};
+  \node[dim, below=1pt] at ($(vbot)+(0.5*\vw,0)$) {$o_t\in\mathbb{R}^{49}$};
+  \coordinate (zin)  at ($(vtop)!0.5!(vmid)$);
+  \coordinate (sin)  at ($(vmid)!0.5!(vbot)$);
+  \coordinate (vout) at ($(vtop)!0.5!(vbot)+(\vw,0)$);
+
+  \node[io, anchor=center, minimum width=18mm, font=\footnotesize] (state) at (img |- sin) {Drone state};
+
+  \draw[data] (img) -- (dce);
+  \draw[data] (dce) -- node[dim, above, pos=0.5] {$z_t\in\mathbb{R}^{32}$} (zin);
+  \draw[data] (state) -- node[dim, above, pos=0.8] {$s_t\in\mathbb{R}^{17}$} (sin);
+
+  % ---------- spiking actor ----------
+  % ---------- population encoder, rotated: stimulus axis vertical, activation horizontal ----------
+  % one observation dimension o_{t,i} shown with 5 of its N=10 neurons; spikes from the
+  % illustrative raster: spike density follows each neuron's activation for o_{t,i} (as in Fig. 3)
+  \def\H{26.95mm}\def\S{5.39mm}\def\sig{3.77}\def\aw{6mm}
+  \coordinate (etop) at ($(vtop)+(\vw+7mm,0)$);
+  \coordinate (ebot) at ($(etop)+(0,-\H)$);
+  \foreach \k/\c in {0/nA,1/nB,2/nC,3/nD,4/nE} {
+    \begin{scope}[shift={(etop)}, x=1mm, y=1mm]
+      \draw[\c, line width=0.7pt, domain={max(0,(\k+0.5)*5.39-2.4*\sig)}:{min(26.95,(\k+0.5)*5.39+2.4*\sig)}, samples=60, smooth]
+        plot ({6*exp(-((\x-(\k+0.5)*5.39)^2)/(2*\sig*\sig))}, -\x);
+    \end{scope}
+  }
+  \coordinate (ys) at ($(etop)+(0,-1.9*\S)$);
+  \draw[black, dashed, line width=0.5pt] (ys) -- ++(\aw+1mm,0);
+  \foreach \k/\c/\a in {0/nA/0.135,1/nB/0.849,2/nC/0.693} {
+    \fill[\c, draw=black, line width=0.3pt] ($(ys)+(6*\a mm,0)$) circle (0.6mm);
+  }
+  \draw[black!60, line width=0.4pt] (etop) -- (ebot);
+  \node[draw=sfOrange, line width=1.2pt, rounded corners=2pt,
+        fit={(etop) (ebot) ($(etop)+(\aw+1.5mm,0)$)}, inner sep=1.5pt] (encbox) {};
+  \begin{scope}[on background layer]\fill[sfOrange!8, rounded corners=2pt] (encbox.north west) rectangle (encbox.south east);\end{scope}
+  \trainmark{encbox}
+  \node[font=\scriptsize, above=1pt of encbox] {Population encoder};
+
+  % spike raster, one row per neuron at its field centre, T=5 steps
+  \coordinate (r0) at ($(encbox.east)+(3.5mm,0)$);
+  \foreach \k/\c/\sp in {0/nA/{4,10},1/nB/{1,2,3,5,6,7,8,10,11,12},2/nC/{1,3,4,6,7,9,10,12},3/nD/{2,8,11},4/nE/{6}} {
+    \coordinate (row) at ($(etop |- r0)+(0,0)$);
+    \draw[\c!35, line width=0.4pt] ($(r0 |- etop)+(0,-\k*\S-0.5*\S)$) -- ++(6mm,0);
+    \foreach \t in \sp {\draw[\c, line width=0.6pt] ($(r0 |- etop)+(\t*0.48mm,-\k*\S-0.5*\S-1.4mm)$) -- ++(0,2.8mm);}
+  }
+  \node[fit={($(r0 |- etop)$) ($(r0 |- ebot)+(6.5mm,0)$)}, inner sep=0pt] (raster) {};
+  \draw[->, black!60, line width=0.4pt] ($(raster.south west)+(0,-0.8mm)$) -- ($(raster.south east)+(0,-0.8mm)$) node[dim, below=-0.5pt] {$t$};
+  \node[dim, below=1pt of encbox] {$49\times10$ IF};
+
+  \coordinate (vr) at ($(vtop)+(\vw,0)$);
+  % highlight the single element o_{t,i} that this encoder population sees
+  \filldraw[fill=sfOrange!70, draw=black, line width=0.5pt] ($(vtop |- ys)+(0,1.2mm)$) rectangle ($(vr |- ys)+(0,-1.2mm)$);
+  \draw[data] (vr |- ys) -- node[dim, above] {$o_{t,i}$} (ys);
+  \node[snn, trainable, minimum height=13mm, minimum width=30mm, anchor=west] (pol) at ($(raster.east |- vout)+(5mm,0)$) {SNN policy\\[1.5pt]\snnglyph};
+  \trainmark{pol}
+  \node[dim, below=1pt of pol] {$2\times256$ LIF, $T{=}5$};
+
+  % ---------- population decoder, mirrored: output-population spikes -> rates -> weighted sum ----------
+  % one action channel a_{t,j} shown with 5 of its 10 LIF neurons; illustrative spikes
+  \coordinate (q0) at ($(pol.east |- etop)+(5mm,0)$);
+  \foreach \k/\c/\sp in {0/nA/{3,9},1/nB/{1,2,4,5,7,8,10,11,12},2/nC/{1,3,5,7,9,11},3/nD/{2,5,8,11},4/nE/{6}} {
+    \draw[\c!35, line width=0.4pt] ($(q0)+(0,-\k*\S-0.5*\S)$) -- ++(6mm,0);
+    \foreach \t in \sp {\draw[\c, line width=0.6pt] ($(q0)+(\t*0.48mm,-\k*\S-0.5*\S-1.4mm)$) -- ++(0,2.8mm);}
+  }
+  \node[fit={(q0) ($(q0)+(6.5mm,-\H)$)}, inner sep=0pt] (raster2) {};
+  \draw[->, black!60, line width=0.4pt] ($(raster2.south west)+(0,-0.8mm)$) -- ($(raster2.south east)+(0,-0.8mm)$) node[dim, below=-0.5pt] {$t$};
+
+  % decoder box: firing rate per neuron (bar length = spikes / steps), then learned weighted sum
+  \coordinate (dtop) at ($(raster2.north east)+(4.5mm,0)$);
+  \foreach \k/\c/\n in {0/nA/2,1/nB/9,2/nC/6,3/nD/4,4/nE/1} {
+    \fill[\c] ($(dtop)+(0,-\k*\S-0.5*\S-0.9mm)$) rectangle ++(5.5*\n/12*1mm,1.8mm);
+    \coordinate (bar\k) at ($(dtop)+(5.5*\n/12*1mm+0.6mm,-\k*\S-0.5*\S)$);
+  }
+  \draw[black!60, line width=0.4pt] (dtop) -- ++(0,-\H);
+  \node[op, font=\small] (sum) at ($(dtop)+(8.5mm,-2.5*\S)$) {$\Sigma$};
+  \foreach \k in {0,...,4} {\draw[black!45, line width=0.4pt] (bar\k) -- (sum);}
+  \node[dim, inner sep=0.5pt, fill=none, below=0.5pt of sum] {$w_{j}$};
+  \node[draw=sfOrange, line width=1.2pt, rounded corners=2pt,
+        fit={(dtop) ($(dtop)+(0,-\H)$) (sum)}, inner sep=1.5pt] (dec) {};
+  \begin{scope}[on background layer]\fill[sfOrange!8, rounded corners=2pt] (dec.north west) rectangle (dec.south east);\end{scope}
+  \trainmark{dec}
+  \node[font=\scriptsize, above=1pt of dec] {Population decoder};
+  \node[dim, below=1pt of dec] {$4\times10$ LIF};
+
+  % element j = phi (index 1) is centred on the decoder output, mirroring o_{t,i} at the input
+  \coordinate (atop) at ($(sum -| dec.east)+(7mm,1.5*3.6mm)$);
+  % ---------- action vector a_t = (T, phi, theta, psidot), drawn like o_t ----------
+  \def\ah{3.6mm}\def\aw{6.5mm}
+  \foreach \k/\lab in {0/{$T$},1/{$\phi$},2/{$\theta$},3/{$\dot\psi$}} {
+    \node[draw, line width=0.6pt, fill=white, minimum width=\aw, minimum height=\ah, inner sep=0pt,
+          font=\scriptsize, anchor=north west] (a\k) at ($(atop)+(0,-\k*\ah)$) {\lab};
+  }
+  \node[font=\scriptsize, above=1pt of a0, align=center] {Attitude\\command};
+  \node[dim, below=1pt of a3] {$a_t\in\mathbb{R}^{4}$};
+  \filldraw[fill=sfOrange!70, draw=black, line width=0.6pt] (a1.north west) rectangle (a1.south east);
+  \node[font=\scriptsize] at (a1) {$\phi$};
+
+
+    \draw[spikes] (raster.east |- pol) -- (pol);
+  \draw[spikes] (pol) -- (pol -| raster2.west);
+  \draw[data]   (sum.east) -- node[dim, above, pos=0.6] {$a_{t,j}$} (a1.west);
+
+  \sflegend{$(current bounding box.south west)+(0,-4mm)$}{ann,snn,frozen,trained,spikes}
+\end{tikzpicture}
+\end{document}

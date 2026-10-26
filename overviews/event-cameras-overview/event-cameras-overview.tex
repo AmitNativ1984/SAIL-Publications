@@ -1,0 +1,292 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,bm}
+\usepackage[margin=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\captionsetup{font=small, labelfont=bf}
+\usepackage{float}
+\usepackage[section]{placeins}
+\usepackage[numbers,square,sort&compress]{natbib}
+\usepackage{hyperref}
+\graphicspath{{figures/}}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.07}
+\renewcommand{\floatpagefraction}{0.85}
+
+\title{Event Cameras in Robotics: An Overview}
+\author{Amit Nativ}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Event cameras}
+
+Event cameras are bio-inspired vision sensors that do not capture frames at a fixed rate.
+Instead, each pixel independently reports changes in brightness as a stream of asynchronous
+\emph{events}. This gives them microsecond temporal resolution, a high dynamic range
+(140\,dB vs.\ 60\,dB for frame cameras), low power consumption and little motion
+blur~\cite{gallegoEventbasedVisionSurvey2022,chakravarthiRecentEventCamera2024}.
+
+\paragraph{Event generation model.}
+Each pixel responds to the log intensity $L=\log I$. An event $e_k=(\mathbf{x}_k,t_k,p_k)$ is
+triggered at pixel $\mathbf{x}_k=(x_k,y_k)^\top$ and time $t_k$ as soon as the brightness
+change since the last event at that pixel reaches a contrast threshold
+$C>0$~\cite{gallegoEventbasedVisionSurvey2022}:
+\begin{equation}
+    \Delta L(\mathbf{x}_k,t_k) \doteq L(\mathbf{x}_k,t_k) - L(\mathbf{x}_k,t_k-\Delta t_k) = p_k\,C ,
+    \label{eq:event_generation}
+\end{equation}
+where $\Delta t_k$ is the time since the previous event at $\mathbf{x}_k$ and the polarity
+$p_k\in\{+1,-1\}$ is the sign of the change (Figure~\ref{fig:generation}(a)). For small
+$\Delta t_k$, a first-order Taylor expansion shows that each event measures the temporal
+derivative of brightness, $\partial L/\partial t\,(\mathbf{x}_k,t_k)\approx p_kC/\Delta t_k$.
+Under constant illumination and brightness constancy, the increment becomes
+\begin{equation}
+    \Delta L \approx -\nabla L\cdot\mathbf{v}\,\Delta t ,
+    \label{eq:moving_edges}
+\end{equation}
+where $\mathbf{v}$ is the image-plane velocity. Events are therefore caused by moving edges: a
+pixel fires only where there is texture ($\nabla L\neq\mathbf{0}$) and the motion has a
+component normal to the edge ($\nabla L\cdot\mathbf{v}\neq 0$). The output is a sparse,
+asynchronous point set in space--time rather than an image
+(Figure~\ref{fig:generation}(b)), so frame-based vision algorithms do not apply directly.
+Figure~\ref{fig:davis} shows a real event camera, the DAVIS, and its output.
+
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\textwidth]{event_generation.pdf}
+    \caption{\textbf{Event generation.} (a)~Log intensity $L(\mathbf{x}_0,t)$ at one pixel
+    and the events it triggers. An ON (OFF) event fires each time $L$ rises (falls) by $C$
+    from its level at the last event (dashed), as in~\eqref{eq:event_generation}; gray lines
+    mark the levels $L(\mathbf{x}_0,0)+kC$. A 30\,fps camera samples the same signal only
+    three times (squares). (b)~Events of a bright dot rotating at 5 revolutions per second,
+    plotted in space--time: the dot traces a helix, with ON events on its leading edge and OFF
+    events on its trailing edge. Both panels are simulated with the noise-free
+    model~\eqref{eq:event_generation}.}
+    \label{fig:generation}
+\end{figure}
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.6\textwidth]{paper_gallego_davis.png}
+    \caption{\textbf{The DAVIS event camera.} (a)~Simplified circuit of a DAVIS pixel, which
+    combines an event pixel (DVS, red) with a conventional frame pixel (APS, blue).
+    (b)~DVS operation: ON and OFF events fire when the log intensity crosses the threshold
+    around its reset level. (c)--(d)~The DAVIS chip and USB camera. (e)~A white square on a
+    rotating black disk produces a spiral of events in space--time (green: past, red:
+    present), while frames sample it at a fixed rate. (f)~A frame overlaid with 5\,ms of
+    events. Reproduced from~\cite{gallegoEventbasedVisionSurvey2022}.}
+    \label{fig:davis}
+\end{figure}
+
+\section{Processing events}
+\label{sec:processing}
+
+Most methods first aggregate a window of events $\mathcal{E}=\{e_k\}_{k=1}^{N_e}$ into a grid
+that conventional or spiking networks can process~\cite{gallegoEventbasedVisionSurvey2022}.
+Figure~\ref{fig:representations} shows three common choices. The \emph{event frame} sums the
+polarities at each pixel; scaled by $C$, it approximates the brightness increment over the
+window, by~\eqref{eq:event_generation}:
+\begin{equation}
+    \Delta\hat{L}(\mathbf{x}) = C\sum_{k=1}^{N_e} p_k\,\delta(\mathbf{x}-\mathbf{x}_k) .
+    \label{eq:event_frame}
+\end{equation}
+The \emph{time surface} keeps only the most recent timestamp $t_{\mathrm{last}}(\mathbf{x})$ at
+each pixel, weighted by an exponential kernel so that recent motion dominates:
+\begin{equation}
+    \mathcal{T}(\mathbf{x},t) = \exp\!\left(-\frac{t-t_{\mathrm{last}}(\mathbf{x})}{\tau}\right) .
+    \label{eq:time_surface}
+\end{equation}
+The \emph{voxel grid} keeps more of the timing. It splits the window into $B$ temporal bins
+and spreads each event's polarity over the two nearest bins:
+\begin{equation}
+    V(\mathbf{x},b) = \sum_{k=1}^{N_e} p_k\,\delta(\mathbf{x}-\mathbf{x}_k)\,
+    \max\bigl(0,\,1-|b-t_k^*|\bigr),
+    \qquad t_k^* = (B-1)\,\frac{t_k-t_1}{t_{N_e}-t_1},
+    \label{eq:voxel_grid}
+\end{equation}
+with $b\in\{0,\dots,B-1\}$. E-RAFT, for example, uses voxel grids as the input to a dense
+optical-flow network~\cite{gehrigERAFTDenseOptical2021}. Figure~\ref{fig:paper_representations}
+shows these representations on real data.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\textwidth]{event_representations.pdf}
+    \caption{\textbf{Grid representations of the same 250\,ms of events}, simulated for a
+    scene translating at $\mathbf{v}=(60,25)$\,px/s. (a)~Event frame~\eqref{eq:event_frame}:
+    edges smear along their trajectories. (b)~Time surface~\eqref{eq:time_surface} with
+    $\tau=50$\,ms: recent events are dark, so the fading trail shows the direction of motion.
+    (c)~Voxel grid~\eqref{eq:voxel_grid} with $B=5$: bins 0, 2 and 4 show the edges at three
+    times. Red: positive polarity; blue: negative.}
+    \label{fig:representations}
+\end{figure}
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\textwidth]{paper_gallego_representations.png}
+    \caption{\textbf{Event representations of real data} (\emph{slider\_depth} sequence).
+    (a)~Events in space--time; here positive events are blue and negative events red, the
+    opposite of Figures~\ref{fig:representations} and~\ref{fig:lif}. (b)~Event frame.
+    (c)~Time surface of the negative events (dark: recent). (d)~Interpolated voxel grid with
+    10 bins. (e)~Motion-compensated image of warped events
+    (Section~\ref{sec:processing}, \emph{Contrast maximization}). (f)~Intensity image
+    reconstructed from the events. Reproduced from~\cite{gallegoEventbasedVisionSurvey2022}.}
+    \label{fig:paper_representations}
+\end{figure}
+
+\paragraph{Contrast maximization.}
+An event frame blurs because each edge fires along its whole trajectory.
+\citet{gallegoUnifyingContrastMaximization2018} turn this into an estimation principle: warp
+each event to a reference time $t_{\mathrm{ref}}$ along a candidate motion $\bm{\theta}$, and
+choose the motion that makes the resulting image of warped events (IWE) sharpest. For optical
+flow, $\bm{\theta}=\mathbf{v}$ and
+\begin{align}
+    \mathbf{x}'_k &= \mathbf{x}_k - (t_k-t_{\mathrm{ref}})\,\bm{\theta} ,
+    \label{eq:warp}\\
+    H(\mathbf{x};\bm{\theta}) &= \sum_{k=1}^{N_e} b_k\,\delta(\mathbf{x}-\mathbf{x}'_k) ,
+    \label{eq:iwe}
+\end{align}
+where $b_k=1$ counts events and $b_k=p_k$ sums polarities. Sharpness is measured by the
+variance of the IWE over its $N_p$ pixels $h_{ij}$, with mean $\mu_H$:
+\begin{equation}
+    f(\bm{\theta}) = \sigma^2\bigl(H(\mathbf{x};\bm{\theta})\bigr)
+    = \frac{1}{N_p}\sum_{i,j}\bigl(h_{ij}-\mu_H\bigr)^2 ,
+    \qquad
+    \bm{\theta}^* = \arg\max_{\bm{\theta}} f(\bm{\theta}) .
+    \label{eq:cmax}
+\end{equation}
+Figure~\ref{fig:cmax} shows the objective for the events of Figure~\ref{fig:representations}.
+With other warps, the same objective estimates depth and rotational
+motion~\cite{gallegoUnifyingContrastMaximization2018}. It needs no ground truth, and it is the
+self-supervised loss with which a small drone learns depth on
+board~\cite{hagenaarsOnDeviceSelfSupervisedLearning2025}.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\textwidth]{contrast_maximization.pdf}
+    \caption{\textbf{Contrast maximization for optical flow} on the events of
+    Figure~\ref{fig:representations} ($b_k=1$, bilinear voting). (a)~Without warping
+    ($\bm{\theta}=\mathbf{0}$), events pile up along their trajectories and the IWE is blurred.
+    (b)~Warping with the optimal flow aligns them into sharp edges. (c)~The
+    variance~\eqref{eq:cmax} over candidate flows has a single peak at
+    $\bm{\theta}^*=(60,25)$\,px/s, equal to the true flow.}
+    \label{fig:cmax}
+\end{figure}
+
+\section{Event cameras in robotics}
+
+In robotics, the main advantage of event cameras is low latency.
+\citet{falangaHowFastToo2019} model a robot flying at constant speed $v$ toward an obstacle that
+it detects at range $s$, with perception latency $t_{\mathrm{lat}}$. To clear the obstacle, the
+robot must move sideways by $d$ with lateral acceleration bounded by $a_{\max}$; the
+time-optimal (bang--bang) manoeuvre takes $2\sqrt{d/a_{\max}}$. Avoidance is safe only if the
+time left after detection covers this manoeuvre:
+\begin{equation}
+    \frac{s}{v} - t_{\mathrm{lat}} \;\geq\; 2\sqrt{\frac{d}{a_{\max}}}
+    \qquad\Longrightarrow\qquad
+    v_{\max} = \frac{s}{t_{\mathrm{lat}} + 2\sqrt{d/a_{\max}}} .
+    \label{eq:vmax}
+\end{equation}
+Latency therefore directly lowers the maximum safe speed, and it matters most for agile
+platforms, whose manoeuvre time is short.
+
+Event cameras have enabled the first quadrotor flight with event-based state estimation, which
+fused events, frames and inertial measurements to fly in low light and high-dynamic-range
+scenes~\cite{vidalUltimateSLAMCombining2018}. They also enabled position control of a quadrotor
+yawing at over 20\,rad/s after a rotor failure, where events outperformed frames in low
+light~\cite{sunAutonomousQuadrotorFlight2021}. In reactive tasks, a quadrotor avoided
+fast-moving obstacles at relative speeds of up to 10\,m/s with 3.5\,ms
+latency~\cite{falangaDynamicObstacleAvoidance2020} (Figure~\ref{fig:falanga}), an FPGA-based collision-avoidance pipeline
+reached 2.14\,ms end to end~\cite{bonazziLowLatencyEventbasedObstacle2025a}, and a quadruped
+caught balls thrown at up to 15\,m/s~\cite{forraiEventbasedAgileObject2023}. Combining events
+with a 20\,fps camera gives the latency of a 5{,}000\,fps camera at the bandwidth of a 45\,fps
+one~\cite{gehrigLowlatencyAutomotiveVision2024}.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.85\textwidth]{paper_falanga_avoidance.png}
+    \caption{\textbf{Avoiding a dynamic obstacle with an event camera.} A quadrotor detects a
+    ball thrown at it with its onboard event camera and dodges it. Reproduced
+    from~\cite{falangaDynamicObstacleAvoidance2020}.}
+    \label{fig:falanga}
+\end{figure}
+
+\section{Learning and neuromorphic processing}
+
+Recent work learns event-based policies end to end. Quadrotors avoid static obstacles using
+only a monocular event camera~\cite{bhattacharyaMonocularEventBasedVision2024}
+(Figure~\ref{fig:bhattacharya}) and fly through
+clutter at up to 9.8\,m/s~\cite{messikommerApproximateImitationLearning}, and a small drone
+learns monocular depth from events on board~\cite{hagenaarsOnDeviceSelfSupervisedLearning2025}.
+Training data is a recurring obstacle. Simulated events are expensive to render and lack a
+faithful continuous-time sensor model, so these works rely on approximate simulated events,
+converting ordinary video into events~\cite{gehrigVideoEventsRecycling2019}, fine-tuning on real
+data, or self-supervised learning.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.62\textwidth]{paper_bhattacharya_stream.png}
+    \caption{\textbf{Learning obstacle avoidance from a monocular event camera.} Part of the
+    continuous event stream of a forest flight (5\% of the events shown) is split into 33\,ms
+    batches; the network maps each binary event mask to a depth prediction $D(\theta)$ and an
+    avoidance command. Reproduced from~\cite{bhattacharyaMonocularEventBasedVision2024}.}
+    \label{fig:bhattacharya}
+\end{figure}
+
+Events are also a natural input for spiking neural networks (SNNs), which communicate with
+binary spikes. Counting the events of a patch in each time step gives the input $X[t]$ of a
+leaky integrate-and-fire (LIF) neuron~\cite{eshraghianTrainingSpikingNeural2023}:
+\begin{equation}
+    U[t] = \beta U[t-1] + W X[t] - S_{out}[t-1]\,\Theta ,
+    \qquad
+    S_{out}[t] =
+    \begin{cases}
+        1, & U[t] \geq \Theta\\
+        0, & \text{otherwise}
+    \end{cases}
+    \label{eq:lif_events}
+\end{equation}
+The neuron therefore spikes only while events arrive and stays silent otherwise
+(Figure~\ref{fig:lif}). On neuromorphic processors, such networks run event by event. An SNN
+on a neuromorphic chip has controlled a UAV~\cite{vitaleEventdrivenVisionControl2021}, and a
+fully neuromorphic network on Intel's Loihi mapped raw events to low-level control commands for
+a freely flying drone at 200\,Hz and 27\,$\mu$J per
+inference~\cite{paredes-vallesFullyNeuromorphicVision2023}. Its spiking vision network is
+trained self-supervised with contrast maximization~\eqref{eq:cmax} on real events
+(Figure~\ref{fig:paredes}). Processing each event as it
+arrives, without grouping events into frames, has been demonstrated for mobile-robot
+dodging~\cite{jiangFullyAsynchronousNeuromorphic2024}.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\textwidth]{lif_events.pdf}
+    \caption{\textbf{LIF neuron driven by events.} (a)~Events from a $7\times7$-pixel patch
+    as the bright disk of Figure~\ref{fig:representations} passes it: ON events at its leading
+    edge, OFF events at its trailing edge. (b)~Membrane potential~\eqref{eq:lif_events}, with
+    $X[t]$ the number of events in each 2\,ms step, $W=0.05$, $\beta=0.9$ and $\Theta=1$.
+    (c)~Output spikes: the neuron fires only while events arrive.}
+    \label{fig:lif}
+\end{figure}
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.85\textwidth]{paper_paredes_snn.png}
+    \caption{\textbf{Spiking vision network of a fully neuromorphic drone.} Running at about
+    200\,Hz on the neuromorphic processor, accumulated events from each image corner pass
+    through three spiking encoders and a pooling layer, which output the optical flow of that
+    corner. During training, the four corner flows give a dense flow field, which deblurs the
+    events for the self-supervised contrast-maximization loss. Reproduced
+    from~\cite{paredes-vallesFullyNeuromorphicVision2023}.}
+    \label{fig:paredes}
+\end{figure}
+
+\bibliographystyle{unsrtnat}
+\bibliography{references}
+
+\end{document}

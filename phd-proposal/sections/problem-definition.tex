@@ -1,0 +1,60 @@
+\subsection{Problem Definition}
+\label{subsec:problem}
+
+The problem addressed in this work is \emph{vision-based navigation through unknown clutter}: a quadrotor must fly from a start position to a goal through an environment it has never seen, using only its onboard sensors, without a prior map and without external knowledge of where the obstacles are. We define the Markov Decision Process (MDP) of our model as the tuple $(\mathcal{S,A,P,R,\gamma}$), where $\mathcal{S}$ is the overall system state, $\mathcal{A}$ is the action taken by the drone, $\mathcal{P}$ is transition probability modeled by the drone's controller and system dynamics, $\mathcal{R}$ is the reward function, and $\mathcal{\gamma}$ signifies the discount factor.
+
+\paragraph{Actions.}
+A drone flight controller (FCU) is built as a cascade of controllers one on top of the other. Beginig with high level position controller, the FCU cascades to veloctiy controller, attitude controller and direct motor controller. The lower the controller in the cascade, the higher its frequency. To reach agile flight, we need the to command the lowest-level possible considering our control frequency limitation. Our depth camera operates at 30fps. We therefore choose to issue attitude command: low enough to exploit the vehicle's agility, and high enough that the inner loop runs on the flight controller and absorbs motor-level model errors.
+
+\begin{equation}
+    \mathbf{a}_t = \left(f_t,\ \phi_t,\ \theta_t,\ \dot{\psi}_t\right)
+    \label{eq:action}
+\end{equation}
+namely collective thrust, roll, pitch and yaw rate
+
+
+, bounded to $|\phi|, |\theta| \leq 45^\circ$ and $|\dot{\psi}| \leq 60^\circ$/s. 
+
+
+The ANN teacher, the SNN student and, in later stages of this research, event-based perception are different solutions to the same problem, and are evaluated against the same definition.
+
+\paragraph{Environment.}
+We employ Aerial-Gym-Simulator \cite{kulkarniAerialGymSimulator2025a} for our RL environment setup, which offers massively prallelized simulation of aerial robots with onboard sensors and efficient ray casting for image rendering. We use the simulator's built-in attitude controller \cite{leeControlComplexManeuvers2011}. At each new episode, the drone's pose is spawned randomly near the center of a bounded $\mathcal{W} = [0,20] \times [0,20] \times [0,6]$m environment, which contains a set of static obstacles (trees, panels, spheres, cylinders and perimeter walls) drawn from a distribution with density modeled from a Poission process. Every episode samples a new obstacle set together with a start $\mathbf{p}_s$ and a goal $\mathbf{p}_g$, so the policy is always evaluated on environments it has not seen.
+
+\paragraph{Vehicle.}
+The vehicle state is $\mathbf{x} = (\mathbf{p}, \mathbf{v}, \mathbf{R}, \boldsymbol{\omega})$: position and velocity in the world frame, attitude $\mathbf{R} \in SO(3)$ and body rates. Its dynamics and control hierarchy are described in Section~\ref{subsec:dynamics}. The policy commands the vehicle at the control period $\Delta t \approx 30$\,ms ($\sim$33\,Hz).
+
+
+\paragraph{Observations.}
+The policy does not observe $\mathbf{x}_t$ or $\mathcal{O}$. It receives
+\begin{equation}
+    \mathbf{o}_t = \left(\mathbf{D}_t,\ \mathbf{s}_t\right),
+    \label{eq:observation}
+\end{equation}
+where $\mathbf{D}_t \in \mathbb{R}^{180 \times 320}$ is a depth image from a forward-facing camera with a $87^\circ \times 56^\circ$ field of view and a limited range (0.1--10\,m), and $\mathbf{s}_t$ is the ego-state from onboard state estimation: the direction and range to the goal, the velocity in the vehicle frame, the body rates, the gravity direction in the body frame, and the previous command $\mathbf{u}_{t-1}$. The depth image is a function of the vehicle pose and the obstacles, $\mathbf{D}_t = h(\mathbf{x}_{t-\delta}, \mathcal{O})$, captured $\delta$ seconds before the command it informs, where $\delta$ is the measured capture-to-control latency of the onboard pipeline.
+
+\paragraph{Partial observability.}
+The problem is therefore a partially observable Markov decision process (POMDP)
+\begin{equation}
+    \mathcal{M} = \left(\mathcal{S}, \mathcal{U}, \mathcal{Z}, T, Z, r, \gamma\right),
+    \label{eq:pomdp}
+\end{equation}
+whose hidden state $(\mathbf{x}_t, \mathcal{O})$ includes the full obstacle configuration. Three sources of partial observability are inherent to the problem rather than to a particular solution: (i) the field of view, since obstacles leave the image as the vehicle turns or moves sideways past them; (ii) the sensing range, which bounds how far ahead the vehicle can plan; and (iii) the latency $\delta$, since the image describes where the vehicle \emph{was}. In general the optimal policy depends on the observation history, $\pi(\mathbf{u}_t \mid \mathbf{o}_{0:t})$. A reactive policy $\pi(\mathbf{u}_t \mid \mathbf{o}_t)$ discards that history; a policy with internal state $\mathbf{m}_t$, updated as $\mathbf{m}_{t} = g(\mathbf{m}_{t-1}, \mathbf{o}_t)$, can retain part of it. Whether such state improves navigation is the question of Objective~2.
+
+\paragraph{Task and objective.}
+An episode ends at the first step $t$ at which one of the following holds:
+\begin{itemize}
+    \item \textbf{Success:} $\|\mathbf{p}_t - \mathbf{p}_g\| \leq \epsilon$;
+    \item \textbf{Crash:} $\mathbf{p}_t \notin \mathcal{W}_{\mathrm{free}}$, i.e.\ the collision sphere intersects an obstacle or the vehicle leaves the workspace;
+    \item \textbf{Timeout:} $t = T_{\max}$.
+\end{itemize}
+% TODO: values of r, epsilon, T_max
+The objective is to find the policy that maximises the probability of success over the distribution of environments,
+\begin{equation}
+    \pi^\star = \arg\max_{\pi} \ \mathbb{P}_{\mathcal{O} \sim P_\ell,\, (\mathbf{p}_s, \mathbf{p}_g)}\!\left[\text{success} \mid \pi\right],
+    \label{eq:objective}
+\end{equation}
+with time to goal as a secondary criterion, so that a policy that hovers safely does not count as a solution. A further constraint is set by the platform rather than the task: the time to compute $\mathbf{u}_t$ from $\mathbf{o}_t$, added to the sensing latency, must fit within the control period on the onboard hardware. The success indicator in Eq.~\eqref{eq:objective} is sparse and non-differentiable, so in practice it is optimised through a shaped reward $r$ (Section~\ref{subsec:teacher}).
+
+\paragraph{Evaluation.}
+Every policy in this work is evaluated in the same way: the deterministic policy (action mean) is rolled out on freshly sampled environments at fixed levels $\ell \in \{10, 20, 30\}$, and the success, crash and timeout rates are reported per level.

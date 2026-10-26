@@ -1,0 +1,20 @@
+\documentclass[border=2pt]{standalone}
+\usepackage{pgfplots}
+\usepackage{sysfig}
+\pgfplotsset{compat=1.18}
+\input{surrogate_common}
+\begin{document}
+\begin{tikzpicture}
+\begin{axis}[surr axis, ymin=-0.1, ymax=1.5, ytick={0,0.5,1},
+             ylabel={$\partial S/\partial U$}, legend pos=north west]
+  \addplot[surr atan] table[x=x, y=d_atan] {surrogate_data.dat};
+  \addlegendentry{$\partial\tilde{S}_{\arctan}/\partial U$}
+  \addplot[surr sig] table[x=x, y=d_sig] {surrogate_data.dat};
+  \addlegendentry{$\partial\tilde{S}_{sig}/\partial U$}
+  \addplot[heavi] coordinates {(-4,0) (4,0)};
+  \addlegendentry{$\partial H/\partial U$}
+  \draw[heavi, -{Stealth[length=5pt]}] (axis cs:0,0) -- (axis cs:0,1.42)
+    node[right, font=\small, black] {$\delta(U-U_{th})$};
+\end{axis}
+\end{tikzpicture}
+\end{document}

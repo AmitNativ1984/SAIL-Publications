@@ -35,3 +35,6 @@ elsarticle-template.tex
 
 assets/attachments/
 .vscode/
+
+*.png
+__pycache__/
