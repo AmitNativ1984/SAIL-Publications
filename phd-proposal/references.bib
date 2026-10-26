@@ -22,6 +22,23 @@
   langid = {english}
 }
 
+@misc{bonazziLowLatencyEventbasedObstacle2025a,
+  title = {Towards {{Low-Latency Event}}-Based {{Obstacle Avoidance}} on a {{FPGA-Drone}}},
+  author = {Bonazzi, Pietro and Vogt, Christian and Jost, Michael and Khacef, Lyes and {Paredes-Vall{\'e}s}, Federico and Magno, Michele},
+  year = 2025,
+  month = may,
+  number = {arXiv:2504.10400},
+  eprint = {2504.10400},
+  primaryclass = {cs},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.2504.10400},
+  urldate = {2026-03-22},
+  abstract = {This work quantitatively evaluates the performance of event-based vision systems (EVS) against conventional RGB-based models for action prediction in collision avoidance on an FPGA accelerator. Our experiments demonstrate that the EVS model achieves a significantly higher effective frame rate (1 kHz) and lower temporal (-20 ms) and spatial prediction errors (-20 mm) compared to the RGB-based model, particularly when tested on out-of-distribution data. The EVS model also exhibits superior robustness in selecting optimal evasion maneuvers. In particular, in distinguishing between movement and stationary states, it achieves a 59 percentage point advantage in precision (78\% vs. 19\%) and a substantially higher F1 score (0.73 vs. 0.06), highlighting the susceptibility of the RGB model to overfitting. Further analysis in different combinations of spatial classes confirms the consistent performance of the EVS model in both test data sets. Finally, we evaluated the system end-to-end and achieved a latency of approximately 2.14 ms, with event aggregation (1 ms) and inference on the processing unit (0.94 ms) accounting for the largest components. These results underscore the advantages of event-based vision for real-time collision avoidance and demonstrate its potential for deployment in resource-constrained environments.},
+  archiveprefix = {arXiv},
+  keywords = {.toread,Agile Flight,Computer Science - Computer Vision and Pattern Recognition,Event Camera,important,Neuromorphic},
+  file = {/home/amit/snap/zotero-snap/common/Zotero/storage/BRHFBL7W/Bonazzi et al. - Towards Low-Latency Event-based Obstacle Avoidance on an FPGA-Drone.pdf;/home/amit/snap/zotero-snap/common/Zotero/storage/Q7SQ8JTG/Bonazzi et al. - 2025 - Towards Low-Latency Event-based Obstacle Avoidance on a FPGA-Drone.pdf;/home/amit/snap/zotero-snap/common/Zotero/storage/NPXQXVMM/2504.html}
+}
+
 @misc{chakravarthiRecentEventCamera2024,
   title = {Recent {{Event Camera Innovations}}: {{A Survey}}},
   shorttitle = {Recent {{Event Camera Innovations}}},
@@ -109,6 +126,26 @@
   langid = {english},
   keywords = {.toread,Computer Science - Artificial Intelligence,Computer Science - Computer Vision and Pattern Recognition,Computer Science - Machine Learning,Computer Science - Robotics,Event Camera,important,Important,Neuromorphic},
   file = {/home/amit/snap/zotero-snap/common/Zotero/storage/KX6F3968/Gallego et al. - 2022 - Event-based Vision A Survey.pdf}
+}
+
+@inproceedings{gehrigERAFTDenseOptical2021,
+  title = {E-{{RAFT}}: {{Dense Optical Flow}} from {{Event Cameras}}},
+  shorttitle = {E-{{RAFT}}},
+  booktitle = {2021 {{International Conference}} on {{3D Vision}} ({{3DV}})},
+  author = {Gehrig, Mathias and Millhausler, Mario and Gehrig, Daniel and Scaramuzza, Davide},
+  year = 2021,
+  month = dec,
+  pages = {197--206},
+  publisher = {IEEE},
+  address = {London, United Kingdom},
+  doi = {10.1109/3DV53792.2021.00030},
+  urldate = {2025-05-30},
+  abstract = {We propose to incorporate feature correlation and sequential processing into dense optical flow estimation from event cameras. Modern frame-based optical flow methods heavily rely on matching costs computed from feature correlation. In contrast, there exists no optical flow method for event cameras that explicitly computes matching costs. Instead, learning-based approaches using events usually resort to the U-Net architecture to estimate optical flow sparsely. Our key finding is that the introduction of correlation features significantly improves results compared to previous methods that solely rely on convolution layers. Compared to the state-of-the-art, our proposed approach computes dense optical flow and reduces the end-point error by 23\% on MVSEC. Furthermore, we show that all existing optical flow methods developed so far for event cameras have been evaluated on datasets with very small displacement fields with maximum flow magnitude of 10 pixels. Based on this observation, we introduce a new real-world dataset that exhibits displacement fields with magnitudes up to 210 pixels and 3 times higher camera resolution. Our proposed approach reduces the end-point error on this dataset by 66\%.},
+  copyright = {https://ieeexplore.ieee.org/Xplorehelp/downloads/license-information/IEEE.html},
+  isbn = {978-1-6654-2688-6},
+  langid = {english},
+  keywords = {.toread,Agile Flight,Neuromorphic},
+  file = {/home/amit/snap/zotero-snap/common/Zotero/storage/6VEDSLZ2/Gehrig et al. - 2021 - E-RAFT Dense Optical Flow from Event Cameras.pdf}
 }
 
 @misc{henkesSpikingNeuralNetworks2022,
@@ -213,6 +250,59 @@
   file = {/home/amit/snap/zotero-snap/common/Zotero/storage/7JISVQZS/Jiang et al. - 2026 - Towards bio-inspired visual navigation a neuromorphic navigation paradigm for MAVs.pdf;/home/amit/snap/zotero-snap/common/Zotero/storage/92LGKBNJ/2610.html}
 }
 
+@misc{jiangFullySpikingNeural2024,
+  title = {Fully {{Spiking Neural Network}} for {{Legged Robots}}},
+  author = {Jiang, Xiaoyang and Zhang, Qiang and Sun, Jingkai and Cao, Jiahang and Ma, Jingtong and Xu, Renjing},
+  year = 2024,
+  month = mar,
+  number = {arXiv:2310.05022},
+  eprint = {2310.05022},
+  primaryclass = {cs},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.2310.05022},
+  urldate = {2025-06-09},
+  abstract = {In recent years, legged robots based on deep reinforcement learning have made remarkable progress. Quadruped robots have demonstrated the ability to complete challenging tasks in complex environments and have been deployed in real-world scenarios to assist humans. Simultaneously, bipedal and humanoid robots have achieved breakthroughs in various demanding tasks. Current reinforcement learning methods can utilize diverse robot bodies and historical information to perform actions. However, prior research has not emphasized the speed and energy consumption of network inference, as well as the biological significance of the neural networks themselves. Most of the networks employed are traditional artificial neural networks that utilize multilayer perceptrons (MLP). In this paper, we successfully apply a novel Spiking Neural Network (SNN) to process legged robots, achieving outstanding results across a range of simulated terrains. SNN holds a natural advantage over traditional neural networks in terms of inference speed and energy consumption, and their pulse-form processing of body perception signals offers improved biological interpretability. Applying more biomimetic neural networks to legged robots can further reduce the heat dissipation and structural burden caused by the high power consumption of neural networks. To the best of our knowledge, this is the first work to implement SNN in legged robots.},
+  archiveprefix = {arXiv},
+  keywords = {.toread,Computer Science - Artificial Intelligence,Computer Science - Robotics,important,Neuromorphic,SNN},
+  file = {/home/amit/snap/zotero-snap/common/Zotero/storage/XVW58UEX/Jiang et al. - 2024 - Fully Spiking Neural Network for Legged Robots.pdf;/home/amit/snap/zotero-snap/common/Zotero/storage/FUTWFMFV/2310.html}
+}
+
+@misc{jiangNeuroPlanner3DVisual2022,
+  title = {Neuro-{{Planner}}: {{A 3D Visual Navigation Method}} for {{MAV}} with {{Depth Camera}} Based on {{Neuromorphic Reinforcement Learning}}},
+  shorttitle = {Neuro-{{Planner}}},
+  author = {Jiang, Junjie and Kong, Delei and Hou, Kuanxv and Huang, Xinjie and Zhuang, Hao and Zheng, Fang},
+  year = 2022,
+  month = oct,
+  number = {arXiv:2210.02305},
+  eprint = {2210.02305},
+  primaryclass = {cs},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.2210.02305},
+  urldate = {2025-04-14},
+  abstract = {Traditional visual navigation methods of micro aerial vehicle (MAV) usually calculate a passable path that satisfies the constraints depending on a prior map. However, these methods have issues such as high demand for computing resources and poor robustness in face of unfamiliar environments. Aiming to solve the above problems, we propose a neuromorphic reinforcement learning method (Neuro-Planner) that combines spiking neural network (SNN) and deep reinforcement learning (DRL) to realize MAV 3D visual navigation with depth camera. Specifically, we design spiking actor network based on two-state LIF (TS-LIF) neurons and its encoding-decoding schemes for efficient inference. Then our improved hybrid deep deterministic policy gradient (HDDPG) and TS-LIF-based spatio-temporal back propagation (STBP) algorithms are used as the training framework for actor-critic network architecture. To verify the effectiveness of the proposed Neuro-Planner, we carry out detailed comparison experiments with various SNN training algorithm (STBP, BPTT and SLAYER) in the software-in-the-loop (SITL) simulation framework. The navigation success rate of our HDDPG-STBP is 4.3\textbackslash\% and 5.3\textbackslash\% higher than that of the original DDPG in the two evaluation environments. To the best of our knowledge, this is the first work combining neuromorphic computing and deep reinforcement learning for MAV 3D visual navigation task.},
+  archiveprefix = {arXiv},
+  keywords = {.toread,Agile Flight,Computer Science - Robotics,Event Camera,important,Neuromorphic},
+  file = {/home/amit/snap/zotero-snap/common/Zotero/storage/6XALIHLJ/Jiang et al. - 2022 - Neuro-Planner A 3D Visual Navigation Method for MAV with Depth Camera based on Neuromorphic Reinfor.pdf;/home/amit/snap/zotero-snap/common/Zotero/storage/5JS78CYL/2210.html}
+}
+
+@article{kaufmannChampionlevelDroneRacing2023,
+  title = {Champion-Level Drone Racing Using Deep Reinforcement Learning},
+  author = {Kaufmann, Elia and Bauersfeld, Leonard and Loquercio, Antonio and M{\"u}ller, Matthias and Koltun, Vladlen and Scaramuzza, Davide},
+  year = 2023,
+  month = aug,
+  journal = {Nature},
+  volume = {620},
+  number = {7976},
+  pages = {982--987},
+  issn = {0028-0836, 1476-4687},
+  doi = {10.1038/s41586-023-06419-4},
+  urldate = {2025-05-29},
+  abstract = {Abstract                            First-person view (FPV) drone racing is a televised sport in which professional competitors pilot high-speed aircraft through a 3D circuit. Each pilot sees the environment from the perspective of their drone by means of video streamed from an onboard camera. Reaching the level of professional pilots with an autonomous drone is challenging because the robot needs to fly at its physical limits while estimating its speed and location in the circuit exclusively from onboard sensors               1               . Here we introduce Swift, an autonomous system that can race physical vehicles at the level of the human world champions. The system combines deep reinforcement learning (RL) in simulation with data collected in the physical world. Swift competed against three human champions, including the world champions of two international leagues, in real-world head-to-head races. Swift won several races against each of the human champions and demonstrated the fastest recorded race time. This work represents a milestone for mobile robotics and machine intelligence               2               , which may inspire the deployment of hybrid learning-based solutions in other physical systems.},
+  langid = {english},
+  keywords = {.toread,Aerospace engineering,Agile Flight,Computer science,Electrical and electronic engineering,Important,Mechanical engineering},
+  file = {/home/amit/snap/zotero-snap/common/Zotero/storage/WTHVDE7I/Kaufmann et al. - 2023 - Champion-level drone racing using deep reinforcement learning.pdf}
+}
+
 @misc{kimSpikingYOLOSpikingNeural2019,
   title = {Spiking-{{YOLO}}: {{Spiking Neural Network}} for {{Energy-Efficient Object Detection}}},
   shorttitle = {Spiking-{{YOLO}}},
@@ -298,6 +388,26 @@
   file = {/home/amit/snap/zotero-snap/common/Zotero/storage/8XUD8GUK/Lee et al. - 2011 - Control of Complex Maneuvers for a Quadrotor UAV using Geometric Methods on SE(3).pdf;/home/amit/snap/zotero-snap/common/Zotero/storage/9JBFMLFU/1003.html}
 }
 
+@article{loquercioLearningHighSpeedFlight2021,
+  title = {Learning {{High-Speed Flight}} in the {{Wild}}},
+  author = {Loquercio, Antonio and Kaufmann, Elia and Ranftl, Ren{\'e} and M{\"u}ller, Matthias and Koltun, Vladlen and Scaramuzza, Davide},
+  year = 2021,
+  month = oct,
+  journal = {Science Robotics},
+  volume = {6},
+  number = {59},
+  eprint = {2110.05113},
+  primaryclass = {cs},
+  pages = {eabg5810},
+  issn = {2470-9476},
+  doi = {10.1126/scirobotics.abg5810},
+  urldate = {2025-04-04},
+  abstract = {Quadrotors are agile. Unlike most other machines, they can traverse extremely complex environments at high speeds. To date, only expert human pilots have been able to fully exploit their capabilities. Autonomous operation with on-board sensing and computation has been limited to low speeds. State-of-the-art methods generally separate the navigation problem into subtasks: sensing, mapping, and planning. While this approach has proven successful at low speeds, the separation it builds upon can be problematic for high-speed navigation in cluttered environments. Indeed, the subtasks are executed sequentially, leading to increased processing latency and a compounding of errors through the pipeline. Here we propose an end-to-end approach that can autonomously fly quadrotors through complex natural and man-made environments at high speeds, with purely onboard sensing and computation. The key principle is to directly map noisy sensory observations to collision-free trajectories in a receding-horizon fashion. This direct mapping drastically reduces processing latency and increases robustness to noisy and incomplete perception. The sensorimotor mapping is performed by a convolutional network that is trained exclusively in simulation via privileged learning: imitating an expert with access to privileged information. By simulating realistic sensor noise, our approach achieves zero-shot transfer from simulation to challenging real-world environments that were never experienced during training: dense forests, snow-covered terrain, derailed trains, and collapsed buildings. Our work demonstrates that end-to-end policies trained in simulation enable high-speed autonomous flight through challenging environments, outperforming traditional obstacle avoidance pipelines.},
+  archiveprefix = {arXiv},
+  keywords = {Agile Flight,Computer Science - Machine Learning,Computer Science - Robotics,Computer Science - Systems and Control,Electrical Engineering and Systems Science - Systems and Control,important},
+  file = {/home/amit/snap/zotero-snap/common/Zotero/storage/5DVN2KWW/Learning high-speed flight in the wild.pdf;/home/amit/snap/zotero-snap/common/Zotero/storage/MJD2BWEL/Loquercio et al. - 2021 - Learning High-Speed Flight in the Wild.pdf;/home/amit/snap/zotero-snap/common/Zotero/storage/3ATNAZPF/scirobotics.html;/home/amit/snap/zotero-snap/common/Zotero/storage/ZW9XLPMD/2110.html}
+}
+
 @article{lunghiEnergyEfficiencyAnalysis2025,
   title = {Energy Efficiency Analysis of {{Spiking Neural Networks}} for Space Applications},
   author = {Lunghi, Paolo and Silvestrini, Stefano and Dold, Dominik and Meoni, Gabriele and Hadjiivanov, Alexander and Izzo, Dario},
@@ -318,6 +428,23 @@
   file = {/home/amit/snap/zotero-snap/common/Zotero/storage/8JAFF5YT/Lunghi et al. - 2025 - Energy efficiency analysis of Spiking Neural Networks for space applications.pdf;/home/amit/snap/zotero-snap/common/Zotero/storage/ZGSPC4GK/2505.html}
 }
 
+@article{messikommerApproximateImitationLearning,
+  title = {Approximate {{Imitation Learning}} for {{Event}}-Based {{Quadrotor Flight}} in {{Cluttered Environments}}},
+  author = {Messikommer, Nico and Xing, Jiaxu and Bauersfeld, Leonard and Cannici, Marco and Aljalbout, Elie and Scaramuzza, Davide},
+  abstract = {Event cameras offer high temporal resolution and low latency, making them ideal sensors for high-speed robotic applications where conventional cameras suffer from image degradations such as motion blur. In addition, their low power consumption can enhance endurance, which is critical for resourceconstrained platforms. Motivated by these properties, we present a novel approach that enables a quadrotor to fly through cluttered environments at high speed by perceiving the environment with a single event camera. Our proposed method employs an end-toend neural network trained to map event data directly to control commands, eliminating the reliance on standard cameras. To enable efficient training in simulation, where rendering synthetic event data is computationally expensive, we propose Approximate Imitation Learning, a novel imitation learning framework. Our approach leverages a large-scale offline dataset to learn a taskspecific representation space. Subsequently, the policy is trained through online interactions that rely solely on lightweight, simulated state information, eliminating the need to render events during training. This enables the efficient training of event-based control policies for fast quadrotor flight, highlighting the potential of our framework for other modalities where data simulation is costly or impractical. Our approach outperforms standard imitation learning baselines in simulation and demonstrates robust performance in real-world flight tests, achieving speeds up to 9.8 ms-1 in cluttered environments.},
+  langid = {english},
+  keywords = {.toread,Agile Flight,Event Camera,important,Neuromorphic,SNN},
+  file = {/home/amit/snap/zotero-snap/common/Zotero/storage/3ZWNI7XG/Messikommer et al. - 2026 - Approximate Imitation Learning for Event-based Quadrotor Flight in Cluttered Environments.pdf;/home/amit/snap/zotero-snap/common/Zotero/storage/R27IEWSQ/Messikommer et al. - Approximate Imitation Learning for Event-based Quadrotor Flight in Cluttered Environments.pdf;/home/amit/snap/zotero-snap/common/Zotero/storage/4PVGUL7G/2603.html}
+}
+
+@article{messikommerApproximateImitationLearninga,
+  title = {Approximate {{Imitation Learning}} for {{Event}}-Based {{Quadrotor Flight}} in {{Cluttered Environments}}},
+  author = {Messikommer, Nico and Xing, Jiaxu and Bauersfeld, Leonard and Cannici, Marco and Aljalbout, Elie and Scaramuzza, Davide},
+  abstract = {Event cameras offer high temporal resolution and low latency, making them ideal sensors for high-speed robotic applications where conventional cameras suffer from image degradations such as motion blur. In addition, their low power consumption can enhance endurance, which is critical for resourceconstrained platforms. Motivated by these properties, we present a novel approach that enables a quadrotor to fly through cluttered environments at high speed by perceiving the environment with a single event camera. Our proposed method employs an end-toend neural network trained to map event data directly to control commands, eliminating the reliance on standard cameras. To enable efficient training in simulation, where rendering synthetic event data is computationally expensive, we propose Approximate Imitation Learning, a novel imitation learning framework. Our approach leverages a large-scale offline dataset to learn a taskspecific representation space. Subsequently, the policy is trained through online interactions that rely solely on lightweight, simulated state information, eliminating the need to render events during training. This enables the efficient training of event-based control policies for fast quadrotor flight, highlighting the potential of our framework for other modalities where data simulation is costly or impractical. Our approach outperforms standard imitation learning baselines in simulation and demonstrates robust performance in real-world flight tests, achieving speeds up to 9.8 ms-1 in cluttered environments.},
+  langid = {english},
+  file = {/home/amit/snap/zotero-snap/common/Zotero/storage/TW4U3GQ9/Messikommer et al. - Approximate Imitation Learning for Event-based Quadrotor Flight in Cluttered Environments.pdf}
+}
+
 @misc{neftciSurrogateGradientLearning2019a,
   title = {Surrogate {{Gradient Learning}} in {{Spiking Neural Networks}}},
   author = {Neftci, Emre O. and Mostafa, Hesham and Zenke, Friedemann},
@@ -335,6 +462,23 @@
   file = {/home/amit/snap/zotero-snap/common/Zotero/storage/NHIP5YIA/Neftci et al. - 2019 - Surrogate Gradient Learning in Spiking Neural Networks.pdf;/home/amit/snap/zotero-snap/common/Zotero/storage/A6ESV3NF/1901.html}
 }
 
+@misc{paredes-vallesFullyNeuromorphicVision2023,
+  title = {Fully Neuromorphic Vision and Control for Autonomous Drone Flight},
+  author = {{Paredes-Vall{\'e}s}, Federico and Hagenaars, Jesse and Dupeyroux, Julien and Stroobants, Stein and Xu, Yingfu and de Croon, Guido},
+  year = 2023,
+  month = mar,
+  number = {arXiv:2303.08778},
+  eprint = {2303.08778},
+  primaryclass = {cs},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.2303.08778},
+  urldate = {2025-04-04},
+  abstract = {Biological sensing and processing is asynchronous and sparse, leading to low-latency and energy-efficient perception and action. In robotics, neuromorphic hardware for event-based vision and spiking neural networks promises to exhibit similar characteristics. However, robotic implementations have been limited to basic tasks with low-dimensional sensory inputs and motor actions due to the restricted network size in current embedded neuromorphic processors and the difficulties of training spiking neural networks. Here, we present the first fully neuromorphic vision-to-control pipeline for controlling a freely flying drone. Specifically, we train a spiking neural network that accepts high-dimensional raw event-based camera data and outputs low-level control actions for performing autonomous vision-based flight. The vision part of the network, consisting of five layers and 28.8k neurons, maps incoming raw events to ego-motion estimates and is trained with self-supervised learning on real event data. The control part consists of a single decoding layer and is learned with an evolutionary algorithm in a drone simulator. Robotic experiments show a successful sim-to-real transfer of the fully learned neuromorphic pipeline. The drone can accurately follow different ego-motion setpoints, allowing for hovering, landing, and maneuvering sideways\$\textbackslash unicode\textbraceleft x2014\textbraceright\$even while yawing at the same time. The neuromorphic pipeline runs on board on Intel's Loihi neuromorphic processor with an execution frequency of 200 Hz, spending only 27 \$\textbackslash unicode\textbraceleft x00b5\textbraceright\$J per inference. These results illustrate the potential of neuromorphic sensing and processing for enabling smaller, more intelligent robots.},
+  archiveprefix = {arXiv},
+  keywords = {Computer Science - Artificial Intelligence,Computer Science - Computer Vision and Pattern Recognition,Computer Science - Machine Learning,Computer Science - Neural and Evolutionary Computing,Computer Science - Robotics,important,Neuromorphic},
+  file = {/home/amit/snap/zotero-snap/common/Zotero/storage/SCE2S9JN/Paredes-Vallés et al. - 2023 - Fully neuromorphic vision and control for autonomous drone flight.pdf;/home/amit/snap/zotero-snap/common/Zotero/storage/UNC42E66/2303.html}
+}
+
 @misc{songLearningPerceptionAwareAgile2023,
   title = {Learning {{Perception-Aware Agile Flight}} in {{Cluttered Environments}}},
   author = {Song, Yunlong and Shi, Kexin and Penicka, Robert and Scaramuzza, Davide},
@@ -350,6 +494,40 @@
   archiveprefix = {arXiv},
   keywords = {.toread,Agile Flight,Computer Science - Artificial Intelligence,Computer Science - Robotics,important},
   file = {/home/amit/snap/zotero-snap/common/Zotero/storage/H8V5ZIZH/Song et al. - 2023 - Learning Perception-Aware Agile Flight in Cluttered Environments.pdf;/home/amit/snap/zotero-snap/common/Zotero/storage/QMT5BPM4/2210.html}
+}
+
+@misc{spiglerProximalPolicyDistillation2025,
+  title = {Proximal {{Policy Distillation}}},
+  author = {Spigler, Giacomo},
+  year = 2025,
+  month = jun,
+  number = {arXiv:2407.15134},
+  eprint = {2407.15134},
+  primaryclass = {cs.LG},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.2407.15134},
+  urldate = {2026-06-17},
+  abstract = {We introduce Proximal Policy Distillation (PPD), a novel policy distillation method that integrates student-driven distillation and Proximal Policy Optimization (PPO) to increase sample efficiency and to leverage the additional rewards that the student policy collects during distillation. To assess the efficacy of our method, we compare PPD with two common alternatives, student-distill and teacher-distill, over a wide range of reinforcement learning environments that include discrete actions and continuous control (ATARI, Mujoco, and Procgen). For each environment and method, we perform distillation to a set of target student neural networks that are smaller, identical (self-distillation), or larger than the teacher network. Our findings indicate that PPD improves sample efficiency and produces better student policies compared to typical policy distillation approaches. Moreover, PPD demonstrates greater robustness than alternative methods when distilling policies from imperfect demonstrations. The code for the paper is released as part of a new Python library built on top of stable-baselines3 to facilitate policy distillation: `sb3-distill'.},
+  archiveprefix = {arXiv},
+  keywords = {.toread,Computer Science - Artificial Intelligence,Computer Science - Machine Learning,PPO,reinforcement-learning,RL},
+  file = {/home/amit/snap/zotero-snap/common/Zotero/storage/A6NRQW82/Spigler - 2025 - Proximal Policy Distillation.pdf;/home/amit/snap/zotero-snap/common/Zotero/storage/D5MS9BRS/Spigler - 2025 - Proximal Policy Distillation.pdf;/home/amit/snap/zotero-snap/common/Zotero/storage/GMGNMPP4/2407.html}
+}
+
+@misc{stroobantsNeuromorphicAttitudeEstimation2025,
+  title = {Neuromorphic {{Attitude Estimation}} and {{Control}}},
+  author = {Stroobants, Stein and de Wagter, Christophe and Croon, Guido C. H. E. De},
+  year = 2025,
+  month = mar,
+  number = {arXiv:2411.13945},
+  eprint = {2411.13945},
+  primaryclass = {cs},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.2411.13945},
+  urldate = {2025-04-04},
+  abstract = {The real-world application of small drones is mostly hampered by energy limitations. Neuromorphic computing promises extremely energy-efficient AI for autonomous flight but is still challenging to train and deploy on real robots. To reap the maximal benefits from neuromorphic computing, it is necessary to perform all autonomy functions end-to-end on a single neuromorphic chip, from low-level attitude control to high-level navigation. This research presents the first neuromorphic control system using a spiking neural network (SNN) to effectively map a drone's raw sensory input directly to motor commands. We apply this method to low-level attitude estimation and control for a quadrotor, deploying the SNN on a tiny Crazyflie. We propose a modular SNN, separately training and then merging estimation and control sub-networks. The SNN is trained with imitation learning, using a flight dataset of sensory-motor pairs. Post-training, the network is deployed on the Crazyflie, issuing control commands from sensor inputs at 500Hz. Furthermore, for the training procedure we augmented training data by flying a controller with additional excitation and time-shifting the target data to enhance the predictive capabilities of the SNN. On the real drone, the perception-to-control SNN tracks attitude commands with an average error of 3.0 degrees, compared to 2.7 degrees for the regular flight stack. We also show the benefits of the proposed learning modifications for reducing the average tracking error and reducing oscillations. Our work shows the feasibility of performing neuromorphic end-to-end control, laying the basis for highly energy-efficient and low-latency neuromorphic autopilots.},
+  archiveprefix = {arXiv},
+  keywords = {.toread,Agile Flight,Computer Science - Machine Learning,Computer Science - Neural and Evolutionary Computing,Computer Science - Robotics,important,Neuromorphic},
+  file = {/home/amit/snap/zotero-snap/common/Zotero/storage/EGCRV54D/Stroobants et al. - 2025 - Neuromorphic Attitude Estimation and Control.pdf;/home/amit/snap/zotero-snap/common/Zotero/storage/VM9TEYV4/2411.html}
 }
 
 @misc{suDeepDirectlyTrainedSpiking2023,
@@ -402,8 +580,24 @@
   urldate = {2026-02-25},
   abstract = {The energy-efficient control of mobile robots is crucial as the complexity of their real-world applications increasingly involves high-dimensional observation and action spaces, which cannot be offset by limited on-board resources. An emerging non-Von Neumann model of intelligence, where spiking neural networks (SNNs) are run on neuromorphic processors, is regarded as an energy-efficient and robust alternative to the state-of-the-art real-time robotic controllers for low dimensional control tasks. The challenge now for this new computing paradigm is to scale so that it can keep up with real-world tasks. To do so, SNNs need to overcome the inherent limitations of their training, namely the limited ability of their spiking neurons to represent information and the lack of effective learning algorithms. Here, we propose a population-coded spiking actor network (PopSAN) trained in conjunction with a deep critic network using deep reinforcement learning (DRL). The population coding scheme dramatically increased the representation capacity of the network and the hybrid learning combined the training advantages of deep networks with the energy-efficient inference of spiking networks. To show the general applicability of our approach, we integrated it with a spectrum of both on-policy and off-policy DRL algorithms. We deployed the trained PopSAN on Intel's Loihi neuromorphic chip and benchmarked our method against the mainstream DRL algorithms for continuous control. To allow for a fair comparison among all methods, we validated them on OpenAI gym tasks. Our Loihi-run PopSAN consumed 140 times less energy per inference when compared against the deep actor network on Jetson TX2, and had the same level of performance. Our results support the efficiency of neuromorphic controllers and suggest our hybrid RL as an alternative to deep learning, when both energy-efficiency and robustness are important.},
   archiveprefix = {arXiv},
-  keywords = {Computer Science - Machine Learning,Computer Science - Neural and Evolutionary Computing,Computer Science - Robotics},
+  keywords = {Computer Science - Machine Learning,Computer Science - Neural and Evolutionary Computing,Computer Science - Robotics,important,SNN},
   file = {/home/amit/snap/zotero-snap/common/Zotero/storage/LHFERT84/Tang et al. - 2020 - Deep Reinforcement Learning with Population-Coded Spiking Neural Network for Continuous Control.pdf;/home/amit/snap/zotero-snap/common/Zotero/storage/QC2US9TA/2010.09635}
+}
+
+@article{vanbreukelencastilloSpikingNeuralNetworks2026,
+  title = {Spiking {{Neural Networks}} for {{High-Speed Continuous Quadcopter Control Using Proximal Policy Optimization}}},
+  author = {Van Breukelen Castillo, Michael Fernando and Ferede, Robin and Vos, Reinier and De Wagter, Christophe and De Croon, Guido},
+  year = 2026,
+  month = sep,
+  journal = {Unmanned Systems},
+  pages = {1--13},
+  issn = {2301-3850, 2301-3869},
+  doi = {10.1142/S2301385027410147},
+  urldate = {2026-10-25},
+  abstract = {We present the first fully spiking actor-critic neural network policy, trained via Proximal Policy Optimization (PPO), for continuous control of a high-speed quadcopter in a gate-based navigation task. The spiking neural network (SNN) controller uses Leaky Integrate-and-Fire neurons with surrogate gradient training and spike-rate decoding over multiple integration cycles. The SNN is benchmarked against a comparable artificial neural network (ANN) in both simulation and real-world flight. Despite training to the same reward level, the SNN achieves superior simulation performance with higher episode rewards, greater robustness, and reduced crash rates. In 12-second real-world trials, the SNN also outperforms the ANN, attaining higher average reward (70.63 versus 59.77), greater mean velocity (7.94 versus 6.99[Formula: see text]m/s), and more gates cleared (46.33 versus 40.67). Analysis of the spike-integration cycle count reveals a trade-off: lower counts reduce control output resolution and hinder learning, while higher counts improve smoothness but increase inference latency. Moderate cycle counts (five or eight) provide the best balance of high rewards, smooth outputs, and low overhead. These findings demonstrate that SNN-based policies can outperform conventional ANN controllers in high-speed, agile robotic tasks, representing a key step toward neuromorphic control in embedded autonomous systems.},
+  langid = {english},
+  keywords = {Agile Flight,SNN},
+  file = {/home/amit/snap/zotero-snap/common/Zotero/storage/XEMJ9258/Van Breukelen Castillo et al. - 2026 - Spiking Neural Networks for High-Speed Continuous Quadcopter Control Using Proximal Policy Optimizat.pdf}
 }
 
 @article{vidalUltimateSLAMCombining2018,

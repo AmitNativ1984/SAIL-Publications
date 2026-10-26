@@ -1,0 +1,18 @@
+\documentclass[border=2pt]{standalone}
+\usepackage{pgfplots}
+\usepackage{sysfig}
+\pgfplotsset{compat=1.18}
+\input{surrogate_common}
+\begin{document}
+\begin{tikzpicture}
+\begin{axis}[surr axis, ymin=-0.1, ymax=1.15, ytick={0,0.5,1},
+             ylabel={$S$}, legend pos=north west]
+  \addplot[surr atan] table[x=x, y=s_atan] {surrogate_data.dat};
+  \addlegendentry{$\tilde{S}_{\arctan}$}
+  \addplot[surr sig] table[x=x, y=s_sig] {surrogate_data.dat};
+  \addlegendentry{$\tilde{S}_{sig}$}
+  \addplot[heavi] coordinates {(-4,0) (0,0) (0,1) (4,1)};
+  \addlegendentry{$H(U-U_{th})$}
+\end{axis}
+\end{tikzpicture}
+\end{document}

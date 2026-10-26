@@ -176,8 +176,7 @@ The student is first trained to clone the teacher's action mean. Following DAgge
 \end{table}
 
 \paragraph{Proximal policy distillation.}
-% TODO cite: Spigler, Proximal Policy Distillation (2024)
-The warm-started student is then fine-tuned with PPO while a frozen teacher regularises it:
+The warm-started student is then fine-tuned with PPO while a frozen teacher regularises it, following proximal policy distillation~\cite{spiglerProximalPolicyDistillation2025}:
 \begin{equation}
     \mathcal{L} = \mathcal{L}_{\mathrm{PPO}} + \lambda_{\mathrm{KD}} \sum_{a} D_{\mathrm{KL}}\!\left(\pi^{a}_{\mathrm{teacher}} \,\|\, \pi^{a}_{\mathrm{student}}\right),
     \label{eq:ppd}

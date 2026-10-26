@@ -1,0 +1,64 @@
+\documentclass[tikz,border=2pt]{standalone}
+\usepackage{sysfig}
+% small fully connected network glyph for the policy block
+\newcommand{\mlpglyph}{\tikz[x=1mm, y=1mm, baseline=0pt]{
+  \def\layers{{4,5,5,3}}
+  \foreach \l/\n in {0/4,1/5,2/5,3/4} {\foreach \i in {1,...,\n} {\coordinate (m\l-\i) at (\l*6.5, {(\i-(\n+1)/2)*1.6});}}
+  \foreach \l/\n/\m in {0/4/5,1/5/5,2/5/4} {\pgfmathtruncatemacro{\nl}{\l+1}
+    \foreach \i in {1,...,\n} {\foreach \j in {1,...,\m} {\draw[sfBlue!55, line width=0.2pt] (m\l-\i) -- (m\nl-\j);}}}
+  \foreach \l/\n in {0/4,1/5,2/5,3/4} {\foreach \i in {1,...,\n} {\fill[white] (m\l-\i) circle (0.55); \draw[sfBlue!90!black, line width=0.35pt] (m\l-\i) circle (0.55);}}
+}}
+\begin{document}
+\begin{tikzpicture}[sf, node distance=5mm and 8mm]
+  \def\cell{0.55mm}  % height of one vector element
+  \def\vw{5mm}       % vector width
+
+  % depth input
+  \node[inner sep=0pt, draw=black!60, line width=0.4pt] (img) {\includegraphics[width=18mm]{depth_sample.png}};
+  \node[font=\scriptsize, above=1pt of img] {Depth image ($320\times180$)};
+
+  % perception
+  \node[ann, frozen, right=of img, trapezium, shape border rotate=270, trapezium stretches body, trapezium left angle=74, trapezium right angle=74, minimum height=15mm, minimum width=11.5mm, rounded corners=1pt, inner sep=1pt] (dce) {DCE\\encoder};
+  \node[inner sep=0pt] at ($(dce.east)+(0.3mm,3.6mm)$) {\snowflake};
+
+  % observation vector: z (32) stacked on s (17); z centred on the DCE row
+  \coordinate (vtop) at ($(dce.east)+(15mm, 16*\cell)$);
+  \coordinate (vmid) at ($(vtop)+(0,-32*\cell)$);
+  \coordinate (vbot) at ($(vmid)+(0,-17*\cell)$);
+  \fill[sfBlue!22] (vtop) rectangle ($(vmid)+(\vw,0)$);
+  \fill[black!12]  (vmid) rectangle ($(vbot)+(\vw,0)$);
+  \draw[line width=0.6pt] (vmid) -- ++(\vw,0);
+  \draw[line width=0.6pt] (vtop) rectangle ($(vbot)+(\vw,0)$);
+  \node[font=\scriptsize] at ($(vtop)!0.5!(vmid)+(0.5*\vw,0)$) {$z_t$};
+  \node[font=\scriptsize] at ($(vmid)!0.5!(vbot)+(0.5*\vw,0)$) {$s_t$};
+  \node[dim, below=1pt] at ($(vbot)+(0.5*\vw,0)$) {$o_t\in\mathbb{R}^{49}$};
+  \coordinate (zin)  at ($(vtop)!0.5!(vmid)$);
+  \coordinate (sin)  at ($(vmid)!0.5!(vbot)$);
+  \coordinate (vout) at ($(vtop)!0.5!(vbot)+(\vw,0)$);
+
+  % state input directly under the depth image: both raw inputs in one column
+  \node[io, anchor=center, minimum width=18mm, font=\footnotesize] (state) at (img |- sin) {Drone state};
+
+  % policy and output on the main row
+  \node[ann, trainable, anchor=west, minimum width=30mm] (pol) at ($(vout)+(9mm,0)$) {Policy $\pi_{\mathrm{ANN}}$\\[1.5pt]\mlpglyph};
+  \trainmark{pol}
+  \coordinate (atop) at ($(pol.east)+(10mm,2*3.6mm)$);
+  % ---------- action vector a_t = (T, phi, theta, psidot), drawn like o_t ----------
+  \def\ah{3.6mm}\def\aw{6.5mm}
+  \foreach \k/\lab in {0/{$T$},1/{$\phi$},2/{$\theta$},3/{$\dot\psi$}} {
+    \node[draw, line width=0.6pt, fill=white, minimum width=\aw, minimum height=\ah, inner sep=0pt,
+          font=\scriptsize, anchor=north west] (a\k) at ($(atop)+(0,-\k*\ah)$) {\lab};
+  }
+  \node[font=\scriptsize, above=1pt of a0, align=center] {Attitude\\command};
+  \node[dim, below=1pt of a3] {$a_t\in\mathbb{R}^{4}$};
+
+
+  \draw[data] (img) -- (dce);
+  \draw[data] (dce) -- node[dim, above] {$z_t\in\mathbb{R}^{32}$} (zin);
+  \draw[data] (state) -- node[dim, above, pos=0.8] {$s_t\in\mathbb{R}^{17}$} (sin);
+  \draw[data] (vout) -- (pol);
+  \draw[data] (pol.east) -- (pol.east -| a1.west);
+
+  \sflegend{$(current bounding box.south west)+(0,-4mm)$}{ann,frozen,trained}
+\end{tikzpicture}
+\end{document}

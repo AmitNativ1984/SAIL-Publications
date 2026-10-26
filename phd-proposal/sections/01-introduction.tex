@@ -1,4 +1,6 @@
 \section{Introduction}
+Kaufmann et al.~\cite{kaufmannChampionlevelDroneRacing2023} presented Swift, the first autonomous system to beat human world champions in a physical sport, winning 15 of 25 drone races and setting the fastest lap (17.47\,s, 0.5\,s ahead of the best human pilot). The control policy was trained with model-free deep RL (PPO) in simulation, while onboard perception fused visual-inertial odometry with a CNN-based gate detector. To bridge the sim-to-real gap, the simulator was augmented with residual models learned from real flight data: Gaussian processes for perception errors and $k$-nearest-neighbor regression for dynamics. Swift reached speeds of $\sim$22\,m/s and accelerations of up to 5\,$g$.
+
 
 \subsection{Dissertation Organization}
 

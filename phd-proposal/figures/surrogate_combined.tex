@@ -1,0 +1,32 @@
+\documentclass[border=2pt]{standalone}
+\usepackage{pgfplots}
+\usepackage{sysfig}
+\pgfplotsset{compat=1.18}
+\input{surrogate_common}
+\usetikzlibrary{calc,positioning}
+\begin{document}
+\begin{tikzpicture}
+\begin{axis}[name=fwd, surr axis, scale only axis, width=6.4cm, height=3.8cm, ymin=-0.1, ymax=1.15, ytick={0,0.5,1},
+             ylabel={$S$}, legend pos=north west]
+  \addplot[surr atan] table[x=x, y=s_atan] {surrogate_data.dat};
+  \addlegendentry{$\tilde{S}_{\arctan}$}
+  \addplot[surr sig] table[x=x, y=s_sig] {surrogate_data.dat};
+  \addlegendentry{$\tilde{S}_{sig}$}
+  \addplot[heavi] coordinates {(-4,0) (0,0) (0,1) (4,1)};
+  \addlegendentry{$H(U-U_{th})$}
+\end{axis}
+\begin{axis}[name=der, at={($(fwd.south east)+(1.6cm,0)$)}, anchor=south west, surr axis, scale only axis, width=6.4cm, height=3.8cm, ymin=-0.1, ymax=1.5, ytick={0,0.5,1},
+             ylabel={$\partial S/\partial U$}, legend pos=north west]
+  \addplot[surr atan] table[x=x, y=d_atan] {surrogate_data.dat};
+  \addlegendentry{$\partial\tilde{S}_{\arctan}/\partial U$}
+  \addplot[surr sig] table[x=x, y=d_sig] {surrogate_data.dat};
+  \addlegendentry{$\partial\tilde{S}_{sig}/\partial U$}
+  \addplot[heavi] coordinates {(-4,0) (4,0)};
+  \addlegendentry{$\partial H/\partial U$}
+  \draw[heavi, -{Stealth[length=5pt]}] (axis cs:0,0) -- (axis cs:0,1.42)
+    node[right, font=\small, black] {$\delta(U-U_{th})$};
+\end{axis}
+\node[below=1pt, font=\small] at (fwd.south |- fwd.outer south) {(a)};
+\node[below=1pt, font=\small] at (der.south |- fwd.outer south) {(b)};
+\end{tikzpicture}
+\end{document}

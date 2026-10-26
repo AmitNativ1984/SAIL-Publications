@@ -1,0 +1,110 @@
+\documentclass[tikz,border=2pt]{standalone}
+\usepackage{sysfig}
+\definecolor{nA}{HTML}{1F77B4}\definecolor{nB}{HTML}{FF7F0E}\definecolor{nC}{HTML}{2CA02C}
+\definecolor{nD}{HTML}{D62728}\definecolor{nE}{HTML}{9467BD}
+\newcommand{\snnglyph}{\tikz[x=1mm, y=1mm, baseline=0pt]{
+  \foreach \l/\n in {0/4,1/5,2/5,3/4} {\foreach \i in {1,...,\n} {\coordinate (m\l-\i) at (\l*6.5, {(\i-(\n+1)/2)*1.6});}}
+  \foreach \l/\n/\m in {0/4/5,1/5/5,2/5/4} {\pgfmathtruncatemacro{\nl}{\l+1}
+    \foreach \i in {1,...,\n} {\foreach \j in {1,...,\m} {\draw[sfOrange!60, line width=0.2pt] (m\l-\i) -- (m\nl-\j);}}}
+  \foreach \l/\n in {0/4,1/5,2/5,3/4} {\foreach \i in {1,...,\n} {\fill[sfOrange!25] (m\l-\i) circle (0.55); \draw[sfOrange!80!black, line width=0.35pt] (m\l-\i) circle (0.55);
+    \draw[sfOrange!80!black, line width=0.35pt] ($(m\l-\i)+(0,-0.3)$) -- ++(0,0.6);}}
+}}
+% population module frame with two cards behind it standing for the other populations
+\newcommand{\popframe}[3]{% name, south-west, north-east
+  \foreach \o in {2.4,1.2} {\filldraw[fill=white, draw=sfOrange!55, line width=0.6pt, rounded corners=2pt]
+    ($#2+(\o,\o)$) rectangle ($#3+(\o,\o)$);}
+  \node[draw=sfOrange, line width=1.2pt, rounded corners=2pt, fill=sfOrange!8, inner sep=0pt, fit={#2 #3}] (#1) {};
+  \trainmark{#1}}
+% spike raster: x0, row index, colour, spike times (t = 1..8)
+\newcommand{\rasterrow}[4]{%
+  \draw[#3!35, line width=0.4pt] (#1+0.4, {-(#2+0.5)*\S}) -- ++(8.2,0);
+  \foreach \t in {#4} {\draw[#3, line width=0.6pt] (#1+\t, {-(#2+0.5)*\S-1.2}) -- ++(0,2.4);}}
+\begin{document}
+\begin{tikzpicture}[sf, x=1mm, y=1mm]
+  \def\S{4}\def\H{20}\def\sig{2.79}\def\ym{-10}
+  \def\ys{-7.6}  % s_i in stimulus coordinates (1.9 rows from the top)
+
+  % ---------- observation vector ----------
+  \foreach \k/\lab in {0/{$s_1$},1/{\rotatebox{90}{$\cdots$}},2/{$s_i$},3/{\rotatebox{90}{$\cdots$}},4/{$s_N$}} {
+    \node[draw, line width=0.6pt, fill=white, minimum width=6.5mm, minimum height=3mm, inner sep=0pt,
+          font=\scriptsize, anchor=north west] (s\k) at (0, {\ys+7.5-\k*3}) {\lab};}
+  \filldraw[fill=sfOrange!70, draw=black, line width=0.6pt] (s2.north west) rectangle (s2.south east);
+  \node[font=\scriptsize] at (s2) {$s_i$};
+  \node[font=\scriptsize, above=1pt of s0] {Observation};
+  \node[dim, below=1pt of s4] {$s\in\mathbb{R}^{N}$};
+
+  % ---------- population encoder E_i ----------
+  \popframe{enc}{(11,-22)}{(41,4.5)}
+  \node[font=\scriptsize, above=4pt of enc] {Population encoder $E_i$};
+  \node[font=\scriptsize] at (18,2.3) {$(\boldsymbol{\mu},\boldsymbol{\sigma})$};
+  \node[font=\scriptsize] at (28,2.3) {$\mathbf{A_E}$};
+  \node[font=\scriptsize] at (37.5,2.3) {IF};
+  % receptive fields, stimulus axis vertical
+  \draw[->, black!60, line width=0.4pt] (13,-\H) -- (13,0.3) node[dim, left=0pt, pos=0.97] {$s$};
+  \foreach \k/\c in {0/nA,1/nB,2/nC,3/nD,4/nE} {
+    \draw[\c, line width=0.7pt, domain={max(0,(\k+0.5)*\S-2.4*\sig)}:{min(\H,(\k+0.5)*\S+2.4*\sig)}, samples=60, smooth]
+      plot ({13+7*exp(-((\x-(\k+0.5)*\S)^2)/(2*\sig*\sig))}, -\x);}
+  \draw[black, dashed, line width=0.5pt] (13,\ys) -- ++(8,0);
+  % A_E for this s_i, from the Gaussians above
+  \foreach \k/\c/\a in {0/nA/0.134,1/nB/0.849,2/nC/0.693,3/nD/0.073,4/nE/0.001} {
+    \fill[\c, draw=black, line width=0.3pt] ({13+7*\a},\ys) circle (0.6);
+    \fill[\c] (24.5, {-(\k+0.5)*\S-0.75}) rectangle ++({7*\a+0.15},1.5);
+    \draw[->, black!45, line width=0.4pt] ({24.5+7*\a+0.8}, {-(\k+0.5)*\S}) -- (36.4, {-(\k+0.5)*\S});
+    \filldraw[fill=white, draw=\c, line width=0.6pt] (37.5, {-(\k+0.5)*\S}) circle (1.1);}
+  \draw[black!60, line width=0.4pt] (24.5,0) -- (24.5,-\H);
+  \draw[data] (s2.east) -- (12.4,\ys);
+
+  % ---------- input spikes: soft-reset IF, threshold 1, T = 8 ----------
+  \def\rx{43.5}
+  \rasterrow{\rx}{0}{nA}{8}
+  \rasterrow{\rx}{1}{nB}{2,3,4,5,6,8}
+  \rasterrow{\rx}{2}{nC}{2,3,5,6,8}
+  \rasterrow{\rx}{3}{nD}{}
+  \rasterrow{\rx}{4}{nE}{}
+  \draw[->, black!60, line width=0.4pt] (\rx+0.4,-\H-1.2) -- ++(8.6,0) node[dim, right=-1pt] {$t$};
+
+  % ---------- spiking network ----------
+  % stacked copies: the same network is unrolled over the T timesteps
+  \foreach \o in {3,1.5} {\filldraw[fill=sfOrange!12, draw=sfOrange!70, line width=0.8pt, rounded corners=2pt]
+    ($(58.5,-16.5)+(\o,\o)$) rectangle ($(87.5,-3.5)+(\o,\o)$);}
+  \node[snn, trainable, minimum height=13mm, minimum width=29mm] (pol) at (73,\ym) {SNN\\[1.5pt]\snnglyph};
+  \draw[->, sfOrange!80!black, line width=0.6pt] ($(pol.north west)+(-1.5,0.5)$) -- ++(4,4)
+    node[right=0pt, font=\scriptsize, text=sfOrange!80!black] {$t=1,\dots,T$};
+  \trainmark{pol}
+  \node[dim, below=1pt of pol] {$K$ LIF layers, $T$ timesteps};
+  \draw[spikes] (\rx+9.5,\ym) -- (pol);
+
+  % ---------- output spikes of D_j ----------
+  \def\qx{94}
+  \rasterrow{\qx}{0}{nA}{3,7}
+  \rasterrow{\qx}{1}{nB}{1,2,4,5,7,8}
+  \rasterrow{\qx}{2}{nC}{2,4,6,8}
+  \rasterrow{\qx}{3}{nD}{3,6}
+  \rasterrow{\qx}{4}{nE}{5}
+  \draw[->, black!60, line width=0.4pt] (\qx+0.4,-\H-1.2) -- ++(8.6,0) node[dim, right=-1pt] {$t$};
+  \draw[spikes] (pol) -- (\qx,\ym);
+
+  % ---------- population decoder D_j ----------
+  \popframe{dec}{(105.5,-22)}{(127,4.5)}
+  \node[font=\scriptsize, above=4pt of dec] {Population decoder $D_j$};
+  \node[font=\scriptsize] at (110,2.3) {$\mathbf{fr}$};
+  \draw[black!60, line width=0.4pt] (107.5,0) -- (107.5,-\H);
+  \node[op, font=\small] (sum) at (122,\ym) {$\Sigma$};
+  \foreach \k/\c/\n in {0/nA/2,1/nB/6,2/nC/4,3/nD/2,4/nE/1} {
+    \fill[\c] (107.5, {-(\k+0.5)*\S-0.75}) rectangle ++({7*\n/8},1.5);
+    \draw[black!45, line width=0.4pt] ({107.5+7*\n/8+0.6}, {-(\k+0.5)*\S}) -- (sum);}
+  \node[dim, below=0.5pt of sum] {$W_d,b_d$};
+
+  % ---------- action vector ----------
+  \foreach \k/\lab in {0/{$a_1$},1/{\rotatebox{90}{$\cdots$}},2/{$a_j$},3/{\rotatebox{90}{$\cdots$}},4/{$a_M$}} {
+    \node[draw, line width=0.6pt, fill=white, minimum width=6.5mm, minimum height=3mm, inner sep=0pt,
+          font=\scriptsize, anchor=north west] (a\k) at (134, {\ym+7.5-\k*3}) {\lab};}
+  \filldraw[fill=sfOrange!70, draw=black, line width=0.6pt] (a2.north west) rectangle (a2.south east);
+  \node[font=\scriptsize] at (a2) {$a_j$};
+  \node[font=\scriptsize, above=1pt of a0] {Action};
+  \node[dim, below=1pt of a4] {$a\in\mathbb{R}^{M}$};
+  \draw[data] (sum) -- (a2.west);
+
+%  \sflegend{$(0,-43)$}{snn,trained,spikes}
+\end{tikzpicture}
+\end{document}
