@@ -1,0 +1,30 @@
+{
+ "checkpoint": "runs/f450_nav_ann/f450_nav_lat_pfov/2026-10-07_13-37-08/nn/f450_nav_lat_pfov.pth",
+ "epoch": 2663,
+ "policy": "MLP (feed-forward)",
+ "recurrent": false,
+ "mode": "deterministic",
+ "seed": 0,
+ "sigma": [
+  0.06856092810630798,
+  0.06755322962999344,
+  0.06581701338291168,
+  0.10490966588258743
+ ],
+ "level": 10,
+ "num_envs": 128,
+ "num_steps": 4000,
+ "episodes": 3379,
+ "counts": {
+  "arrive": 3278,
+  "crash": 85,
+  "timeout": 0,
+  "exceed": 16
+ },
+ "rates": {
+  "arrive": 0.9701094998520272,
+  "crash": 0.025155371411660254,
+  "timeout": 0.0,
+  "exceed": 0.004735128736312519
+ }
+}

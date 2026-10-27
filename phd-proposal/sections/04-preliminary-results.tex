@@ -1,8 +1,6 @@
 \section{Preliminary Results}
 \label{sec:prelim_results}
 
-\newcommand{\pending}[1]{\textbf{[Pending: #1]}}
-
 \subsection{Overview}
 \label{subsec:prelim_overview}
 Fully neuromorphic agile flight requires three parts: event-based sensing, a spiking neural network (SNN) that maps the events to low-level control commands, and neuromorphic hardware that runs it. The first stage of this research isolates the second part, training the SNN controller. We therefore keep the perception conventional: the policy observes a depth image, compressed by a frozen encoder, together with the drone's state, and outputs attitude commands that fly the drone through clutter it has never seen. Replacing the depth image with events is a later stage (Objective~3).
@@ -94,7 +92,21 @@ Within each range, the 10 means are spaced evenly with spacing $\Delta_i = (o_i^
 \subsection{Final Results}
 \label{subsec:final_results}
 
-\pending{deterministic evaluation of the ANN teacher and the SNN student at curriculum levels 10, 20 and 30 (success / crash / timeout), same protocol for both.}
+The final student is the constant-learning-rate run of Section~\ref{subsec:distill}, taken at epoch 950. We evaluate it and the ANN teacher in the same way: the deterministic policy (the action mean) flies 128 parallel environments for 4000 control steps at a fixed curriculum level, with a new obstacle set in every episode, which gives about 3,300 episodes per level. \autoref{tab:student_teacher} shows that the spiking student nearly matches its teacher. At every level its success rate is within 1.2 percentage points of the teacher's, and in the densest clutter, level 30, it succeeds in 84.9\% of the episodes against the teacher's 86.1\%. Almost all failures are collisions; neither policy times out.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Deterministic evaluation of the ANN teacher and the SNN student: success / crash rate (\%) per curriculum level, about 3,300 episodes each. The remaining episodes (at most 0.5\%) left the flight volume.}
+    \label{tab:student_teacher}
+    \begin{tabular}{lccc}
+        \hline
+        Policy & Level 10 & Level 20 & Level 30 \\
+        \hline
+        ANN teacher & 97.0 / 2.5 & 93.1 / 6.5 & 86.1 / 13.4 \\
+        SNN student & 96.3 / 3.5 & 91.9 / 7.9 & 84.9 / 14.8 \\
+        \hline
+    \end{tabular}
+\end{table}
 
 \subsubsection{Trained Encoders and Spiking Activity}
 \label{subsec:spikes}

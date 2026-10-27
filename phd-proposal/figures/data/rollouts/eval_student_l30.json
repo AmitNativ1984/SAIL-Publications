@@ -1,0 +1,30 @@
+{
+ "checkpoint": "runs/popsan_ann_teacher_distillation/popsan_ann_teacher_distillation_constlr1e4_bounds01/2026-10-14_12-55-51/nn/last_popsan_ann_teacher_distillation_constlr1e4_bounds01_ep_950_rew_6.6743236.pth",
+ "epoch": 950,
+ "policy": "PopSAN (spiking)",
+ "recurrent": false,
+ "mode": "deterministic",
+ "seed": 0,
+ "sigma": [
+  0.24359898269176483,
+  0.29378631711006165,
+  0.2884712219238281,
+  0.4287623465061188
+ ],
+ "level": 30,
+ "num_envs": 128,
+ "num_steps": 4000,
+ "episodes": 3374,
+ "counts": {
+  "arrive": 2866,
+  "crash": 501,
+  "timeout": 0,
+  "exceed": 7
+ },
+ "rates": {
+  "arrive": 0.8494368701837581,
+  "crash": 0.14848844101956135,
+  "timeout": 0.0,
+  "exceed": 0.002074688796680498
+ }
+}
