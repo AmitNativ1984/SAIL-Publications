@@ -1,221 +1,100 @@
 \section{Preliminary Results}
 \label{sec:prelim_results}
 
+\newcommand{\pending}[1]{\textbf{[Pending: #1]}}
 
-Accomplishing full neuromorphic agile flight in the wild requires event based sensing, maping the events into low   level control commands with a spiking neural network, and implementating it on neuromorphic hardware. Working towards this goal, an SNN control policy has been trained to map onboard sensing and depth images to attitude commands, and navigate the drone through obstacels in an unsceen environment. The approach is depcited in \autoref{fig:system_overview}. First, deep collision encoding \cite{kulkarniReinforcementLearningCollisionfree2024} is used to encode high risk collision zones in space. The latent space is concatenated with the drone's state space to form the overall policy observations. The training is then performed in two stages: first, an ANN network is trained with PPO actor critic and curriculum learning. This network is then becomes a teacher and distilled into an SNN. We now move to lay out each part of the system.  
+\subsection{Overview}
+\label{subsec:prelim_overview}
+Fully neuromorphic agile flight requires three parts: event-based sensing, a spiking neural network (SNN) that maps the events to low-level control commands, and neuromorphic hardware that runs it. The first stage of this research isolates the second part, training the SNN controller. We therefore keep the perception conventional: the policy observes a depth image, compressed by a frozen encoder, together with the drone's state, and outputs attitude commands that fly the drone through clutter it has never seen. Replacing the depth image with events is a later stage (Objective~3).
+
+Training a spiking policy for this task raised three problems, each discussed in Section~\ref{sec:related_work} and addressed here:
+\begin{itemize}
+    \item \textbf{RL from scratch stalls.} A population-coded spiking actor (PopSAN) trained with PPO from scratch does not progress through the curriculum, while an ANN with the same reward does (Section~\ref{subsec:scratch}). We therefore train an ANN teacher first and distil it into the SNN student, following proximal policy distillation (Section~\ref{subsec:distill}).
+    \item \textbf{Distillation is unstable once the teacher is released.} With an adaptive learning rate, the student collapses after the teacher term is annealed out. A constant learning rate keeps it close to the teacher (Section~\ref{subsec:distill}).
+    \item \textbf{Encoder neurons can be silent.} A population neuron whose receptive field lies where the observation never goes never fires and carries no information. We set the encoder ranges from the teacher's observation distribution (Section~\ref{subsec:bounds}).
+\end{itemize}
+The section first defines the problem (Section~\ref{subsec:problem}), then reports the training of each component (Section~\ref{subsec:training_results}), and finally the resulting student: its encoders, spiking activity and estimated energy (Section~\ref{subsec:final_results}).
 
 \input{sections/problem-definition}
 
-\subsection{Deep Collision Encoding}
-Deep collision encoding (DCE) \cite{kulkarniReinforcementLearningCollisionfree2024,kulkarniTaskdrivenCompressionCollision2023} accounts for the robot's size in order to appropriately "inflate" the obstacles represented in a depth image, and thus obtain the distance that can be traversed by the robot in a collision-free manner along any given ray within the camera frustum. These depth-and-collision pairs are then used to train a Variational Auto Encoder (VAE) in a supervised manner to compress and transform the orginal depth image to derive the latent representation encoding the collision information for that given depth image. This idea is simple and intuitive. 
+\subsection{Training Results}
+\label{subsec:training_results}
+Unless stated otherwise, the success and crash rates below are measured over the training episodes, in which the actions are sampled from the stochastic policy. Deterministic evaluations of the final policies are reported in Section~\ref{subsec:final_results}.
 
-Deriving the collision image from depth image requires inflating the obstcales in space by the drones volume and projecting them back to the camera. The most significant information is found around the obstacles edges. While the calculation is straight forward on the obstacle itself, simple 2D computer vision techniques cannot perform this inflation accurately, since the inflated area in the depth image is both dependant on the size of the robot and the distance to the point in 3D space. DCE first computes the dges of the depth image, randomly samples them and projectes the edge points onto the 3D space. Using parallerized rendering frameworks (such as NVIDIA's WARP), virtual meshes corresponding to the drone's volume are visualized around the corresponding points in 3D. Back projecting those visualized meshes back to the camera plane correctly captures the inflated regions around the obstcale edges.  
-Taking the minimum between the back projected image and the original depth image (from which the drone's volume is also subtracted) gives the collision mask (\autoref{fig:DCE}).
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=\linewidth]{vae_collision_encoding.png}
-    \caption{\textbf{Collision-aware depth encoding.} Left: raw $320 \times 180$ depth image from the simulated RealSense D435. Middle: collision target, in which every obstacle is dilated by the drone's collision sphere, so each pixel reports the depth at which the drone's centre would first make contact. Right: reconstruction from the 32-dimensional VAE latent. Gaps narrower than the airframe close in the target, so the latent encodes where the drone can fly rather than what the scene looks like.}
-    \label{fig:DCE}
-\end{figure}
-
-\subsubsection{DCE Data Collection and Training}
-For training, 85,000 depth images were collected in Aerial-Gym-Simulator \cite{kulkarniAerialGymSimulator2025a} through a simulated RealSense D435 camera (320x180 pixels, 87\textdegree{} HFOV, 0.1-10m range) in the same environments used for RL training. Obstacles where placed randomly by the task's Poisson process, at different density levels. The camera was teleported to four random poses anywhere in the environment, with roll and pitch up to $\pm 45^\circ$ and uniform yaw. Frames with fewer than 5\% valid (i.e in range) pixels were discarded. For each image the collision mask was precomputed by growing obstacles according to the drone's swept radius. The raw depth and collision images were inverse normalized as $d=1-\tilde{d}/d_{max}$ where $\tilde{d}$ is the raw depth, and $d_{max}=7m$ is the maximum clammped depth. We use a standard convolutional VAE, swith a 32 latent space representation. The reconstruction loss is the weighted MSE loss of the inverse normalized collision image, with more weight applied to closer obstacles through scaling parameter $\alpha\ge1$ (set to 5 in our experiments).
-
+\subsubsection{Deep Collision Encoding}
+\label{subsec:vae}
+We collected 85,000 depth images in the training environments, with obstacles placed by the task's Poisson process at different densities. The simulated RealSense D435 camera ($320 \times 180$ pixels, $87^\circ$ horizontal field of view, 0.1--10\,m range) was placed at random positions, with roll and pitch up to $\pm 45^\circ$ and uniform yaw, to cover the attitudes seen in flight. Frames with fewer than 5\% valid (in-range) pixels were discarded. For each image, the collision image was precomputed by inflating the obstacles by the drone's radius (Section~\ref{subsec:dce}). Depth $\tilde{d}$ is inverse-normalised as $d = 1 - \tilde{d}/d_{\max}$, with $d_{\max} = 7$\,m, so that near obstacles have large values. A convolutional VAE with a 32-dimensional latent is trained with a reconstruction loss that weights near obstacles more,
 \begin{equation}
-    \mathcal{L}_{recon} = \frac{1}{N}\sum_{n} (1+\alpha d)(\hat{d}-d)^2
+    \mathcal{L}_{\mathrm{recon}} = \frac{1}{N}\sum_{n=1}^{N} (1+\alpha d_n)(\hat{d}_n-d_n)^2 ,
     \label{eq:recon_loss}
 \end{equation}
+where $d_n$ is pixel $n$ of the collision image, $\hat{d}_n$ its reconstruction and $\alpha = 5$. The full loss is $\mathcal{L} = \mathcal{L}_{\mathrm{recon}} + \beta_{\mathrm{KL}} \mathcal{L}_{\mathrm{KL}}$ with $\beta_{\mathrm{KL}} = 0.001$.
 
-Consequently, the complete VAE loss is given by:
-\begin{equation}
-    \mathcal{L}=\mathcal{L}_{recon} + \beta \mathcal{L}_{KL}
-\end{equation}
+A first dataset of 43,000 images was rendered in a stand-alone environment that had drifted from the navigation task: it had no ground plane, lacked some obstacle classes, and used a $1280 \times 720$ camera downsampled offline. Re-collecting the data in the navigation environment itself, with the D435 camera model rendered natively at $320 \times 180$, reduced the validation loss from 0.0175 to 0.0125 ($-28\%$). \autoref{fig:DCE} shows example reconstructions.
 
-with $\beta$ set to 0.001. The results are shown in \autoref{fig:DCE}
-
-\subsection{ANN Training}
-
-\subsection{Population Encoding}
-
-\subsection{SNN from ANN Distillation}
-
-consists of encoding depth images and onboard measurements into spikes, decoding output spike trains into control commands, and distilling an SNN student network from an ANN teacher. 
-The consists of encoding the depth images and drone's state into spikes, tr 
-
-to control the drone's collective thrust and attitude from depth images and onboard measurements, and navigate it through an unseen environment with obstacels.
-
-\subsection{Overview}
-The control policy maps depth images and onboard sensing to attitude commands.  
-\begin{itemize}
-    \item \textbf{Training environment.} A GPU-parallel reinforcement learning environment built on Aerial Gym and Isaac Gym, in which thousands of quadrotors are simulated simultaneously with ray-cast depth cameras. The simulated vehicle is a digital twin of the lab's DJI F450 platform, matched parameter by parameter to its Gazebo/PX4 model, and trained with the measured perception latency and control rate (Section~\ref{subsec:simulation}).
-    \item \textbf{Perception.} A depth-image VAE trained with a collision-aware target, which compresses each depth frame into a 32-dimensional latent describing where the drone can and cannot fly (Section~\ref{subsec:vae}).
-    \item \textbf{ANN teacher.} An attitude-level navigation policy that flies through dense clutter, refined through a sequence of measurement-driven reward revisions that reduced the crash rate in the densest environments by over a third (Section~\ref{subsec:teacher}). Recurrent baselines were trained to test whether memory improves navigation (Section~\ref{subsec:memory}).
-    \item \textbf{Spiking student.} A population-coded SNN actor trained by distillation from the ANN teacher, with the failure modes of RL fine-tuning after distillation identified and resolved (Section~\ref{subsec:distill}). A spiking hover policy has also been trained and exported through the same deployment path.
-    \item \textbf{Deployment.} An export path to ONNX and a ROS~2 policy node that runs the depth encoder and actor against PX4, verified numerically against the training code and tested in Gazebo in a simulated pine forest (Section~\ref{subsec:simulation}). The physical F450 platform (Pixhawk 6C, Jetson Orin, RealSense D435) has been specified, sourced and is being assembled.
-\end{itemize}
-
-This section presents the results from the navigation task. The simulation environment and the sim-to-sim evaluation are described in the methodology.
-
-\subsection{Drone Navigation Through Clutter, Attitude Based SNN Controller}
-\label{sec:prelim}
-
-The first task studied is depth-based navigation of a quadrotor through dense clutter. The vehicle must fly from a start point to a target inside a $20 \times 20 \times [4,6]$\,m volume populated with trees, panels, spheres, cylinders and perimeter walls. Obstacles are placed by a Poisson process whose density grows over a curriculum of 30 levels; at level 25 an environment holds roughly 110--160 obstacles. All policies are trained in the GPU-parallel, Gazebo-matched F450 environment described in Section~\ref{subsec:simulation}, including the measured capture-to-control latency.
-
-The policy observes a 49-dimensional vector: a 17-dimensional state (unit direction and normalised range to the target, vehicle-frame velocity, body rates, gravity direction in the body frame and the previous command) and a 32-dimensional latent encoding of a $320 \times 180$ depth image. It outputs an attitude-level command, namely collective thrust, roll, pitch (bounded to $\pm 45^\circ$) and yaw rate (bounded to $\pm 60^\circ$/s), which is tracked by a low-level attitude controller at $\sim$33\,Hz. The episode terminates on arrival (reward $+10$ to $+15$, growing with curriculum level), collision ($-10$), leaving the volume, or timeout.
-
-Since training an SNN from scratch on this task proved slow and failed to progress through the curriculum, the approach is staged: a conventional ANN policy is first trained as a teacher (Sections~\ref{subsec:vae}--\ref{subsec:memory}), and is then distilled into a population-coded spiking student (Section~\ref{subsec:distill}).
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.6\linewidth]{scratch_curriculum.png}
-    \caption{\textbf{PPO from scratch: ANN vs.\ PopSAN.} Curriculum level reached during training, five ANN and six PopSAN runs in the same environment and reward (an earlier version of the task, 25 levels). Four of five ANN runs reach the top level; the best PopSAN run stalls at level 14 and four never leave level 0.}
-    \label{fig:scratch_curriculum}
-\end{figure}
-
-\subsubsection{Depth Perception with Collision Encoding}
-\label{subsec:vae}
-% TODO cite: Kulkarni & Alexis, Deep Collision Encoding (DCE)
-Depth images are compressed by a convolutional variational autoencoder (VAE) into a 32-dimensional latent. Following the deep collision encoding approach, the decoder is not trained to reconstruct the raw depth image but a \emph{collision image}: the obstacle set dilated (Minkowski sum) by the drone's collision sphere, so that each pixel reports the depth at which the drone's centre would first collide. The latent therefore encodes navigability rather than appearance.
-
-A first dataset (43k images) was rendered from a stand-alone environment that had drifted from the navigation task: no ground plane, missing obstacle classes, and a $1280 \times 720$ camera downsampled offline. The dataset was re-collected (85k images) by importing the navigation environment, obstacle placement and RealSense D435 camera model directly, rendering natively at $320 \times 180$ with camera-mount randomisation and flight-representative attitudes. On the re-collected data the validation loss dropped from 0.0175 to 0.0125 ($-28\%$). \autoref{fig:DCE} shows example reconstructions.
-
-
-
-\subsubsection{ANN Teacher Policy}
+\subsubsection{ANN Teacher}
 \label{subsec:teacher}
-The teacher is a multilayer perceptron actor-critic (hidden layers 256--256--64) trained with PPO over 1024 parallel environments. Three findings shaped the final policy.
+The teacher is a multilayer perceptron actor--critic with separate actor and critic networks (hidden layers 256--256--64, ELU), trained with PPO on 1024 parallel environments. It was trained in two stages (\autoref{fig:teacher_training}). From scratch, with the reward of Section~\ref{subsec:reward}, it climbed the curriculum steadily and reached the top level, 30, after 790 PPO epochs ($1.0 \times 10^8$ environment steps). It was then fine-tuned at level 30 with the measured capture-to-control latency added to the simulation. At level 30 it succeeds in 85.3\% of the training episodes and crashes in 14.2\%. This teacher is the reference the SNN student must match.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.6\linewidth]{teacher_training.png}
-    \caption{\textbf{Training of the ANN teacher used for distillation.} Top: curriculum level; level 30 is reached after $\sim 10^8$ environment steps. Bottom: success and crash rate of training episodes. The dashed line marks the fine-tune with the measured capture-to-control latency, with the curriculum pinned at level 30.}
+    \caption{\textbf{Training of the ANN teacher.} Top: curriculum level; level 30 is reached after $\sim 10^8$ environment steps. Bottom: success and crash rate of the training episodes. The dashed line marks the start of the fine-tune with the measured capture-to-control latency, with the curriculum fixed at level 30.}
     \label{fig:teacher_training}
 \end{figure}
 
-\paragraph{Action regularisation.}
-Early policies behaved as relays: commands were saturated at the action bounds for most of the episode, which is harmless in a latency-free simulator but not on a real vehicle. Two regularisation terms were ablated: a bounds loss on the pre-clamp action mean and a penalty on the action magnitude. Individually neither removed saturation; combined, the fraction of steps at the action limits dropped from $\sim$20\% to $\sim$2\% and the bounds loss decreased $8.3\times$, with task performance statistically unchanged (\autoref{fig:traces}).
+\subsubsection{PopSAN Trained from Scratch}
+\label{subsec:scratch}
+The student is a population-coded spiking actor network (PopSAN)~\cite{tangDeepReinforcementLearning2020} (Section~\ref{sec:related_work}, \autoref{fig:popsan_encoding}). Each of the 49 observation dimensions is encoded by a population of 10 neurons (490 in total), feeding two hidden layers of 256 current-based LIF neurons (synaptic decay $\alpha = 0.5$, membrane decay $\beta = 0.75$, threshold 0.5), simulated for $T = 5$ time steps per control step. Each of the 4 action dimensions is decoded from the firing rates of its own population of 10 output neurons. The critic is an ANN, used only during training.
+
+Trained with PPO from scratch, PopSAN does not progress through the curriculum. \autoref{fig:scratch_curriculum} compares six PopSAN runs with five ANN runs, trained on an earlier version of the task with the same environment and reward for both networks. Four of the five ANN runs reach the top level of that curriculum (25); the best PopSAN run stalls at level 14, and four of the six never leave level 0. Since the ANN learns the task and the SNN does not, the difficulty lies in training the spiking network, not in the task. This motivates training the ANN first and distilling it into the SNN.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.9\linewidth]{action_traces.png}
-    \caption{\textbf{Commanded actions under each regularisation term.} Normalised commands sent to the attitude controller over 3\,s of flight at curriculum level 25, from the same start pose and target. Dotted lines mark the action limits. With the bounds loss alone the policy repeatedly saturates roll, pitch and yaw rate; the magnitude penalty reduces amplitude; only the combination yields smooth, mostly unsaturated commands.}
-    \label{fig:traces}
+    \includegraphics[width=0.6\linewidth]{scratch_curriculum.png}
+    \caption{\textbf{PPO from scratch: ANN vs.\ PopSAN.} Curriculum level reached during training by five ANN (blue) and six PopSAN (orange) runs, with the same environment and reward (an earlier version of the task with 25 levels). Four of the five ANN runs reach the top level; the best PopSAN run stalls at level 14 and four never leave level 0.}
+    \label{fig:scratch_curriculum}
 \end{figure}
 
-\paragraph{Crash analysis.}
-Decomposing the episode return showed that a heading-alignment term contributed 52\% of the return, offering the policy roughly 7:1 odds in favour of flying straight at the target and accepting an 18\% crash rate. Analysis of the crashes themselves at level 30 showed:
-\begin{itemize}
-    \item 50.6\% of crash velocities lie outside the camera's $43.5^\circ$ horizontal half-FOV, and 34.3\% outside the $28.1^\circ$ vertical half-FOV: the drone collides with obstacles it cannot see.
-    \item 1.2\,s before impact, 96.0\% of crashes had a free corridor at least as wide as the airframe, and 85.0\% had one wider than 2\,m (median 5.1\,m). Crashes are therefore poor decisions, not entrapment.
-\end{itemize}
-
-\paragraph{Perception- and clearance-aware reward.}
-The heading term was removed and two penalties were introduced, both sized from measured rollout statistics rather than tuned by hand: $p_{\mathrm{fov}}$ penalises velocity directed outside the sensed frustum, and $p_{\mathrm{cbf}}$ is a discrete-time control barrier function penalising closing speed on the nearest obstacle in excess of what the current clearance allows. Table~\ref{tab:crash_progression} summarises the effect: the crash rate at level 30 dropped from 17.8\% to 11.0\%. Although trained with the curriculum pinned at level 30, the policy generalises to sparser environments (Table~\ref{tab:level_sweep}).
-
-\begin{table}[htbp]
-    \centering
-    \caption{Crash rate at curriculum level 30 (deterministic evaluation) across reward revisions.}
-    \label{tab:crash_progression}
-    \begin{tabular}{llc}
-        \hline
-        Policy & Reward & Crash rate \\
-        \hline
-        MLP & heading term (baseline) & 17.78\% \\
-        MLP & heading term removed, $p_{\mathrm{blind}}$ & 18.06\% \\
-        MLP & $+\,p_{\mathrm{fov}}$ & 12.16\% \\
-        MLP & $+\,p_{\mathrm{fov}} + p_{\mathrm{cbf}}$ & \textbf{11.01\%} \\
-        \hline
-    \end{tabular}
-\end{table}
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=\linewidth]{crash_atlas.png}
-    \caption{\textbf{Where crashes happen relative to the sensor.} Every collision at curriculum level 30 is binned by the body-frame direction of travel at impact; the dashed box is the depth camera's field of view ($\pm 43.5^\circ \times \pm 28.1^\circ$). In all three reward variants about two thirds of crashes occur while the drone is moving in a direction it cannot see. $p_{\mathrm{fov}}$ reduces the number of crashes by a third rather than changing where they occur.}
-    \label{fig:crash_atlas}
-\end{figure}
-
-\subsubsection{Does Memory Help?}
-\label{subsec:memory}
-Navigation from a single depth frame is partially observable: obstacles leave the field of view as the drone turns past them. To test whether memory helps, recurrent (GRU) actor-critics with sequence lengths 16 and 32 were trained under the same reward as the memoryless $p_{\mathrm{blind}}$ baseline. Table~\ref{tab:level_sweep} compares them with the final memoryless policy.
-
-\begin{table}[htbp]
-    \centering
-    \caption{Success / crash rate per curriculum level (deterministic evaluation). The GRU policies use the $p_{\mathrm{blind}}$ reward; the MLP uses $p_{\mathrm{fov}} + p_{\mathrm{cbf}}$.}
-    \label{tab:level_sweep}
-    \begin{tabular}{lccc}
-        \hline
-        Policy & Level 10 & Level 20 & Level 30 \\
-        \hline
-        MLP, $p_{\mathrm{fov}} + p_{\mathrm{cbf}}$ & \textbf{97.4 / 2.0} & \textbf{93.1 / 5.7} & \textbf{87.8 / 11.0} \\
-        GRU, seq.\ 16 & 96.2 / 3.5 & 90.8 / 8.7 & 82.5 / 17.0 \\
-        GRU, seq.\ 32 & 96.1 / 3.2 & 88.9 / 10.2 & 80.5 / 18.6 \\
-        \hline
-    \end{tabular}
-\end{table}
-
-Against their matched memoryless baseline (18.06\% crash), the recurrent policies gave no clear gain (16.97\% and 18.59\%), while reward design on a memoryless MLP reduced crashes by a third. The sequence-32 run was stopped while its crash rate was still decreasing, so the result is inconclusive rather than negative. It nevertheless indicates that explicit recurrence is costly to train for this task, and motivates the question of whether the intrinsic membrane state of an SNN can provide useful short-term memory at no extra cost (Objective~2).
-
-\subsubsection{ANN-to-SNN Policy Distillation}
+\subsubsection{Teacher--Student Distillation}
 \label{subsec:distill}
-The student is a population-coded spiking actor network (PopSAN)~\cite{tangDeepReinforcementLearning2020}. Two hidden layers of 256 current-based LIF neurons ($\beta = 0.75$) are simulated for $T = 5$ timesteps per control step. The critic remains a conventional ANN, since it is used only during training.
+The student is trained with proximal policy distillation~\eqref{eq:ppd_background}~\cite{spiglerProximalPolicyDistillation2025}: it collects its own rollouts and minimises the PPO loss plus the KL divergence between the teacher's and the student's Gaussian action distributions, weighted by $\lambda_{\mathrm{KD}}$. Training runs at curriculum level 30 with the teacher's reward, and the student's critic is initialised from the teacher's critic. The teacher term is annealed out as the student improves. $\lambda_{\mathrm{KD}}$ starts at 0.5 and is reduced by 5\% of its initial value at every curriculum check (every 16 rollouts) in which the student succeeds in at least half of its episodes. Guided by the teacher, the student learns quickly: its success rate reaches 75\% after 100 epochs and 83\% after 200, where PPO from scratch stalled at the lowest levels.
 
-\paragraph{Population encoding.}
-Each of the 49 observation dimensions $o_i$ is represented by a population of $N = 10$ encoder neurons (490 in total), following the population coding scheme illustrated in \autoref{fig:enc-population}. Neuron $j$ of dimension $i$ has a Gaussian receptive field with mean $\mu_{ij}$ and width $\sigma_{ij}$, and receives a constant input current
-\begin{equation}
-    A_{ij} = \exp\!\left(-\frac{(o_i - \mu_{ij})^2}{2\sigma_{ij}^2}\right), \qquad o_i \in [o_i^{\min}, o_i^{\max}],
-    \label{eq:grf}
-\end{equation}
-which drives a deterministic integrate-and-fire neuron (no leak, threshold $0.95$, reset by subtraction) for $T$ timesteps. The observation is thus represented by which neurons fire and how often: a value near a neuron's mean makes it fire on almost every step, while neighbouring neurons fire less. The means are initially spaced evenly across $[o_i^{\min}, o_i^{\max}]$ with widths of $0.75$ times the spacing, so that neighbouring fields overlap, and both are learned during training. The choice of bounds is critical. A neuron fires within the $T = 5$ step window only if $A_{ij} T \geq 0.95$, i.e.\ $A_{ij} \geq 0.19$, so a field placed where the observation never goes is silent and carries no information, and an observation outside the bounds is clipped. Bounding each dimension by the mean $\pm$ a multiple of the standard deviation, as an ANN input normaliser does, misplaces the fields on the many skewed or one-sided observation channels (e.g.\ target range, depth latents). The bounds are instead set from the per-dimension 1st and 99th percentiles of the (normalised) observations collected while the trained teacher flies, so the encoder covers the distribution the student will actually encounter. At the output, each of the 4 action channels has its own population of 10 LIF neurons; their firing rates, averaged over the $T$ steps, are combined by a learned per-channel weighted sum into the action mean $\mu_a$ of the Gaussian policy, whose standard deviation is a separate learned parameter.
-
-\paragraph{Behaviour-cloning warm-up.}
-% TODO cite: Ross et al., DAgger (AISTATS 2011)
-The student is first trained to clone the teacher's action mean. Following DAgger, a mixing coefficient hands control from teacher to student, annealed from 1 to 0 over the first 1M of 2M environment steps, so that the student is trained on the states it will itself visit. Acting alone, the student's success rate rose from $\sim$0 to 0.74 (Table~\ref{tab:warmup}).
-
-\begin{table}[htbp]
-    \centering
-    \caption{Behaviour-cloning warm-up of the SNN student (curriculum level 25). $\beta$ is the fraction of teacher control.}
-    \label{tab:warmup}
-    \begin{tabular}{rcccc}
-        \hline
-        Env.\ steps & BC loss & $\beta$ & Student success & Student return \\
-        \hline
-        50k & 0.171 & 1.00 & $\approx 0$ & $-352$ \\
-        500k & 0.081 & 0.70 & 0.61 & 275 \\
-        1.25M & 0.079 & 0.00 & 0.73 & 299 \\
-        2.0M & 0.068 & 0.00 & 0.74 & 320 \\
-        \hline
-    \end{tabular}
-\end{table}
-
-\paragraph{Proximal policy distillation.}
-The warm-started student is then fine-tuned with PPO while a frozen teacher regularises it, following proximal policy distillation~\cite{spiglerProximalPolicyDistillation2025}:
-\begin{equation}
-    \mathcal{L} = \mathcal{L}_{\mathrm{PPO}} + \lambda_{\mathrm{KD}} \sum_{a} D_{\mathrm{KL}}\!\left(\pi^{a}_{\mathrm{teacher}} \,\|\, \pi^{a}_{\mathrm{student}}\right),
-    \label{eq:ppd}
-\end{equation}
-where the KL divergence is summed per action channel and $\lambda_{\mathrm{KD}}$ is released towards zero as the student's success rate clears a threshold. Two failure modes were identified:
-\begin{itemize}
-    \item \textbf{Learning-rate stall.} The distillation term adds policy motion, keeping the PPO KL above the adaptive scheduler's threshold in every epoch. The scheduler pinned the learning rate at its floor and success plateaued at $\sim$0.5.
-    \item \textbf{Collapse.} Without an upper bound, the scheduler drove the learning rate to its maximum; combined with the entropy bonus, policy entropy ran away (2.4 $\to$ 6.6), the policy diffused away from the teacher, and success collapsed to zero.
-\end{itemize}
-Capping the learning rate at $10^{-3}$ and reducing the entropy coefficient from 0.01 to 0.002 broke this loop: the student held a success rate of 0.69, matching the warm-up, for over 720 epochs without collapse (\autoref{fig:distill}).
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=\linewidth]{distill_overview.png}
-    \caption{\textbf{Fine-tuning the distilled SNN student with PPO.} Success rate, policy entropy and learning rate for three runs initialised from the behaviour-cloning warm-up (dashed line, $\sim$0.70). Blue: success-gated release of the teacher term, 128 environments; plateaus near 0.58. Red: 1024 environments with entropy coefficient 0.01 and no learning-rate cap; the learning rate rails to $10^{-2}$, entropy runs away and success collapses to zero. Green: learning rate capped at $10^{-3}$ and entropy coefficient 0.002; success holds at the warm-up level.}
-    \label{fig:distill}
-\end{figure}
+The training was unstable once the teacher was released (\autoref{fig:distill_stability}). With PPO's adaptive learning-rate schedule, which lowers the learning rate when the policy changes too much in an update and raises it otherwise, the student matched the teacher (85\%) while the teacher term was active. Once $\lambda_{\mathrm{KD}}$ reached zero, the schedule raised the learning rate from $\sim 10^{-5}$ to its ceiling of $10^{-3}$, the policy entropy ran away, and the success rate fell to 57\%. With a constant learning rate of $10^{-4}$ the student holds a success rate of 79--84\% after the release, up to epoch 2000, against the teacher's 85\%. Over its last 50 epochs it succeeds in 81.1\% of the episodes and crashes in 18.7\%. The entropy still drifts upwards after the release, more slowly; this growth of the action variance is under investigation.\footnote{The adaptive-learning-rate run used an earlier variant of the field-of-view term, which penalised only horizontal velocity away from the camera axis; the constant-learning-rate run used the teacher's reward.}
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.6\linewidth]{distill_stability.png}
-    \caption{\textbf{Distillation from the latency-trained teacher at level 30.} Success rate, learning rate and policy entropy of the PopSAN student; dotted lines mark the release of the teacher KL term. With the adaptive learning-rate scheduler (orange) the learning rate climbs to $10^{-3}$ after release, entropy runs away and success falls from 0.85 to 0.57. With a constant learning rate of $10^{-4}$ (blue) success holds at 0.80--0.83, close to the teacher (dashed), up to epoch 2000.}
+    \caption{\textbf{Distillation of the SNN student at curriculum level 30.} Success rate, learning rate and policy entropy of the PopSAN student; dotted lines mark the release of the teacher term. With the adaptive learning-rate schedule (orange) the learning rate climbs to $10^{-3}$ after the release, the entropy runs away and the success rate falls from 0.85 to 0.57. With a constant learning rate of $10^{-4}$ (blue) the success rate holds at 0.79--0.84, close to the teacher (dashed), up to epoch 2000.}
     \label{fig:distill_stability}
 \end{figure}
 
-These distillation results were obtained against an earlier teacher (level 25, before the reward revisions above). Distillation of the latency-trained $p_{\mathrm{fov}}$ teacher is in progress.
-% TODO: student vs teacher success at matched level; spike rate / SynOps vs MACs
+\subsubsection{Population Encoder Bounds}
+\label{subsec:bounds}
+Each encoder neuron $j$ of observation dimension $i$ has a Gaussian receptive field with mean $\mu_{ij}$ and width $\sigma_{ij}$, and receives the constant input current
+\begin{equation}
+    A_{ij} = \exp\!\left(-\frac{(o_i - \mu_{ij})^2}{2\sigma_{ij}^2}\right), \qquad o_i \in [o_i^{\min}, o_i^{\max}],
+    \label{eq:grf}
+\end{equation}
+which drives a non-leaky integrate-and-fire neuron with threshold 0.95 and reset by subtraction for $T = 5$ steps. The neuron fires within the window only if $5A_{ij} \geq 0.95$, i.e.\ $A_{ij} \geq 0.19$. A neuron whose field lies where the observation never goes is therefore silent and carries no information. The observation range $[o_i^{\min}, o_i^{\max}]$ decides where the fields are placed, and observations outside it are clipped.
 
+The ranges are taken from the teacher. The trained teacher flew 200 episodes at curriculum level 30, and for every observation dimension we recorded the 1st and 99th percentiles of its observations, after the same normalisation the policy applies (Section~\ref{subsec:observations}). These percentiles are the bounds $[o_i^{\min}, o_i^{\max}]$. A symmetric range around the mean, as used for input normalisation, misplaces the fields on the many skewed or one-sided dimensions, such as the distance to the goal or several depth latents. Percentiles of the teacher's own flights cover the states the student will visit, since distillation keeps the student close to the teacher.
+
+Within each range, the 10 means are spaced evenly with spacing $\Delta_i = (o_i^{\max} - o_i^{\min})/9$, and the widths are initialised to $\sigma_{ij} = 0.75\,\Delta_i$, so that neighbouring fields overlap. A neuron then fires for any observation within $\sigma_{ij}\sqrt{2\ln(1/0.19)} = 1.37\,\Delta_i$ of its mean, so every value inside the range drives at least two neurons, and every neuron fires for some part of the range the teacher actually visits. Means and widths are learned during training.
+
+\pending{figure: per-dimension observation histogram of the teacher with the initial receptive fields, for a symmetric and a skewed dimension.}
+
+\subsection{Final Results}
+\label{subsec:final_results}
+
+\pending{deterministic evaluation of the ANN teacher and the SNN student at curriculum levels 10, 20 and 30 (success / crash / timeout), same protocol for both.}
+
+\subsubsection{Trained Encoders and Spiking Activity}
+\label{subsec:spikes}
+\pending{learned receptive fields ($\mu$, $\sigma$) against the observation histograms; per-layer firing-rate histograms of the student over level-30 rollouts; fraction of silent neurons per layer.}
+
+\subsubsection{Energy Estimate}
+\label{subsec:energy}
+We estimate the inference energy per control step from operation counts, as described in Section~\ref{sec:related_work} (Table~\ref{tab:op_energy}). For the ANN teacher's actor (49--256--256--64--4), every connection costs one MAC, \eqref{eq:energy_ann_neuron}: $49 \cdot 256 + 256 \cdot 256 + 256 \cdot 64 + 64 \cdot 4 = 94{,}720$ MACs, or $94{,}720 \times 4.6\,\mathrm{pJ} = 435.7$\,nJ per step. For the SNN student, the synaptic operations of each layer are counted from the measured firing rates of its inputs, \eqref{eq:energy_snn_neuron}, over $T = 5$ time steps. The depth encoder is the same ANN for both policies and is excluded from the comparison.
+
+\pending{SNN student SynOps and energy per step from the measured firing rates; ratio to the teacher.}
