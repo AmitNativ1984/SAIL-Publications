@@ -1,0 +1,42 @@
+{
+ "silent": {
+  "symmetric": {
+   "silent": 16,
+   "total": 490,
+   "silent_state": 16,
+   "silent_latent": 0
+  },
+  "percentile": {
+   "silent": 1,
+   "total": 490,
+   "silent_state": 1,
+   "silent_latent": 0
+  },
+  "learned": {
+   "silent": 1,
+   "total": 490
+  }
+ },
+ "rates": {
+  "encoder": {
+   "mean": 0.16937609693877553,
+   "silent": 0.0020408163265306124,
+   "saturated": 0.0
+  },
+  "lif1": {
+   "mean": 0.19991219787597655,
+   "silent": 0.0,
+   "saturated": 0.0
+  },
+  "lif2": {
+   "mean": 0.3125436218261719,
+   "silent": 0.00390625,
+   "saturated": 0.0
+  },
+  "lif3": {
+   "mean": 0.31189609375,
+   "silent": 0.0,
+   "saturated": 0.0
+  }
+ }
+}

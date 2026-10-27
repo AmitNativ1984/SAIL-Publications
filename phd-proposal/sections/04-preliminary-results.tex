@@ -80,9 +80,16 @@ which drives a non-leaky integrate-and-fire neuron with threshold 0.95 and reset
 
 The ranges are taken from the teacher. The trained teacher flew 200 episodes at curriculum level 30, and for every observation dimension we recorded the 1st and 99th percentiles of its observations, after the same normalisation the policy applies (Section~\ref{subsec:observations}). These percentiles are the bounds $[o_i^{\min}, o_i^{\max}]$. A symmetric range around the mean, as used for input normalisation, misplaces the fields on the many skewed or one-sided dimensions, such as the distance to the goal or several depth latents. Percentiles of the teacher's own flights cover the states the student will visit, since distillation keeps the student close to the teacher.
 
-Within each range, the 10 means are spaced evenly with spacing $\Delta_i = (o_i^{\max} - o_i^{\min})/9$, and the widths are initialised to $\sigma_{ij} = 0.75\,\Delta_i$, so that neighbouring fields overlap. A neuron then fires for any observation within $\sigma_{ij}\sqrt{2\ln(1/0.19)} = 1.37\,\Delta_i$ of its mean, so every value inside the range drives at least two neurons, and every neuron fires for some part of the range the teacher actually visits. Means and widths are learned during training.
+Within each range, the 10 means are spaced evenly with spacing $\Delta_i = (o_i^{\max} - o_i^{\min})/9$, and the widths are initialised to $\sigma_{ij} = 0.75\,\Delta_i$, so that neighbouring fields overlap. A neuron then fires for any observation within $\sigma_{ij}\sqrt{2\ln(1/0.19)} = 1.37\,\Delta_i$ of its mean, so every value inside the range drives at least two neurons. Means and widths are learned during training.
 
-\pending{figure: per-dimension observation histogram of the teacher with the initial receptive fields, for a symmetric and a skewed dimension.}
+\autoref{fig:encoder_bounds} compares the two choices of range on two skewed dimensions. With a symmetric range of $\pm 3$ standard deviations, the fields beyond the observed values never reach the firing threshold: on the observations of the student's own flights at level 30, 16 of the 490 encoder neurons are silent, all of them in the 17 state dimensions. With the percentile ranges, only one neuron is silent.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{encoder_bounds.png}
+    \caption{\textbf{Initial receptive fields under two choices of observation range.} Gray: histogram of the normalised observation during the student's flights at level 30; dashed lines: the observation range; curves: the 10 Gaussian receptive fields of that dimension, dotted where the neuron never fires. Left: symmetric range $\pm 3$; fields beyond the observed values are silent (3 neurons for the goal direction, 2 for gravity). Right: range from the teacher's 1st and 99th percentiles; every field covers observed values.}
+    \label{fig:encoder_bounds}
+\end{figure}
 
 \subsection{Final Results}
 \label{subsec:final_results}
@@ -91,10 +98,46 @@ Within each range, the 10 means are spaced evenly with spacing $\Delta_i = (o_i^
 
 \subsubsection{Trained Encoders and Spiking Activity}
 \label{subsec:spikes}
-\pending{learned receptive fields ($\mu$, $\sigma$) against the observation histograms; per-layer firing-rate histograms of the student over level-30 rollouts; fraction of silent neurons per layer.}
+The spiking activity below is measured on the student flying at curriculum level 30 (128 environments, 2000 control steps, 1670 episodes).
+
+\paragraph{Encoder.} Training moves the receptive fields only slightly from their initial placement (\autoref{fig:encoder_learned}). Where the observations concentrate, as at the upper end of the goal direction, the fields narrow and crowd together, which gives finer resolution where the policy needs it. One encoder neuron of 490 remains silent.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{encoder_learned.png}
+    \caption{\textbf{Learned receptive fields} of the trained student, for the two dimensions of \autoref{fig:encoder_bounds}. Gray: histogram of the normalised observation during flights at level 30; dashed lines: the percentile range. The fields of the goal direction narrow towards its frequently visited upper end; those of gravity stay close to their initial placement.}
+    \label{fig:encoder_learned}
+\end{figure}
+
+\paragraph{Firing rates.} \autoref{fig:spike_rates} shows, for every layer, the distribution of the firing rate: the fraction of the $T = 5$ time steps in which a neuron spikes, averaged over all control steps. The network is sparse. The encoder fires at 16.9\% on average, the first hidden layer at 20.0\% and the second at 31.3\%, and only one neuron in each of the encoder and the second hidden layer is silent. No neuron fires at every time step, so no layer is saturated, and the activity is spread over the neurons rather than carried by a few.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{spike_rates.png}
+    \caption{\textbf{Firing rates of the SNN student} at curriculum level 30. Histogram over the neurons of each layer of the fraction of time steps in which the neuron spikes; the orange line is the layer mean (encoder 16.9\%, hidden 20.0\% and 31.3\%, output 31.2\%).}
+    \label{fig:spike_rates}
+\end{figure}
 
 \subsubsection{Energy Estimate}
 \label{subsec:energy}
-We estimate the inference energy per control step from operation counts, as described in Section~\ref{sec:related_work} (Table~\ref{tab:op_energy}). For the ANN teacher's actor (49--256--256--64--4), every connection costs one MAC, \eqref{eq:energy_ann_neuron}: $49 \cdot 256 + 256 \cdot 256 + 256 \cdot 64 + 64 \cdot 4 = 94{,}720$ MACs, or $94{,}720 \times 4.6\,\mathrm{pJ} = 435.7$\,nJ per step. For the SNN student, the synaptic operations of each layer are counted from the measured firing rates of its inputs, \eqref{eq:energy_snn_neuron}, over $T = 5$ time steps. The depth encoder is the same ANN for both policies and is excluded from the comparison.
+We estimate the inference energy per control step from operation counts, as described in Section~\ref{sec:related_work} (Table~\ref{tab:op_energy}). For the ANN teacher's actor (49--256--256--64--4), every connection costs one MAC, \eqref{eq:energy_ann_neuron}: $49 \cdot 256 + 256 \cdot 256 + 256 \cdot 64 + 64 \cdot 4 = 94{,}720$ MACs, or $94{,}720 \times 4.6\,\mathrm{pJ} = 435.7$\,nJ per step. For the SNN student, every spike that crosses a synapse costs one AC, \eqref{eq:energy_snn_neuron}, counted from the measured spikes of each layer over the $T = 5$ time steps; every neuron update costs one MC; and the Gaussian receptive fields and the output decoder, which run once per control step, cost one MAC per operation. The depth encoder is the same ANN for both policies and is excluded from the comparison. \autoref{tab:energy} summarises the result: the student needs 190.7\,nJ per control step, $2.3\times$ less than the teacher.
 
-\pending{SNN student SynOps and energy per step from the measured firing rates; ratio to the teacher.}
+\begin{table}[htbp]
+    \centering
+    \caption{Estimated inference energy per control step of the actor, in 45\,nm CMOS (Table~\ref{tab:op_energy}). SNN operations are counted from the student's measured spikes at curriculum level 30.}
+    \label{tab:energy}
+    \begin{tabular}{llrr}
+        \hline
+        Policy & Operation & Count & Energy (nJ) \\
+        \hline
+        ANN teacher & MAC & 94,720 & 435.7 \\
+        \hline
+        SNN student & synaptic AC & 187,742 & 169.0 \\
+                    & neuron update (MC) & 5,210 & 19.3 \\
+                    & encoder and decoder MAC & 530 & 2.4 \\
+                    & \textbf{total} & & \textbf{190.7} \\
+        \hline
+    \end{tabular}
+\end{table}
+
+The saving comes from the hidden layers and is partly lost at the input. Between the two hidden layers, the student performs 65,507 ACs (59.0\,nJ) where the teacher performs 65,536 MACs (301.5\,nJ), a $5.1\times$ saving. At the input, however, population coding multiplies the 49 observations into 490 encoder neurons, which produce 106,233 ACs (95.6\,nJ), 57\% of all synaptic operations, against the teacher's 12,544 MACs (57.7\,nJ). The input encoding is therefore the main lever for reducing the energy further, for example with fewer neurons per population or sparser encoder firing.

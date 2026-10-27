@@ -1,0 +1,50 @@
+{
+ "num_steps": 2000,
+ "samples": 256000,
+ "layers": {
+  "encoder": {
+   "neurons": 490,
+   "spikes_per_step": 414.9714375,
+   "rate": 0.1693760969387755,
+   "silent_frac": 0.0020408162381500006,
+   "synops_per_step": 106232.688
+  },
+  "lif1": {
+   "neurons": 256,
+   "spikes_per_step": 255.88761328125,
+   "rate": 0.19991219787597655,
+   "silent_frac": 0.0,
+   "synops_per_step": 65507.229
+  },
+  "lif2": {
+   "neurons": 256,
+   "spikes_per_step": 400.0558359375,
+   "rate": 0.31254362182617185,
+   "silent_frac": 0.00390625,
+   "synops_per_step": 16002.2334375
+  },
+  "lif3": {
+   "neurons": 40,
+   "spikes_per_step": 62.37921875,
+   "rate": 0.31189609375,
+   "silent_frac": 0.0,
+   "synops_per_step": 0.0
+  }
+ },
+ "overall_rate": 0.21752286093450096,
+ "synops_per_step": 187742.15043749998,
+ "synops_if_all_fired": 1006080,
+ "dense_macs_per_step": 530,
+ "neuron_updates_per_step": 5210,
+ "snn_energy_pj": 171405.93539375,
+ "ann_macs_per_step": 94720,
+ "ann_energy_pj": 435711.99999999994,
+ "energy_ratio_ann_over_snn": 2.541988986548755,
+ "breakeven_synops": 481415.5555555555,
+ "checkpoint": "runs/popsan_ann_teacher_distillation/popsan_ann_teacher_distillation_constlr1e4_bounds01/2026-10-14_12-55-51/nn/last_popsan_ann_teacher_distillation_constlr1e4_bounds01_ep_950_rew_6.6743236.pth",
+ "ann_checkpoint": "runs/f450_nav_ann/f450_nav_lat_pfov/2026-10-07_13-37-08/nn/f450_nav_lat_pfov.pth",
+ "level": 30,
+ "episodes": 1670,
+ "success_rate": 0.8407185628742515,
+ "num_envs": 128
+}
