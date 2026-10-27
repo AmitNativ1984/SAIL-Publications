@@ -66,6 +66,13 @@ The policy observes a 49-dimensional vector: a 17-dimensional state (unit direct
 
 Since training an SNN from scratch on this task proved slow and failed to progress through the curriculum, the approach is staged: a conventional ANN policy is first trained as a teacher (Sections~\ref{subsec:vae}--\ref{subsec:memory}), and is then distilled into a population-coded spiking student (Section~\ref{subsec:distill}).
 
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.6\linewidth]{scratch_curriculum.png}
+    \caption{\textbf{PPO from scratch: ANN vs.\ PopSAN.} Curriculum level reached during training, five ANN and six PopSAN runs in the same environment and reward (an earlier version of the task, 25 levels). Four of five ANN runs reach the top level; the best PopSAN run stalls at level 14 and four never leave level 0.}
+    \label{fig:scratch_curriculum}
+\end{figure}
+
 \subsubsection{Depth Perception with Collision Encoding}
 \label{subsec:vae}
 % TODO cite: Kulkarni & Alexis, Deep Collision Encoding (DCE)
@@ -78,6 +85,13 @@ A first dataset (43k images) was rendered from a stand-alone environment that ha
 \subsubsection{ANN Teacher Policy}
 \label{subsec:teacher}
 The teacher is a multilayer perceptron actor-critic (hidden layers 256--256--64) trained with PPO over 1024 parallel environments. Three findings shaped the final policy.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.6\linewidth]{teacher_training.png}
+    \caption{\textbf{Training of the ANN teacher used for distillation.} Top: curriculum level; level 30 is reached after $\sim 10^8$ environment steps. Bottom: success and crash rate of training episodes. The dashed line marks the fine-tune with the measured capture-to-control latency, with the curriculum pinned at level 30.}
+    \label{fig:teacher_training}
+\end{figure}
 
 \paragraph{Action regularisation.}
 Early policies behaved as relays: commands were saturated at the action bounds for most of the episode, which is harmless in a latency-free simulator but not on a real vehicle. Two regularisation terms were ablated: a bounds loss on the pre-clamp action mean and a penalty on the action magnitude. Individually neither removed saturation; combined, the fraction of steps at the action limits dropped from $\sim$20\% to $\sim$2\% and the bounds loss decreased $8.3\times$, with task performance statistically unchanged (\autoref{fig:traces}).
@@ -193,6 +207,13 @@ Capping the learning rate at $10^{-3}$ and reducing the entropy coefficient from
     \includegraphics[width=\linewidth]{distill_overview.png}
     \caption{\textbf{Fine-tuning the distilled SNN student with PPO.} Success rate, policy entropy and learning rate for three runs initialised from the behaviour-cloning warm-up (dashed line, $\sim$0.70). Blue: success-gated release of the teacher term, 128 environments; plateaus near 0.58. Red: 1024 environments with entropy coefficient 0.01 and no learning-rate cap; the learning rate rails to $10^{-2}$, entropy runs away and success collapses to zero. Green: learning rate capped at $10^{-3}$ and entropy coefficient 0.002; success holds at the warm-up level.}
     \label{fig:distill}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.6\linewidth]{distill_stability.png}
+    \caption{\textbf{Distillation from the latency-trained teacher at level 30.} Success rate, learning rate and policy entropy of the PopSAN student; dotted lines mark the release of the teacher KL term. With the adaptive learning-rate scheduler (orange) the learning rate climbs to $10^{-3}$ after release, entropy runs away and success falls from 0.85 to 0.57. With a constant learning rate of $10^{-4}$ (blue) success holds at 0.80--0.83, close to the teacher (dashed), up to epoch 2000.}
+    \label{fig:distill_stability}
 \end{figure}
 
 These distillation results were obtained against an earlier teacher (level 25, before the reward revisions above). Distillation of the latency-trained $p_{\mathrm{fov}}$ teacher is in progress.
