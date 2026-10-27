@@ -59,3 +59,21 @@
 - Why: §3.3 background for the method used in preliminary results.
 - Source: phd-proposal/preliminary-results-layout.md §3.3
 - Priority: medium
+
+## REQ-20261026-1 · open
+- Need: Neuromorphic chips that have flown *onboard* a multirotor (not tethered over WiFi like D-56), and the practical access path for each (Loihi 2 / Kapoho Point via INRC, Akida M.2/PCIe on Jetson, SynSense Speck/Xylo, SpiNNaker2 board): mass, power, interface (USB/PCIe), supported neuron models (CUBA-LIF? population coding?), toolchain from PyTorch/snnTorch.
+- Why: Objective 1 now requires deployment "on neuromorphic hardware"; no hardware path exists in the code repos. Need to decide whether the objective is feasible on an F450 or must be reworded to "neuromorphic-compatible SNN on embedded compute".
+- Source: phd-proposal/sections/02-research-objectives.tex:4
+- Priority: high
+
+## REQ-20261026-2 · open
+- Need: SNN RL papers that ablate membrane-state carry-over vs reset between control steps (stateful vs stateless spiking policy), and that use learnable/long time constants (PLIF, ALIF, adaptive threshold) for memory over ~0.5–2 s in control or navigation tasks. Include any that quantify memory horizon of LIF with β≈0.75.
+- Why: Objective 2. The current student resets membrane every control step (pop_spiking_actor.py:149), so Objective 2 needs a stateful variant and a principled ablation; need the closest prior design and its result.
+- Source: phd-proposal/sections/02-research-objectives.tex:5
+- Priority: high
+
+## REQ-20261026-3 · open
+- Need: Spiking (or event-native) depth / collision-occupancy estimation from event cameras that runs in real time, and any work using event-derived depth as input to a learned flight policy (beyond D-46, D-56). Also any Aerial Gym / Isaac Gym event simulation added since D-49/D-50.
+- Why: Objective 1 merges event cameras into the deliverable; the current perception is a depth-image VAE. Need to know whether "events → collision latent" is a known solved block or a research contribution in itself.
+- Source: phd-proposal/sections/02-research-objectives.tex:4
+- Priority: medium

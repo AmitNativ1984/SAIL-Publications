@@ -1,8 +1,6 @@
 \section{Research Objectives}
-This research works towards achieving fast agiled flight in small unmanned aerial vehicles (UAVs), where low latency decision-making is required under severe power and computational constraints. To this end, the research focuses on the following objectives:
-\begin{itemize}
-    \item Develop a spiking neural network (SNN) based control policy for UAVs, implement it on a a dedicated neuromorphic hardware platform, evaluate its performance in real-world flight scenarios, and compare it to conventional artificial neural network (ANN) based control policies.
-    \item Investigate the potential of SNN's internal state memory to improve control policies in partially observable markov decision processes (POMDPs), such as with incomplete state infomation environments.
-    \item Develop a full end-to-end neuromorphic control system for UAVs, based on event cameras and SNNs, evalute its performance in real-world flight scenarios, and compare it to conventional ANN based control systems.
-\end{itemize}
-
+This research works towards fast, agile flight of small unmanned aerial vehicles (UAVs), where onboard compute is severely limited and decisions must be made with low latency. To this end, the research pursues two objectives:
+\begin{enumerate}
+    \item \textbf{End-to-end neuromorphic flight control.} Develop an end-to-end neuromorphic control stack, with an event camera and a spiking neural network (SNN) policy running on a neuromorphic processor, all onboard. The stack maps events directly to high-rate control commands for agile flight through unknown clutter. Compare it with a matched artificial neural network (ANN) in flight performance, latency and energy consumption.
+    \item \textbf{Memory under partial observability.} Investigate whether the internal state of an SNN can act as a memory that improves control policies in partially observable Markov decision processes (POMDPs), where the onboard sensors observe only part of the state, for example flying with no velocity and position information.
+\end{enumerate}
