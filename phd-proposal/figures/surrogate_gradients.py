@@ -1,6 +1,6 @@
 """Heaviside spike function vs. arctan surrogate and its derivative -> surrogate_gradients.pdf.
 
-x = U - U_th. Derivative matches Eq. (eq:surrogates).
+x = U - Theta. Derivative matches Eq. (eq:surrogates).
 """
 from pathlib import Path
 
@@ -22,20 +22,20 @@ plt.rcParams.update({"mathtext.fontset": "cm", "font.family": "serif", "font.ser
 
 fig, ax = plt.subplots(1, 2, figsize=(6.7, 2.5))
 ax[0].plot(x, s_atan, label=r"$\tilde{S}$")
-ax[0].step(x, (x >= 0).astype(float), "k", where="post", label=r"$H(U-U_{th})$")
+ax[0].step(x, (x >= 0).astype(float), "k", where="post", label=r"$H(U-\Theta)$")
 ax[0].set_ylabel(r"$S$")
 
 ax[1].plot(x, d_atan, label=r"$\partial\tilde{S}/\partial U$")
 ax[1].plot(x, 0 * x, "k", label=r"$\partial H/\partial U$")
 ax[1].annotate("", xy=(0, 1.42), xytext=(0, 0), arrowprops=dict(arrowstyle="-|>", lw=1.5, color="k"))
-ax[1].text(0.12, 1.36, r"$\delta(U-U_{th})$")
+ax[1].text(0.12, 1.36, r"$\delta(U-\Theta)$")
 ax[1].set_ylim(-0.1, 1.55)
 ax[1].set_ylabel(r"$\partial S/\partial U$")
 
 for a, tag in zip(ax, "ab"):
     a.grid(alpha=0.3)
     a.legend(loc="upper left")
-    a.set_xlabel(r"$U-U_{th}$")
+    a.set_xlabel(r"$U-\Theta$")
     a.set_title(f"({tag})", y=-0.48)
 
 fig.tight_layout()
