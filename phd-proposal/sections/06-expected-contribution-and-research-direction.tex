@@ -2,12 +2,9 @@
 \label{sec:contribution}
 
 \subsection{Expected Contributions}
-This research is expected to make the following contributions towards the objectives in Section~\ref{sec:objectives}:
+This research is expected to make two contributions, one for each objective in Section~\ref{sec:objectives}:
 \begin{enumerate}
     \item \textbf{An end-to-end neuromorphic flight policy that operates in the wild.} A spiking policy that maps events from an onboard event camera directly to control commands, runs on a neuromorphic processor onboard a quadrotor, and flies through unknown, unstructured environments outside the laboratory, together with a method to train such policies in simulation and transfer them to real flight. Compared with a matched ANN policy, it is expected to consume less energy and, through lower perception and control latency, to fly faster.
-    \item \textbf{An FPGA implementation of the spiking policy.} A hardware implementation of the trained SNN on a field-programmable gate array (FPGA) onboard the quadrotor, which processes events as they arrive and lets the latency and energy of the policy be measured on the vehicle itself.
-    \item \textbf{Training methods for spiking policies and an analysis of their internal state.} Methods to train SNN control policies, which are hard to train with reinforcement learning from scratch (Section~\ref{sec:prelim_results}), together with an analysis of how training shapes the internal state of the network and what that state comes to represent.
-    \item \textbf{Efficient event-based simulation and training.} Methods to simulate event cameras and train on their sparse output efficiently, at the scale of the thousands of parallel environments that GPU-based simulators provide, so that event-based policies can be trained in simulation within practical time.
     \item \textbf{Methods to exploit the internal memory of SNNs.} An investigation of how the internal state of an SNN, such as its membrane potentials, can be exploited as memory in a control policy. This memory is expected to improve performance in two settings: under partial observability, where the onboard sensors observe only part of the state; and under unreliable inputs, where events arrive asynchronously and with jittery, irregular timing, so the policy must integrate them over time rather than act on each in isolation.
 \end{enumerate}
 
