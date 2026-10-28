@@ -63,9 +63,9 @@ Trained with PPO from scratch, PopSAN does not progress through the curriculum. 
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=\linewidth]{encoder_bounds.png}
-    \caption{\textbf{Initial receptive fields under two choices of observation range.} Gray: histogram of the normalised observation during the student's flights; dashed lines: the observation range; curves: the Gaussian receptive fields of that dimension, dotted where the neuron never fires. Left: a symmetric range around the mean leaves the fields beyond the observed values silent. Right: a range taken from the teacher's observation distribution places every field where observations occur.}
-    \label{fig:encoder_bounds}
+    \includegraphics[width=0.6\linewidth]{distill_stability.png}
+    \caption{\textbf{Distillation of the SNN student at curriculum level 30} with a constant learning rate of $10^{-4}$. Success rate of the PopSAN student; the dotted line marks the release of the teacher term (epoch 433). After the release the success rate holds at 0.79--0.84, close to the ANN teacher (dashed, 0.85), up to epoch 2000.}
+    \label{fig:distill_stability}
 \end{figure}
 
 \paragraph{Distillation.} The student is trained with proximal policy distillation~\eqref{eq:ppd_background}~\cite{spiglerProximalPolicyDistillation2025} at curriculum level 30, with the same reward as the teacher and a critic initialised from the teacher's critic. At every PPO epoch the student collects its own rollouts and minimises the PPO loss plus the KL divergence between the teacher's and its own Gaussian action distributions, weighted by $\lambda_{\mathrm{KD}}$. The teacher term is annealed out as the student improves: $\lambda_{\mathrm{KD}}$ starts at 0.5 and drops by 5\% of its initial value at every curriculum check (every 16 rollouts) in which the student succeeds in at least half of its episodes. Guided by the teacher, the student learns quickly: its success rate reaches 75\% after 100 epochs and 83\% after 200, where PPO from scratch stalled at the lowest levels.
@@ -74,9 +74,9 @@ Trained with PPO from scratch, PopSAN does not progress through the curriculum. 
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.6\linewidth]{distill_stability.png}
-    \caption{\textbf{Distillation of the SNN student at curriculum level 30} with a constant learning rate of $10^{-4}$. Success rate of the PopSAN student; the dotted line marks the release of the teacher term (epoch 433). After the release the success rate holds at 0.79--0.84, close to the ANN teacher (dashed, 0.85), up to epoch 2000.}
-    \label{fig:distill_stability}
+    \includegraphics[width=\linewidth]{encoder_bounds.png}
+    \caption{\textbf{Initial receptive fields under two choices of observation range.} Gray: histogram of the normalised observation during the student's flights; dashed lines: the observation range; curves: the Gaussian receptive fields of that dimension, dotted where the neuron never fires. Left: a symmetric range around the mean leaves the fields beyond the observed values silent. Right: a range taken from the teacher's observation distribution places every field where observations occur.}
+    \label{fig:encoder_bounds}
 \end{figure}
 
 
