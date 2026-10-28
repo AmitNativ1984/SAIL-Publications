@@ -19,6 +19,14 @@ The section first defines the problem (Section~\ref{subsec:problem}), then repor
 
 \paragraph{Environment.} All policies are trained and evaluated in the Aerial Gym Simulator~\cite{kulkarniAerialGymSimulator2025a}, which simulates thousands of aerial robots in parallel on the GPU, with efficient ray casting for onboard depth cameras, and its built-in attitude controller~\cite{leeControlComplexManeuvers2011}. The simulated vehicle is a digital twin of the lab's F450 quadrotor. The drone flies inside a bounded volume of $20 \times 20 \times [4, 6]$\,m that contains static obstacles (trees, panels, spheres, cylinders and perimeter walls), placed by a Poisson process. Every episode samples a new obstacle set together with a start and a goal, so the policy is always evaluated on environments it has not seen. The obstacle density grows linearly over a curriculum of 30 levels, up to 0.08 obstacles/m$^3$ at level 30. The level rises by one when the success rate exceeds 70\% and drops by one when it falls below 60\%. Every command is delayed by a latency drawn from the measured capture-to-control latency of the onboard pipeline ($45 \pm 10$\,ms), and the policy runs at the measured control rate of $\sim$33\,Hz.
 
+\paragraph{Episodes.} Every episode starts from a new start position $\mathbf{p}_s$, goal $\mathbf{p}_g$ and obstacle set, and ends at the first step at which one of the following holds:
+\begin{itemize}
+    \item \textbf{Success:} the drone is within $0.4$\,m of the goal;
+    \item \textbf{Crash:} the drone collides with an obstacle or leaves the flight volume;
+    \item \textbf{Timeout:} 800 control steps (24\,s) have passed.
+\end{itemize}
+The objective is to maximise the probability of success over the distribution of environments, with time to goal as a secondary criterion, so that a policy that hovers safely does not count as a solution.
+
 Unless stated otherwise, the success and crash rates below are measured over the training episodes, in which the actions are sampled from the stochastic policy. Deterministic evaluations of the final policies are reported in Section~\ref{subsec:final_results}.
 
 \subsubsection{Deep Collision Encoding}
