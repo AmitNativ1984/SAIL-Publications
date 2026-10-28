@@ -10,7 +10,7 @@ The task is \emph{vision-based navigation through unknown clutter}: a quadrotor 
     \label{fig:policy_overview}
 \end{figure}
 
-We model the task as a Markov decision process (MDP) $(\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma)$, where $\mathcal{S}$ is the state of the system, $\mathcal{A}$ the action space of the drone, $\mathcal{P}$ the transition probability, given by the low-level controller and the vehicle dynamics, $\mathcal{R}$ the reward function and $\gamma$ the discount factor. The observations, actions and rewards are defined in the following subsections.
+We model the task as a Markov decision process (MDP) $(\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma)$, where $\mathcal{S}$ is the state space, $\mathcal{A}$ the action space of the drone, $\mathcal{P}$ the transition probability, given by the low-level controller and the vehicle dynamics, $\mathcal{R}$ the reward function and $\gamma$ the discount factor. The observations, actions and rewards are defined in the following subsections.
 
 \subsubsection{Observations}
 \label{subsec:observations}
@@ -37,7 +37,7 @@ The depth latent $z_t$ is computed by deep collision encoding (DCE)~\cite{kulkar
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.55\linewidth]{vae_collision_encoding.png}
-    \caption{\textbf{Collision-aware depth encoding.} Left: raw $320 \times 180$ depth image from the simulated RealSense D435. Middle: collision image, in which every obstacle is inflated by the drone's collision sphere, so each pixel reports the depth at which the drone's centre would first make contact. Right: reconstruction from the 32-dimensional VAE latent. Gaps narrower than the airframe close in the collision image, so the latent encodes where the drone can fly rather than what the scene looks like.}
+    \caption{\textbf{Collision-aware depth encoding.} Left: raw $320 \times 180$ depth image from the simulated RealSense D435. Middle: collision image, in which every obstacle is inflated by the drone's collision sphere, so each pixel reports the depth at which the drone's center would first make contact. Right: reconstruction from the 32-dimensional VAE latent. Gaps narrower than the airframe close in the collision image, so the latent encodes where the drone can fly rather than what the scene looks like.}
     \label{fig:DCE}
 \end{figure}
 
@@ -63,15 +63,15 @@ The reward function gives a terminal reward when the episode ends in success, cr
     \end{cases}
     \label{eq:reward}
 \end{equation}
-where $\ell \in \{0, \dots, 30\}$ is the curriculum level, and 30 is the number of curriculum levels, so the success bonus grows from 10 to 15 as the clutter becomes denser. The timeout costs less than a crash, so that waiting is always better than colliding. With $d_t$ the distance to the goal and $v = \lVert \mathbf{v}_t \rVert$ the speed, the shaping terms are
+where $\ell$ is the curriculum level and 30 is the top level, so the success bonus grows to 15 as the clutter becomes denser. The timeout costs less than a crash, so that waiting is always better than colliding. With $d_t$ the distance to the goal and $v = \lVert \mathbf{v}_t \rVert$ the speed, the shaping terms are
 \begin{align}
     r^{\mathrm{prog}}_t &= \lambda_p \left(d_{t-1} - d_t\right), &
     r^{\mathrm{speed}}_t &= -\lambda_v\, v \max\left(0,\ v - v_{\mathrm{max}}\right), \nonumber\\
     r^{\mathrm{jerk}}_t &= -\lambda_j \left\lVert \bar{\mathbf{a}}_t - \bar{\mathbf{a}}_{t-1} \right\rVert, &
     r^{\mathrm{mag}}_t &= \lambda_m \left(e^{-\lVert \bar{\mathbf{a}}_t \rVert^2 / 2} - 1\right), \label{eq:reward_terms}\\
-    r^{\mathrm{fov}}_t &= -\lambda_{\mathrm{fov}}\, v^2\, r_{\mathrm{fov}}^2, \nonumber
+    r^{\mathrm{fov}}_t &= -\lambda_{\mathrm{fov}}\, v^2\, e_{\mathrm{fov}}^2, \nonumber
 \end{align}
-with $r_{\mathrm{fov}}$ defined in \eqref{eq:rfov} and the weights listed in \autoref{tab:reward}.
+with the normalized angular offset $e_{\mathrm{fov}}$ defined in \eqref{eq:rfov} and the weights listed in \autoref{tab:reward}.
 
 \begin{table}[htbp]
     \centering
@@ -92,13 +92,13 @@ with $r_{\mathrm{fov}}$ defined in \eqref{eq:rfov} and the weights listed in \au
 
 \paragraph{Progress.} $d_t$ is the Euclidean distance from the drone to the goal at step $t$, so the term rewards the distance closed towards the goal in each step.
 
-\paragraph{Speed.} The speed term penalises only speed above $v_{\mathrm{max}}$, so the policy is free to fly fast up to it.
+\paragraph{Speed.} The speed term penalizes only speed above $v_{\mathrm{max}}$, so the policy is free to fly fast up to it.
 
-\paragraph{Jerk and action magnitude.} The jerk term penalises changes of the command, and the action-magnitude term penalises its size, so that the policy does not saturate the commands at the action bounds.
+\paragraph{Jerk and action magnitude.} The jerk term penalizes changes of the command, and the action-magnitude term penalizes its size, so that the policy does not saturate the commands at the action bounds.
 
-\paragraph{Field of view.} The field-of-view term forces the drone to fly only where its camera looks, by penalising velocity directed away from the camera axis. With $\psi_v$ and $\vartheta_v$ the azimuth and elevation of the velocity in the body frame, and $\mathrm{fov}_h$ and $\mathrm{fov}_v$ the horizontal and vertical fields of view of the camera,
+\paragraph{Field of view.} The field-of-view term forces the drone to fly only where its camera looks, by penalizing velocity directed away from the camera axis. With $\psi_v$ and $\vartheta_v$ the azimuth and elevation of the velocity in the body frame, and $\mathrm{fov}_h$ and $\mathrm{fov}_v$ the horizontal and vertical fields of view of the camera,
 \begin{equation}
-    r_{\mathrm{fov}} = \sqrt{\left(\frac{\psi_v}{\mathrm{fov}_h/2}\right)^2 + \left(\frac{\vartheta_v}{\mathrm{fov}_v/2}\right)^2},
+    e_{\mathrm{fov}} = \sqrt{\left(\frac{\psi_v}{\mathrm{fov}_h/2}\right)^2 + \left(\frac{\vartheta_v}{\mathrm{fov}_v/2}\right)^2},
     \label{eq:rfov}
 \end{equation}
 which equals 1 on the edge of the field of view.

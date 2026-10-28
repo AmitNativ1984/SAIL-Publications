@@ -1,16 +1,16 @@
 \section{Related Work and Scientific Background}
 \label{sec:related_work}
     \subsection{Event Cameras}
-    Event cameras (also known as dynamic vision sensors (DVS) or neuromorphic cameras) are bio-inspired vision sensors that do not capture frames at a fixed rate. Instead, each pixel independently reports changes in brightness on a logarithmic scale as a stream of asynchronous binary \emph{events}. This gives them microsecond temporal resolution, high dynamic range (140\,dB vs.\ 60\,dB for frame cameras), low power consumption and very little motion blur \cite{gallegoEventbasedVisionSurvey2022,chakravarthiRecentEventCamera2024}.
+    Event cameras, also known as dynamic vision sensors (DVS) or neuromorphic cameras, are bio-inspired vision sensors that do not capture frames at a fixed rate. Instead, each pixel independently reports changes in brightness on a logarithmic scale as a stream of asynchronous binary \emph{events}. This gives them microsecond temporal resolution, high dynamic range (140\,dB vs.\ 60\,dB for frame cameras), low power consumption and very little motion blur \cite{gallegoEventbasedVisionSurvey2022,chakravarthiRecentEventCamera2024}.
 
-    \paragraph{Event generation model.} We define $L=\log{I}$ as the logarithm of the intensity $I$. An event $e_k=(\mathbf{x}_k,t_k,p_k)$ is triggered at pixel $\mathbf{x}_k$ and at time $t_k$ as soon as the change in $L$ since the last event reaches a contrast threshold $|C|>0$:
+    \paragraph{Event generation model.} We define $L=\log{I}$ as the logarithm of the intensity $I$. An event $e_k=(\mathbf{x}_k,t_k,p_k)$ is triggered at pixel $\mathbf{x}_k$ and at time $t_k$ as soon as the change in $L$ since the last event reaches a contrast threshold $C>0$:
     \begin{equation}
         \Delta{L}(\mathbf{x}_k, t_k) \doteq L(\mathbf{x}_k,t_k) - L(\mathbf{x}_k,t_k-\Delta t_k)=p_k C
         \label{eq:event_generation}
     \end{equation}
     where $\Delta t_k$ is the time since the previous event at $\mathbf{x}_k$ and the polarity $p_k \in \{-1,1\}$ is the sign of the change.
 
-    
+
     \begin{figure}[H]
         \centering
         \includegraphics[width=\textwidth]{event_generation.pdf}
@@ -25,7 +25,7 @@
         \label{fig:generation}
     \end{figure}
 
-    \paragraph{Event representation.} The asynchronous event stream is very different from a frame-based image, so a key question is how to extract meaningful information from it. The right representation depends on the information required by a given task~\cite{gallegoEventbasedVisionSurvey2022}. \textbf{Event-by-event} methods process each event asynchronously, individually upon its arrival. These methods offer very low latency, but cannot make use of frame-based information extraction. They are also more sensitive to noise. \textbf{Event aggregation} methods group events in space and time and process them together (Fig.~\ref{fig:representations}). For example, \emph{event frames} sum the polarity at each pixel over a time window $\Delta t$, scaled by $C$ to approximate the change in brightness over the window~\cite{gallegoEventbasedVisionSurvey2022}. A \emph{time surface} (TS) keeps only the most recent timestamp $t_{last}(\mathbf{x})$ at each pixel, weighted by an exponential kernel. Events are thus converted into an image whose ``intensity'' is a function of the motion history at that location, with the largest values corresponding to the most recent motion~\cite{gallegoEventbasedVisionSurvey2022}. A \emph{binary event mask} (BEM)~\cite{bhattacharyaMonocularEventBasedVision2024} sums the polarities at each pixel over a window $\Delta t = 1/\mathrm{FPS}_{cam}$, so that equal numbers of positive and negative events give a zero count, and then binarizes the result: a pixel is set to 1 if its count is nonzero. A \emph{voxel grid} is a space--time (3D) histogram of events, where each voxel represents a pixel (or group of pixels) over a time interval. By avoiding the collapse onto a 2D grid, it better preserves the temporal information of the events~\cite{gehrigERAFTDenseOptical2021,zhuUnsupervisedEventbasedLearning2018}.
+    \paragraph{Event representation.} The asynchronous event stream is very different from a frame-based image, so a key question is how to extract meaningful information from it. The right representation depends on the information required by a given task~\cite{gallegoEventbasedVisionSurvey2022}. \textbf{Event-by-event} methods process each event individually, as soon as it arrives. They offer very low latency, but cannot use frame-based processing and are more sensitive to noise. \textbf{Event aggregation} methods group events in space and time and process them together (Figure~\ref{fig:representations}). For example, \emph{event frames} sum the polarity at each pixel over a time window $\Delta t$, scaled by $C$ to approximate the change in brightness over the window~\cite{gallegoEventbasedVisionSurvey2022}. A \emph{time surface} (TS) keeps only the most recent timestamp $t_{\mathrm{last}}(\mathbf{x})$ at each pixel, weighted by an exponential kernel. Events are thus converted into an image whose ``intensity'' is a function of the motion history at that location, with the largest values corresponding to the most recent motion~\cite{gallegoEventbasedVisionSurvey2022}. A \emph{binary event mask} (BEM)~\cite{bhattacharyaMonocularEventBasedVision2024} sums the polarities at each pixel over a window equal to the camera frame period, $\Delta t = 1/\mathrm{FPS}_{\mathrm{cam}}$, so that equal numbers of positive and negative events give a zero count, and then binarizes the result: a pixel is set to 1 if its count is nonzero. A \emph{voxel grid} is a space--time (3D) histogram of events, where each voxel represents a pixel (or group of pixels) over a time interval. By avoiding the collapse onto a 2D grid, it better preserves the temporal information of the events~\cite{gehrigERAFTDenseOptical2021,zhuUnsupervisedEventbasedLearning2018}.
 
     \begin{figure}[!htb]
         \centering
@@ -34,15 +34,15 @@
         \label{fig:representations}
     \end{figure}
 
-    The low latency and high dynamic range make event cameras a promising sensor for robots maneuvering at high speed, where low latency is crucial. Event cameras have led to drastic improvements in visual-inertial odometry (VIO) state estimation under high-speed motion and low light \cite{vidalUltimateSLAMCombining2018}. In \cite{sunAutonomousQuadrotorFlight2021}, researchers successfully used event cameras for position control of a quadrotor spinning at 20\,rad/s after a rotor failure. In reactive tasks, event cameras have been used for agile object catching with a quadruped robot \cite{forraiEventbasedAgileObject2023}, and for avoiding fast-moving obstacles from a hovering drone at relative speeds of up to 10\,m/s with a latency of 3.5\,ms \cite{falangaDynamicObstacleAvoidance2020}. The potential of event cameras for high-speed agile flight is clear and will be discussed further in the following sections.
+    The low latency and high dynamic range make event cameras a promising sensor for robots maneuvering at high speed, where low latency is crucial. Event cameras have led to drastic improvements in visual-inertial odometry (VIO) state estimation under high-speed motion and low light \cite{vidalUltimateSLAMCombining2018}. Sun et al.~\cite{sunAutonomousQuadrotorFlight2021} used event cameras for position control of a quadrotor spinning at 20\,rad/s after a rotor failure. In reactive tasks, event cameras have been used for agile object catching with a quadruped robot \cite{forraiEventbasedAgileObject2023}, and for avoiding fast-moving obstacles from a hovering drone at relative speeds of up to 10\,m/s with a latency of 3.5\,ms \cite{falangaDynamicObstacleAvoidance2020}. The potential of event cameras for high-speed agile flight is clear and will be discussed further in the following sections.
 
     \subsection{Spiking Neural Networks}
-    Spiking neural networks (SNNs) are computational models inspired by the communication and dynamics of biological neurons. Unlike conventional artificial neural networks (ANNs), which process continuous-valued signals, SNNs communicate through discrete events called spikes. Similar to biological neurons, spiking neurons have an internal state mostly represented by their membrane potential, which leaks over time and integrates incoming spikes. When the membrane potential crosses a certain threshold, the neuron generates an output spike, which is then transmitted to other neurons in the network. This sparse, event-driven nature of SNNs allows them to process information in a more biologically plausible manner and can lead to energy-efficient computation, especially in neuromorphic hardware implementations.
-    
+    Spiking neural networks (SNNs) are computational models inspired by the communication and dynamics of biological neurons. Unlike conventional artificial neural networks (ANNs), which process continuous-valued signals, SNNs communicate through discrete events called spikes. Similar to biological neurons, spiking neurons have an internal state mostly represented by their membrane potential, which leaks over time and integrates incoming spikes. When the membrane potential crosses a certain threshold, the neuron generates an output spike, which is then transmitted to other neurons in the network. This sparse, event-driven nature of SNNs allows them to process information in a more biologically plausible manner and can lead to energy-efficient computation, especially on neuromorphic hardware.
+
     A defining characteristic of SNNs is that time is an explicit part of computation. Information can be represented by the number, timing or distribution of spikes across a population of neurons. The dynamics of membrane potentials and synaptic currents provide an intrinsic temporal memory, allowing past inputs to influence subsequent responses.
 
     \subsubsection{LIF Spiking Neuron}
-    The most commonly used neuron in SNNs is the Leaky Integrate-and-Fire (LIF) neuron. Much like the artificial neuron model, spiking neurons operate on a weighted sum of inputs, but rather than passing the result directly through a sigmoid or ReLU non-linearity, the weighted sum contributes to the membrane potential $U(t)$ of the neuron. If the neuron is sufficiently excited and reaches a threshold $\Theta$, the neuron will emit a spike onward and the membrane potential will discharge.
+    The most commonly used neuron in SNNs is the Leaky Integrate-and-Fire (LIF) neuron. Much like the artificial neuron model, spiking neurons operate on a weighted sum of inputs, but rather than passing the result directly through a sigmoid or ReLU non-linearity, the weighted sum contributes to the membrane potential $U(t)$ of the neuron. If the neuron is sufficiently excited and its potential reaches a threshold $\Theta$, it emits a spike and its membrane potential is reset.
 
     The dynamics of the LIF neuron can be modeled by an RC circuit, where the membrane potential $U(t)$ evolves according to the differential equation \cite{eshraghianTrainingSpikingNeural2023}:
 
@@ -51,35 +51,32 @@
         \label{eq:RC_circuit}
     \end{equation}
 
-    where $\tau$ is the circuit time constant, $I_{in}(t)$ is the input current, and $R$ is the resistance. The solution to \eqref{eq:RC_circuit} is given by:
+    where $\tau$ is the membrane time constant, $I_{in}(t)$ is the input current and $R$ is the membrane resistance. For a constant input current $I_{in}$ and an initial potential $U_0 = U(0)$, the solution of \eqref{eq:RC_circuit} is
 
     \begin{equation}
         U(t) = I_{in}R + [U_0 - I_{in}R]e^{-\frac{t}{\tau}}
         \label{eq:RC_solution}
     \end{equation}
 
-    Using the forward Euler method, the discrete-time solution can be approximated as:
+    Sampling this solution at unit time steps, with the input held constant within each step, gives the discrete-time update
     \begin{equation}
-        U[t] = \beta U[t-1] + (1 - \beta) I_{in}[t] 
+        U[t] = \beta U[t-1] + (1 - \beta) R\, I_{in}[t],
         \label{eq:RC_discrete}
     \end{equation}
+    where $\beta = e^{-1/\tau}$ is the decay rate of the membrane potential $U[t]$.
 
-    where $\beta = e^{-\frac{1}{\tau}}$ is the decay rate of the membrane potential $U[t]$.
-    
-    In deep learning, the weighting factor of an input is typically a learnable parameter. In SNNs, the input current $I_{in}(t)$ is often modeled as a weighted sum of incoming spikes from presynaptic neurons, so that $(1-\beta)I_{in}[t] = W X[t]$. We can then rewrite \eqref{eq:RC_discrete} as:
-    
+    In deep learning, the weighting factor of an input is typically a learnable parameter. In SNNs, the input current is modeled as a weighted sum of the incoming spikes $X[t]$ from presynaptic neurons, with learnable weights $W$, so that $(1-\beta)R\,I_{in}[t] = W X[t]$. Adding a reset mechanism, \eqref{eq:RC_discrete} becomes
     \begin{equation}
-        U[t] = \underbrace{\beta U[t-1]}_{\text{decay}} + \underbrace{W X[t]}_{\text{input}} - \underbrace{R[t-1]}_{\text{reset}}
+        U[t] = \underbrace{\beta U[t-1]}_{\text{decay}} + \underbrace{W X[t]}_{\text{input}} - \underbrace{S_{out}[t-1]\,\Theta}_{\text{reset}},
         \label{eq:membrane_potential}
     \end{equation}
-
-    If the neuron spiked at the previous time step, the reset term subtracts the threshold $\Theta$ from the membrane potential, effectively discharging it; otherwise, the reset term has no effect. A spike is generated if the membrane potential exceeds the threshold $\Theta$:
+    where $S_{out}[t-1] \in \{0,1\}$ is the neuron's output spike at the previous time step. If the neuron spiked, the reset term subtracts the threshold $\Theta$ from the membrane potential (reset by subtraction); otherwise, it has no effect. A spike is generated when the membrane potential reaches the threshold $\Theta$:
 
     \begin{equation}
-        S_{out}[t] = 
+        S_{out}[t] =
         \begin{cases}
             1, & \text{if } U[t] \geq \Theta \\
-            0, & \text{otherwise}
+            0, & \text{otherwise.}
         \end{cases}
         \label{eq:spike_generation}
     \end{equation}
@@ -91,16 +88,16 @@
         \caption{\textbf{Leaky Integrate-and-Fire (LIF) neuron driven by a constant input current.} The membrane potential $U[t]$ charges toward the threshold $\Theta$, emits a spike, and is reset by subtraction, producing a regular spike train.}
         \label{fig:LIF_neuron}
     \end{figure}
-    
+
 
     \subsubsection{Spike Encodings}
     \label{sec:spike_encodings}
     In an SNN, data is represented through \emph{temporal patterns of spikes}, rather than through continuous-valued activations. It is therefore necessary to encode the input data into a spike train. There are several input encoding schemes, each with its own advantages and trade-offs \cite{yamazakiSpikingNeuralNetworks2022,eshraghianTrainingSpikingNeural2023}:
-    
+
     \begin{itemize}
         \item \textbf{Rate Coding:} The information is encoded in the average number of spikes generated by a neuron over a time window. For example, a bright pixel may generate a high firing rate, while a dark pixel generates a low firing rate. The firing rate can be deterministic or stochastic (Poisson process). Rate coding is considered more robust to noise and can be easily implemented, but it requires a longer time window to accurately represent the information.
         \item \textbf{Latency Coding:} The precise timing of spikes carries information. For example, with time-to-first-spike coding, a bright pixel produces an early spike, while a dark pixel spikes later or not at all. Latency coding assigns much more meaning to each individual spike. It is more energy efficient, but more sensitive to noise and requires precise timing.
-        \item \textbf{Population Coding:} Information is represented by the collective activity of a group of neurons over a time window, rather than the activity of individual neurons. In population coding, each neuron has its own unique receptive field, corresponding to its stimulus excitation over a range of continuous values. As a result, each neuron fires differently based on its receptive field. The information is encoded both in the pattern of which neurons in the population fired, and in how strongly each of them fired. Population coding has a richer representational capacity in a shorter time window and is more robust to noise, but it requires a larger number of neurons. Population encoding has been shown to be effective in control tasks \cite{tangDeepReinforcementLearning2020,huebotterSpikingNeuralNetworks2025a}.
+        \item \textbf{Population Coding:} Information is represented by the collective activity of a group of neurons over a time window, rather than the activity of individual neurons. In population coding, each neuron has its own receptive field: the range of input values that excite it. As a result, each neuron responds differently to the same input. The information is encoded both in the pattern of which neurons in the population fired, and in how strongly each of them fired. Population coding has a richer representational capacity in a shorter time window and is more robust to noise, but it requires a larger number of neurons. Population coding has been shown to be effective in control tasks \cite{tangDeepReinforcementLearning2020,huebotterSpikingNeuralNetworks2025a}.
     \end{itemize}
 
     \begin{figure}[H]
@@ -118,7 +115,7 @@
         \caption{Latency coding}
         \label{fig:enc-latency}
     \end{subfigure}
-    \caption{\textbf{Spike encoding schemes.} (a) Rate coding: The information is encoded in the average number of spikes generated by a neuron over a time window. (b) Latency coding: The precise timing of spikes carries information.}
+    \caption{\textbf{Spike encoding schemes.} (a)~Rate coding: the information is encoded in the average number of spikes generated by a neuron over a time window. (b)~Latency coding: the precise timing of spikes carries the information.}
     \label{fig:encodings}
 \end{figure}
 
@@ -132,7 +129,7 @@
         \includegraphics[width=\linewidth,height=\dimexpr\ht0+\dp0\relax]{population_rf}
     \end{minipage}\hfill
     \usebox0
-    \caption{\textbf{Population coding: The information is represented by the collective activity of a group of neurons over a time window.} Each neuron has its own unique receptive field, corresponding to its stimulus excitation over a range of continuous values. Two symmetric values are encoded in the figure: $+0.3$ and $-0.3$. Although the center neuron (green neuron) emits the same spike rate for both values, the other excited neurons differ, which resolves the ambiguity.}
+    \caption{\textbf{Population coding.} The information is represented by the collective activity of a group of neurons over a time window. Each neuron has its own receptive field (right): the range of input values that excite it. Two symmetric values, $+0.3$ and $-0.3$, are encoded (left). Although the center neuron (green) fires at the same rate for both values, the other excited neurons differ, which resolves the ambiguity.}
     \label{fig:enc-population}
 \end{figure}
 
@@ -141,7 +138,7 @@
 \subsubsection{Training Spiking Neural Networks}
     As with ANNs, training an SNN means optimizing the learnable synaptic weights $W$ to minimize a loss $\mathcal{L}$ computed from the output spikes $S_{out}$. The standard approach is gradient descent with backpropagation: the gradient $\partial\mathcal{L}/\partial W$ is computed by applying the chain rule from the output layer back to each weight, and the weights are then updated in the direction that decreases the loss.
 
-    Before applying backpropagation, it is important to note that an SNN is a recurrent model, even when its layers are connected in a purely feed-forward manner. Writing \eqref{eq:membrane_potential} one step ahead, with the reset expressed through the neuron's own output spike, $R[t] = S_{out}[t]\,\Theta$:
+    An SNN is a recurrent model, even when its layers are connected in a purely feed-forward manner. Writing \eqref{eq:membrane_potential} one step ahead,
     \begin{equation}
         U[t+1] = \beta U[t] + WX[t+1] - S_{out}[t]\,\Theta
         \label{eq:lif}
@@ -150,7 +147,7 @@
 
     Like an RNN, the SNN can therefore be unrolled over the $T$ simulation time steps into a feed-forward computational graph, as shown in Figure~\ref{fig:snn_backprop}(b).
 
-    Gradient-based training of SNNs thus faces two challenges. First, because of the recurrence, the error must be propagated backward through time along the unrolled graph, and not only across layers. Second, the spike generation function \eqref{eq:spike_generation} is non-differentiable: its derivative is zero almost everywhere and undefined at the threshold, so no useful error signal reaches the weights (Figure~\ref{fig:snn_backprop}(a)). The following paragraphs describe each challenge and the solution commonly adopted for it: backpropagation through time (BPTT) and surrogate gradients, respectively.
+    Gradient-based training of SNNs thus faces two challenges. First, because of the recurrence, the error must be propagated backward through time along the unrolled graph, and not only across layers. Second, the spike generation function \eqref{eq:spike_generation} is non-differentiable: its derivative is zero almost everywhere and infinite at the threshold, so no useful error signal reaches the weights (Figure~\ref{fig:snn_backprop}(a)). The following paragraphs describe each challenge and the solution commonly adopted for it: backpropagation through time (BPTT) and surrogate gradients, respectively.
 
     \begin{figure}[H]
         \centering
@@ -192,7 +189,7 @@
         \frac{\partial\mathcal{L}[t]}{\partial W}=\frac{\partial\mathcal{L}[t]}{\partial S_{out}[t]} \underbrace{\frac{\partial S_{out}[t]}{\partial U[t]}}_{\{ 0, \infty\}} \frac{\partial U[t]}{\partial W}
         \label{eq:chainrule}
     \end{equation}
-    The derivative of the Heaviside function is the delta function: zero everywhere except at the threshold, where it is undefined. The gradient therefore either vanishes or diverges, and no useful error signal reaches the weights. This is known as the \emph{dead neuron problem}. The most common solution is to keep the Heaviside function in the forward pass, but to replace its derivative in the backward pass with a smooth approximation $\partial\tilde{S}/\partial U$. This surrogate gradient approach has been shown to train SNNs successfully \cite{eshraghianTrainingSpikingNeural2023,neftciSurrogateGradientLearning2019a}. A common choice of surrogate is the derivative of the arctan function (Figure~\ref{fig:surrogates}):
+    The derivative of the Heaviside function is the delta function: zero everywhere except at the threshold, where it is infinite. The gradient therefore either vanishes or diverges, and no useful error signal reaches the weights. This is known as the \emph{dead neuron problem}. The most common solution is to keep the Heaviside function in the forward pass, but to replace its derivative in the backward pass with a smooth approximation $\partial\tilde{S}/\partial U$. This surrogate gradient approach has been shown to train SNNs successfully \cite{eshraghianTrainingSpikingNeural2023,neftciSurrogateGradientLearning2019a}. A common choice of surrogate is the derivative of the arctan function (Figure~\ref{fig:surrogates}):
     \begin{equation}
         \frac{\partial\tilde{S}}{\partial U} = \frac{1}{1 + \left[\pi\left(U - \Theta\right)\right]^2}
         \label{eq:surrogates}
@@ -202,11 +199,11 @@
         \centering
         \includegraphics{surrogate_gradients.pdf}
         \caption{\textbf{Surrogate gradient for the non-differentiable spike function.}
-        (a) The Heaviside step $H(U-U_{th})$ (black) and its arctan approximation (blue).
+        (a) The Heaviside step $H(U-\Theta)$ (black) and its arctan approximation (blue).
         (b) The derivative of $H$ is zero everywhere except at the
         threshold, where it is a Dirac delta (arrow), so no gradient flows through it.
-        The arctan surrogate derivative of Eq.~\eqref{eq:surrogates} is smooth and non-zero
-        around $U_{th}$, which lets gradients flow during the backward pass.}
+        The arctan surrogate derivative~\eqref{eq:surrogates} is smooth and non-zero
+        around $\Theta$, which lets gradients flow during the backward pass.}
         \label{fig:surrogates}
     \end{figure}
 
@@ -241,7 +238,7 @@ which takes $N_{\mathrm{in}}$ multiplications, $N_{\mathrm{in}}-1$ additions to 
     \label{eq:energy_ann_neuron}
 \end{equation}
 
-\paragraph{SNN neuron.} The inference cost is decomposed into spike-triggered synaptic operations and per-time-step neuron-state updates, while spike-generation and reset costs are neglected. At each time step, a LIF neuron therefore updates its membrane potential according to \eqref{eq:membrane_potential} without the reset term:
+\paragraph{SNN neuron.} The inference cost is decomposed into spike-triggered synaptic operations and per-time-step neuron-state updates; the costs of spike generation and reset are neglected. Without the reset term, a LIF neuron updates its membrane potential~\eqref{eq:membrane_potential} at each time step as
 \begin{equation}
     U_i[t] = \beta U_i[t-1] + \sum_{j=1}^{N_{\mathrm{in}}} w_{ij} S_j[t] .
 \end{equation}
@@ -260,50 +257,52 @@ Equations~\eqref{eq:energy_ann_neuron} and \eqref{eq:energy_snn_neuron} give a t
     E_{\mathrm{SNN}}^{\mathrm{neuron}} = T fr_{\mathrm{in}} \left( N_{\mathrm{in}} E_{\mathrm{AC}} + E_{\mathrm{MC}} \right).
     \label{eq:energy_snn_neuron_improved}
 \end{equation}
-For the previous example, with 64 input connections, $T=5$ time steps and $fr_{\mathrm{in}}=10\%$, the energy is $9.6\times$ lower than that of the ANN.
+For the previous example, with 64 input connections, $T=5$ time steps and $fr_{\mathrm{in}}=10\%$, this gives $E_{\mathrm{SNN}}^{\mathrm{neuron}} = 5 \times 0.1\,(64 \times 0.9 + 3.7) = 30.7$\,pJ, about $9.6\times$ less than the ANN.
 
 \subsection{Neuromorphic Vision to Agile Flight Control}
 Pairing event cameras with SNNs on neuromorphic hardware gives a fully neuromorphic stack that suits agile flight. Event cameras perceive fast motion with low latency and remain reliable under changing lighting, so an event-driven policy could fly faster than one that relies on conventional frames. SNNs process the resulting sparse events at low energy when deployed on neuromorphic hardware, which matters on a drone where onboard compute is constrained and a split-second decision separates avoiding an obstacle from crashing into it. Our goal is a control policy that receives the drone state and the event stream and outputs high-frequency control commands, fast and accurate enough for such flight. Existing work has demonstrated parts of this stack, but a complete agile neuromorphic flight controller remains challenging.
 
-SNN controllers have so far flown either slow maneuvers from onboard sensing or agile maneuvers from external state. Paredes-Vall\'es et al.~\cite{paredes-vallesFullyNeuromorphicVision2023} ran an SNN of current-based LIF (CUBA-LIF) neurons with hard reset on a Loihi neuromorphic chip. The network estimated optical flow from the raw events of a downward-facing event camera, from which the scaled velocity and yaw rate of the drone were extracted. These estimates and the drone attitude were then passed to a non-spiking thrust and attitude controller. The network ran at 200\,Hz and used about 27\,$\mu$J per inference, compared with 26\,Hz and 75\,mJ per inference on a Jetson Nano. However, the camera observed a flat, static, textured floor, and the maneuvers were basic and slow. Stroobants et al.~\cite{stroobantsNeuromorphicAttitudeEstimation2025} trained an SNN by behavior cloning on recorded sensor--motor pairs to map raw inertial measurements directly to motor commands. It issued commands at 500\,Hz with performance comparable to a conventional flight stack, and was integrated into a position-control task, but only with gentle maneuvers. Its inputs are also not spike-encoded: a linear layer injects the continuous-valued measurements directly as the input current of the first layer, and the outputs are decoded through a weight matrix from the hidden spiking layer, which makes the network less suited to neuromorphic hardware. Van Breukelen Castillo et al.~\cite{vanbreukelencastilloSpikingNeuralNetworks2026} flew agile maneuvers at about 8\,m/s on average with a spiking actor-critic trained by proximal policy optimization (PPO). However, their network resets its state at every control step, so it does not use its temporal dynamics, and it relies on motion-capture state rather than onboard perception. 
+SNN controllers have so far flown either slow maneuvers from onboard sensing or agile maneuvers from external state. Paredes-Vall\'es et al.~\cite{paredes-vallesFullyNeuromorphicVision2023} ran an SNN of current-based LIF (CUBA-LIF) neurons with hard reset on a Loihi neuromorphic chip. The network estimated optical flow from the raw events of a downward-facing event camera, from which the scaled velocity and yaw rate of the drone were extracted. These estimates and the drone attitude were then passed to a non-spiking thrust and attitude controller. The network ran at 200\,Hz and used about 27\,$\mu$J per inference, compared with 26\,Hz and 75\,mJ per inference on a Jetson Nano. However, the camera observed a flat, static, textured floor, and the maneuvers were basic and slow. Stroobants et al.~\cite{stroobantsNeuromorphicAttitudeEstimation2025} trained an SNN by behavior cloning on recorded sensor--motor pairs to map raw inertial measurements directly to motor commands. It issued commands at 500\,Hz with performance comparable to a conventional flight stack, and was integrated into a position-control task, but only with gentle maneuvers. Its inputs are also not spike-encoded: a linear layer injects the continuous-valued measurements directly as the input current of the first layer, and the outputs are decoded through a weight matrix from the hidden spiking layer, which makes the network less suited to neuromorphic hardware. Van Breukelen Castillo et al.~\cite{vanbreukelencastilloSpikingNeuralNetworks2026} flew agile maneuvers at about 8\,m/s on average with a spiking actor-critic trained by proximal policy optimization (PPO). However, their network resets its state at every control step, so it does not use its temporal dynamics, and it relies on motion-capture state rather than onboard perception.
 
 Event cameras have also enabled learned obstacle avoidance at speed, but only with conventional networks that process events as dense frames. A central difficulty in learning such policies is that the asynchronous, high-rate event stream is hard to simulate, which complicates both training in simulation and transfer to the real world. Bhattacharya et al.~\cite{bhattacharyaMonocularEventBasedVision2024} reported the first static-obstacle avoidance using only a monocular event camera. They used depth prediction as a pretext task to transfer a simulation-trained policy to the real world with few-shot fine-tuning; the policy commands only lateral velocity and was flown at up to 5\,m/s. Messikommer et al.~\cite{messikommerApproximateImitationLearning} map events directly to collective thrust and body rates and fly through clutter at up to 9.8\,m/s. Their approximate imitation-learning scheme avoids rendering events during online training, which sidesteps the cost of simulating them, but their real-world flights rely on motion-capture state. Both methods accumulate events into frame-like tensors and process them with non-spiking networks, so neither exploits the sparse, asynchronous nature of event data that motivates SNNs.
 
-A well establish approach to learn control policies for agile drone flight is to use reinforcement learning (RL), most commonly actor-critic methods such as proximal policy optimization (PPO). However, training SNNs in reinforcement learning is challenging. First, the raw state observation space, such as IMU readings, position and velcoties, are all continous and non spiking. Second, the training spiking neural networks is difficult and less stable. To handle these challenges, two methods are proposed: POPSAN, and teacher-student distillation.   
+A well-established approach to learning control policies for agile flight is reinforcement learning (RL), most commonly with actor-critic methods such as PPO. Training SNNs with RL, however, poses two challenges. First, the raw observations, such as IMU readings, position and velocity, are continuous rather than spikes, so they must be encoded. Second, training SNNs is harder and less stable than training ANNs. Two approaches address these challenges: PopSAN and teacher--student distillation.
 
 \subsubsection{Population Spiking Actor Network for Continuous Control (PopSAN)}
-SNNs are energy-efficient, but a single spiking neuron can represent only limited information, which becomes a bottleneck in high-dimensional continuous control. Tang et al.~\cite{tangDeepReinforcementLearning2020} addressed this with the population-coded spiking actor network (PopSAN), built on two ideas. First, each input dimension is encoded by a population of neurons with learnable Gaussian receptive fields, which increases the information carried by the input layer while keeping the encoding window short. Second, the spiking actor is trained jointly with a deep ANN critic, and the resulting policy performs comparably to an all-ANN actor-critic. Since the critic is needed only for training, it is discarded at inference, and the spiking actor alone controls the agent at a lower energy cost. There method proved successful with both on-policy and off-policy RL algorithms, such as DDPG, TD3, SAC and PPO. Next, we describe how PopSAN works in more detail.
+SNNs are energy-efficient, but a single spiking neuron can represent only limited information, which becomes a bottleneck in high-dimensional continuous control. Tang et al.~\cite{tangDeepReinforcementLearning2020} addressed this with the population-coded spiking actor network (PopSAN), built on two ideas. First, each input dimension is encoded by a population of neurons with learnable Gaussian receptive fields, which increases the information carried by the input layer while keeping the encoding window short. Second, the spiking actor is trained jointly with a deep ANN critic, and the resulting policy performs comparably to an all-ANN actor-critic. Since the critic is needed only for training, it is discarded at inference, and the spiking actor alone controls the agent at a lower energy cost. The method works with both off-policy (DDPG, TD3, SAC) and on-policy (PPO) RL algorithms. The following paragraphs describe PopSAN in more detail.
 
-    \paragraph{Encoding and decoding in PopSAN.} Following the population coding scheme of section~\ref{sec:spike_encodings}, for each dimension $i$ of the $N$-dimensional input observation $s_i, i\in{1...N}$, we create a poopulation of neurons, $E_i$ to encode it. Dropping $i$ for notation simpilicity, each of the neurons in $E$, has a Gaussian receptive field $(\boldsymbol{\mu}, \boldsymbol{\sigma})$. The $\boldsymbol{\mu}$ are initialed to be evenly distributed around the noramlized space $s$ of input value of that dimension, and 
-    $\boldsymbol{\sigma}$ preset to be large enough to ensure non-zero population activity in the entire space of $s$. The encoder module computed the activity of the population representing the dimension $i$ in two phases: i) it transformed the observation values into a stimulation stength of each Gaussian receptive neuron in the population, $\mathbf{A_E}$:
+    \paragraph{Encoding and decoding in PopSAN.} Following the population coding scheme of Section~\ref{sec:spike_encodings}, each dimension $s_i$, $i \in \{1,\dots,N\}$, of the $N$-dimensional observation is encoded by its own population of neurons $E_i$. Dropping the index $i$ for simplicity, each neuron in $E$ has a Gaussian receptive field; the means and standard deviations of the population form the vectors $\boldsymbol{\mu}$ and $\boldsymbol{\sigma}$. The means are initialized evenly over the normalized range of $s$, and the standard deviations are set large enough that the population is active over the entire range. The encoder computes the activity of the population in two phases. First, it transforms the observation $s$ into the stimulation strength $\mathbf{A}_E$ of each neuron in the population:
     \begin{equation}
-        \mathbf{A_E}=\exp(-1/2\cdot((s-\boldsymbol{\mu}/\boldsymbol{\sigma}))^2)
+        \mathbf{A}_E = \exp\left(-\frac{1}{2}\left(\frac{s - \boldsymbol{\mu}}{\boldsymbol{\sigma}}\right)^2\right),
+        \label{eq:popsan_rf}
     \end{equation}
-    ii) The computed $\mathbf{A_E}$ act as presynaptic inputs to soft-reset non-leaky integrate and fire (IF) neurons, over a short time window. The dynamics of the encoding neurons are governed by the following equation:
+    with element-wise operations. Second, $\mathbf{A}_E$ drives non-leaky integrate-and-fire (IF) neurons with soft reset (reset by subtraction) as a constant input over the $T$ time steps:
     \begin{equation}
-        \mathbf{U}[t] = \mathbf{U}[t-1] + \mathbf{A_E} - S_{out}[t]\Theta
+        \mathbf{U}_E[t] = \mathbf{U}_E[t-1] + \mathbf{A}_E - \mathbf{S}_E[t-1]\,\Theta,
+        \label{eq:popsan_if}
     \end{equation}
+    which is \eqref{eq:membrane_potential} with $\beta = 1$; the resulting spikes $\mathbf{S}_E[t]$ are the input of the SNN.
 
-    Te output layer of the SNN is also built from a population of neurons, where a population $D_i$ represents dimenstion $i$ of the $M$-dimesional action, $a_i, i\in{1...M}$. Dropping the $i$ for notational simplicity, the decode module decoded the activity of the output population, $D$, into its corresponding real-valued action in two phases: i) after every T timesteps, the spikes of each neuron in $D$ were summed up to obtain the firing rate $\mathbf{fr}$ over T. ii) the action $a$ was returned as the weighted sum of the computed $fr$. Population encoding and decoding is shown in figure \ref{fig:popsan_encoding}
+    The output layer of the SNN is also built from populations of neurons: a population $D_j$ represents dimension $a_j$, $j \in \{1,\dots,M\}$, of the $M$-dimensional action. Dropping the index $j$, the decoder converts the activity of the output population $D$ into a real-valued action in two phases. First, the spikes of each neuron in $D$ are summed over the $T$ time steps and divided by $T$ to give the firing rates $\mathbf{fr}$. Second, the action is their weighted sum, $a = W_d\,\mathbf{fr} + b_d$, with learned decoding weights $W_d$ and bias $b_d$. Figure~\ref{fig:popsan_encoding} illustrates the encoding and decoding.
     \begin{figure}[H]
         \centering
         \includegraphics[width=\textwidth]{popsan_encoding.pdf}
-        \caption{\textbf{Population encoding and decoding in PopSAN.} Each input dimension $s_i$ is encoded by a population $E_i$ with learnable Gaussian receptive fields, whose IF neurons spike into an SNN that runs over $T$ timesteps. Each action $a_j$ is decoded from the firing rates of an output population $D_j$ by a learned weighted sum. Orange: SNN; flames: trained; double lines: spikes. Adapted from~\cite{jiangFullySpikingNeural2024}.}
+        \caption{\textbf{Population encoding and decoding in PopSAN.} Each input dimension $s_i$ is encoded by a population $E_i$ with learnable Gaussian receptive fields, whose IF neurons spike into an SNN that runs over $T$ time steps. Each action $a_j$ is decoded from the firing rates of an output population $D_j$ by a learned weighted sum. Orange: SNN; flames: trained; double lines: spikes. Adapted from~\cite{jiangFullySpikingNeural2024}.}
         \label{fig:popsan_encoding}
     \end{figure}
 
     \paragraph{Training PopSAN.} All parts of the spiking actor are trained end to end: the means $\boldsymbol{\mu}$ and standard deviations $\boldsymbol{\sigma}$ of the Gaussian receptive fields, the weights of the SNN, and the decoding weights $W_d$ and biases $b_d$ (Figure~\ref{fig:popsan_encoding}). Learning $\boldsymbol{\mu}$ and $\boldsymbol{\sigma}$ lets each encoding population adapt its receptive fields to the range of observation values that matter for the task, instead of keeping their initial uniform spacing. During training, the spiking actor is paired with a deep ANN critic, which estimates the value of the visited states or state--action pairs and provides the learning signal for the actor. The actor gradients are backpropagated through the decoder, the SNN and the encoder, with surrogate gradients \eqref{eq:surrogates} replacing the derivative of the non-differentiable spikes. Since the critic is needed only to compute these gradients, it is discarded after training, and only the spiking actor runs at inference.
 
 
-\subsubsection{Policy Distillation and Teacher Student Paradigm for Training SNNs}
-Although PopSAN has proven successful in continuous control, training its spiking actor with RL may still fall short on harder tasks such as agile drone navigation through clutter. Policy distillation addresses this by splitting a hard learning problem into two steps: a teacher policy is first trained on an easier version of the problem, and the teacher then guides the training of a student policy that faces the harder, actual conditions. The problem can be made easier in two ways. The teacher can receive more information than the student, for example the full state of the environment, while the student observes it only partially through its onboard sensors~\cite{songLearningPerceptionAwareAgile2023}. Alternatively, the teacher can use a network that is easier to train, such as an ANN, while the student is an SNN. Below, we first outline the main distillation methods, then describe the teacher--student paradigm for privileged information, then how distillation applies to SNNs, and finally a variant in which only the critic receives the privileged information.
+\subsubsection{Policy Distillation and the Teacher--Student Paradigm for Training SNNs}
+Although PopSAN has proven successful in continuous control, training its spiking actor with RL may still fall short on harder tasks such as agile drone navigation through clutter. Policy distillation addresses this by splitting a hard learning problem into two steps: a teacher policy is first trained on an easier version of the problem, and the teacher then guides the training of a student policy that faces the harder, actual conditions. The problem can be made easier in two ways. The teacher can receive more information than the student, for example the full state of the environment, while the student observes it only partially through its onboard sensors~\cite{songLearningPerceptionAwareAgile2023}. Alternatively, the teacher can use a network that is easier to train, such as an ANN, while the student is an SNN. Below, we outline the main distillation methods and then how they apply to SNNs.
 
 Distillation methods differ in which states the student is trained on and whether it also learns from rewards. Let the teacher $\pi_T$ act on the privileged state $s$, and the student $\pi_\theta$, with parameters $\theta$, act on the onboard observation $o$ of the same state. In behavior cloning, the student regresses the teacher's actions on states recorded from the teacher~\cite{stroobantsNeuromorphicAttitudeEstimation2025}:
 \begin{equation}
     \mathcal{L}_{\mathrm{BC}}(\theta) = \mathbb{E}_{s \sim d^{\pi_T}}\left[\left\lVert \pi_\theta(o) - \pi_T(s) \right\rVert^2\right],
     \label{eq:bc}
 \end{equation}
-where $d^{\pi_T}$ is the distribution of states visited by the teacher. Since the student sees only these states, its own small errors lead it to unfamiliar states, where the errors compound. DAgger~\cite{loquercioLearningHighSpeedFlight2021} keeps the loss~\eqref{eq:bc} but changes the data: the student flies, the teacher labels the states it visits, and these states are added to an aggregated dataset $\mathcal{D}$, so that $s \sim d^{\pi_T}$ is replaced by $s \sim \mathcal{D}$. On-policy RL distillation goes one step further. In proximal policy distillation (PPD)~\cite{spiglerProximalPolicyDistillation2025}, the student collects its own rollouts and minimizes
+where $d^{\pi_T}$ is the distribution of states visited by the teacher. Since the student sees only these states, its own small errors lead it to unfamiliar states, where the errors compound. DAgger, as used by Loquercio et al.~\cite{loquercioLearningHighSpeedFlight2021}, keeps the loss~\eqref{eq:bc} but changes the data: the student flies, the teacher labels the states it visits, and these states are added to an aggregated dataset $\mathcal{D}$, so that $s \sim d^{\pi_T}$ is replaced by $s \sim \mathcal{D}$. On-policy RL distillation goes one step further. In proximal policy distillation (PPD)~\cite{spiglerProximalPolicyDistillation2025}, the student collects its own rollouts and minimizes
 \begin{equation}
     \mathcal{L}_{\mathrm{PPD}}(\theta) = \mathcal{L}_{\mathrm{PPO}}(\theta) + \lambda_{\mathrm{KD}}\, \mathbb{E}_{s \sim d^{\pi_\theta}}\left[D_{\mathrm{KL}}\big(\pi_T(\mathbf{a} \mid s) \,\big\|\, \pi_\theta(\mathbf{a} \mid o)\big)\right],
     \label{eq:ppd_background}
