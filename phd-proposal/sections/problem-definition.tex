@@ -12,8 +12,6 @@ The task is \emph{vision-based navigation through unknown clutter}: a quadrotor 
 
 We model the task as a Markov decision process (MDP) $(\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma)$, where $\mathcal{S}$ is the state of the system, $\mathcal{A}$ the action space of the drone, $\mathcal{P}$ the transition probability, given by the low-level controller and the vehicle dynamics, $\mathcal{R}$ the reward function and $\gamma$ the discount factor. The observations, actions and rewards are defined in the following subsections.
 
-\paragraph{Partial observability.} The policy does not observe the full state, which includes the whole obstacle configuration; strictly, the problem is therefore a partially observable MDP. Three sources of partial observability are inherent to the problem rather than to a particular solution: (i) the field of view, since obstacles leave the image as the drone turns or moves sideways past them; (ii) the sensing range, which bounds how far ahead the drone can see; and (iii) the latency between capturing an image and executing the command it produces, so that the image describes where the drone \emph{was}. Whether internal state helps the policy recover the missing history is the question of Objective~2; the policies in this section are reactive.
-
 \subsubsection{Observations}
 \label{subsec:observations}
 The observation concatenates the drone state $s_t$, from onboard state estimation, and the depth latent $z_t$ (\autoref{fig:policy_overview}):
