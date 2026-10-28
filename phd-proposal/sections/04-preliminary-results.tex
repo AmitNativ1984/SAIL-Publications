@@ -80,7 +80,7 @@ Trained with PPO from scratch, PopSAN does not progress through the curriculum. 
 \subsection{Final Results}
 \label{subsec:final_results}
 
-The final student is the constant-learning-rate run of Section~\ref{subsec:distill}, taken at epoch 950. We evaluate it and the ANN teacher in the same way: the deterministic policy (the action mean) flies 128 parallel environments for 4000 control steps at a fixed curriculum level, with a new obstacle set in every episode, which gives about 3,300 episodes per level. \autoref{tab:student_teacher} shows that the spiking student nearly matches its teacher. At every level its success rate is within 1.2 percentage points of the teacher's, and in the densest clutter, level 30, it succeeds in 84.9\% of the episodes against the teacher's 86.1\%. Almost all failures are collisions; neither policy times out.
+The final student is the constant-learning-rate run of Section~\ref{subsec:distill}, taken at epoch 950. We evaluate it and the ANN teacher in the same way: the deterministic policy (the action mean) flies 128 parallel environments for 4000 control steps at a fixed curriculum level, with a new obstacle set in every episode, which gives about 3,300 episodes per level. \autoref{tab:student_teacher} shows that the spiking student nearly matches its teacher. At every level its success rate is within 1.2 percentage points of the teacher's, and in the densest clutter, level 30, it succeeds in 84.9\% of the episodes against the teacher's 86.1\%. Almost all failures are collisions; neither policy times out. \autoref{fig:oblique} shows example episodes at each level.
 
 \begin{table}[htbp]
     \centering
@@ -95,6 +95,26 @@ The final student is the constant-learning-rate run of Section~\ref{subsec:disti
         \hline
     \end{tabular}
 \end{table}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.32\linewidth}
+        \includegraphics[width=\linewidth]{level10_oblique.png}
+        \caption{Level 10}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\linewidth}
+        \includegraphics[width=\linewidth]{level20_oblique.png}
+        \caption{Level 20}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\linewidth}
+        \includegraphics[width=\linewidth]{level30_oblique.png}
+        \caption{Level 30}
+    \end{subfigure}
+    \caption{Example episodes at curriculum levels 10, 20 and 30, oblique view. The yellow line is the flown trajectory.}
+    \label{fig:oblique}
+\end{figure}
 
 \subsubsection{Trained Encoders and Spiking Activity}
 \label{subsec:spikes}
