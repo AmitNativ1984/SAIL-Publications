@@ -18,7 +18,7 @@
   \node[font=\scriptsize, above=1pt of img] {Depth image ($320\times180$)};
 
   % perception
-  \node[ann, frozen, right=of img, trapezium, shape border rotate=270, trapezium stretches body, trapezium left angle=74, trapezium right angle=74, minimum height=15mm, minimum width=11.5mm, rounded corners=1pt, inner sep=1pt] (dce) {DCE\\encoder};
+  \node[ann, frozen, right=of img, trapezium, shape border rotate=270, trapezium stretches body, trapezium left angle=74, trapezium right angle=74, minimum height=15mm, minimum width=11.5mm, rounded corners=1pt, inner sep=1pt] (dce) {Encoder};
   \node[inner sep=0pt] at ($(dce.east)+(0.3mm,3.6mm)$) {\snowflake};
 
   % observation vector: z (32) stacked on s (17); z centred on the DCE row
@@ -40,7 +40,7 @@
   \node[io, anchor=center, minimum width=18mm, font=\footnotesize] (state) at (img |- sin) {Drone state};
 
   % policy and output on the main row
-  \node[ann, trainable, anchor=west, minimum width=30mm] (pol) at ($(vout)+(9mm,0)$) {Policy $\pi_{\mathrm{ANN}}$\\[1.5pt]\mlpglyph};
+  \node[ann, trainable, anchor=west, minimum width=30mm] (pol) at ($(vout)+(9mm,0)$) {Policy\\[1.5pt]\mlpglyph};
   \trainmark{pol}
   \coordinate (atop) at ($(pol.east)+(10mm,2*3.6mm)$);
   % ---------- action vector a_t = (T, phi, theta, psidot), drawn like o_t ----------
