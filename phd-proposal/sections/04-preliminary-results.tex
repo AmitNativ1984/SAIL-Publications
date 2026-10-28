@@ -44,25 +44,18 @@ A first dataset of 43,000 images was rendered in a stand-alone environment that 
 
 \subsubsection{ANN Teacher}
 \label{subsec:teacher}
-The teacher is a multilayer perceptron actor--critic with separate actor and critic networks (hidden layers 256--256--64, ELU), trained with PPO on 1024 parallel environments. It was trained in two stages (\autoref{fig:teacher_training}). From scratch, with the reward of Section~\ref{subsec:reward}, it climbed the curriculum steadily and reached the top level, 30, after 790 PPO epochs ($1.0 \times 10^8$ environment steps). It was then fine-tuned at level 30 with the measured capture-to-control latency added to the simulation. At level 30 it succeeds in 85.3\% of the training episodes and crashes in 14.2\%. This teacher is the reference the SNN student must match.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.6\linewidth]{teacher_training.png}
-    \caption{\textbf{Training of the ANN teacher.} Top: curriculum level; level 30 is reached after $\sim 10^8$ environment steps. Bottom: success and crash rate of the training episodes. The dashed line marks the start of the fine-tune with the measured capture-to-control latency, with the curriculum fixed at level 30.}
-    \label{fig:teacher_training}
-\end{figure}
+The teacher is a multilayer perceptron actor--critic with separate actor and critic networks (hidden layers 256--256--64, ELU), trained with PPO on 1024 parallel environments. Trained from scratch with the reward of Section~\ref{subsec:reward}, it climbs the curriculum steadily and reaches the top level, 30, after 790 PPO epochs ($1.0 \times 10^8$ environment steps). This teacher is the reference the SNN student must match.
 
 \subsubsection{PopSAN Trained from Scratch}
 \label{subsec:scratch}
 The student is a population-coded spiking actor network (PopSAN)~\cite{tangDeepReinforcementLearning2020} (Section~\ref{sec:related_work}, \autoref{fig:popsan_encoding}). Each of the 49 observation dimensions is encoded by a population of 10 neurons (490 in total), feeding two hidden layers of 256 current-based LIF neurons (synaptic decay $\alpha = 0.5$, membrane decay $\beta = 0.75$, threshold 0.5), simulated for $T = 5$ time steps per control step. Each of the 4 action dimensions is decoded from the firing rates of its own population of 10 output neurons. The critic is an ANN, used only during training.
 
-Trained with PPO from scratch, PopSAN does not progress through the curriculum. \autoref{fig:scratch_curriculum} compares six PopSAN runs with five ANN runs, trained on an earlier version of the task with the same environment and reward for both networks. Four of the five ANN runs reach the top level of that curriculum (25); the best PopSAN run stalls at level 14, and four of the six never leave level 0. Since the ANN learns the task and the SNN does not, the difficulty lies in training the spiking network, not in the task. This motivates training the ANN first and distilling it into the SNN.
+Trained with PPO from scratch, PopSAN does not progress through the curriculum. \autoref{fig:scratch_curriculum} compares the fastest of five ANN runs with the best of six PopSAN runs, trained on an earlier version of the task (25 curriculum levels) with the same environment and reward for both networks. The ANN reaches the top level after 350 epochs; the PopSAN stalls at level 14 after 1000 epochs. Of the other runs, three more ANN runs reached the top level, while four of the six PopSAN runs never left level 0. Since the ANN learns the task and the SNN does not, the difficulty lies in training the spiking network, not in the task. This motivates training the ANN first and distilling it into the SNN.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.6\linewidth]{scratch_curriculum.png}
-    \caption{\textbf{PPO from scratch: ANN vs.\ PopSAN.} Curriculum level reached during training by five ANN (blue) and six PopSAN (orange) runs, with the same environment and reward (an earlier version of the task with 25 levels). Four of the five ANN runs reach the top level; the best PopSAN run stalls at level 14 and four never leave level 0.}
+    \caption{\textbf{PPO from scratch: ANN vs.\ PopSAN.} Curriculum level during training of the fastest ANN run (blue) and the best PopSAN run (orange), with the same environment and reward (an earlier version of the task with 25 levels). The ANN reaches the top level after 350 epochs; the PopSAN stalls at level 14.}
     \label{fig:scratch_curriculum}
 \end{figure}
 

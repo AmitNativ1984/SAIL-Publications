@@ -40,51 +40,27 @@ def save(fig, name):
     plt.close(fig)
 
 
-# 1. Curriculum progress from scratch: ANN vs PopSAN, same (old) env and reward per pair.
+# 1. Curriculum progress from scratch: the fastest ANN run vs the best PopSAN run, same (old) env
+#    and reward (commits 0c4a807 / a7e4157 differ only in checkpoint upload and run naming).
 def old_run(proj, rid):
     d = load(f"{proj}__{rid}")
     s = d[["_step", "curriculum_level/iter"]].dropna()
-    # tensorboard-synced runs: _step is the shared log counter; all runs are 1000 PPO epochs
-    return 100 * s["_step"] / d["_step"].max(), s["curriculum_level/iter"]
+    # tensorboard-synced runs: _step is the shared log counter; both runs are 1000 PPO epochs
+    return 1000 * s["_step"] / d["_step"].max(), s["curriculum_level/iter"]
 
-ann = ["2mjqfv6u", "2gusa9bs", "5mztw271", "bqptu3yz", "guyrtybs"]
-snn = [("nav_popsan", "270lli8h"), ("nav_popsan", "fzrjwq2x"), ("nav_popsan_new_reward", "zefha2dc"),
-       ("nav_popsan_new_reward", "h50ol459"), ("nav_popsan_new_reward", "bkdg555f"),
-       ("nav_popsan_new_reward", "5dswmowe")]
-fig, ax = plt.subplots(figsize=(3.4, 2.2))
-for i, rid in enumerate(ann):
-    x, y = old_run("nav_vae_ann", rid)
-    ax.plot(x, y, color=BLUE, lw=1.4, alpha=0.85, label="ANN (PPO from scratch)" if i == 0 else None)
-for i, (p, rid) in enumerate(snn):
-    x, y = old_run(p, rid)
-    ax.plot(x, y + 0.25 * i * (y.max() == 0), color=ORANGE, lw=1.4, alpha=0.85,
-            label="PopSAN (PPO from scratch)" if i == 0 else None)
-ax.set_xlabel("Training progress (% of 1000 PPO epochs)")
+fig, ax = plt.subplots(figsize=(3.4, 2.0))
+for (proj, rid), c, lab in [(("nav_vae_ann", "2gusa9bs"), BLUE, "ANN"),
+                            (("nav_popsan_new_reward", "zefha2dc"), ORANGE, "PopSAN")]:
+    x, y = old_run(proj, rid)
+    ax.plot(x, y, color=c, label=lab)
+ax.set_xlabel("PPO epoch")
 ax.set_ylabel("Curriculum level")
-ax.set_ylim(-0.5, 26.5); ax.set_xlim(0, 100)
-ax.legend(loc="lower left", bbox_to_anchor=(0, 1.0), ncol=2, handlelength=1.5)
+ax.set_ylim(-0.5, 26.5); ax.set_xlim(0, 1000)
+ax.legend(loc="lower right")
 save(fig, "scratch_curriculum")
 
-# 2. Teacher training: from scratch with p_fov, then latency fine-tune pinned at level 30.
-a, b = load("f450_navigation_task__xfm0jyko"), load("f450_navigation_task__9c53czrl")
-# the resumed run logs zero rates until its first curriculum check
-b_rates = b[b["success_rate"].fillna(0) > 0]
-t = pd.concat([a, b_rates], ignore_index=True)
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(3.4, 3.0), sharex=True)
-x, y = series(t, "curriculum_level", "frame")
-ax1.plot(x / 1e8, y, color=BLUE)
-ax1.set_ylabel("Curriculum level"); ax1.set_ylim(-1, 31)
-for key, c, lab in [("success_rate", BLUE, "success"), ("crash_rate", ORANGE, "crash")]:
-    x, y = series(t, key, "frame")
-    ax2.plot(x / 1e8, smooth(y, 15), color=c, label=lab)
-ax2.set_ylabel("Rate (training episodes)"); ax2.set_ylim(0, 1)
-ax2.set_xlabel(r"Environment steps ($\times 10^8$)")
-ax2.legend(loc="center right")
-x_ft = b["frame"].dropna().min() / 1e8
-for ax in (ax1, ax2):
-    ax.axvline(x_ft, color=MUTED, lw=0.8, ls="--")
-ax1.text(x_ft + 0.05, 3, "latency fine-tune,\nlevel 30 pinned", color=MUTED, fontsize=7, va="bottom")
-save(fig, "teacher_training")
+# reference for the distillation figure: the distillation teacher's level-30 training success
+b = load("f450_navigation_task__9c53czrl")
 
 # 3. Distillation: adaptive vs constant LR after the teacher term is released.
 runs = [("wavp4w4j", ORANGE, "adaptive LR"), ("bcqeahgz", BLUE, r"constant LR $10^{-4}$")]
