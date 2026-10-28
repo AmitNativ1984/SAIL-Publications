@@ -5,6 +5,7 @@ The theoretical part of this research is based on an extensive literature review
 
 \subsection{Simulation}
 \label{subsec:simulation}
+Policies will be trained in GPU-based simulators that run thousands of environments in parallel, such as the Aerial Gym Simulator~\cite{kulkarniAerialGymSimulator2025a} and NVIDIA Isaac Sim. Since the policies will observe events, these simulators will be extended with a simulation of the event camera. Before real flights, the trained policies will be tested with the full flight stack in software-in-the-loop (SITL), and possibly hardware-in-the-loop (HITL), simulation in simulators such as Gazebo and AirSim.
 
 \subsection{Analysis}
 
