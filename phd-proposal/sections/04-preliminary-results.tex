@@ -33,14 +33,12 @@ Unless stated otherwise, the success and crash rates below are measured over the
 
 \subsubsection{Deep Collision Encoding}
 \label{subsec:vae}
-We collected 85,000 depth images in the training environments, with obstacles placed by the task's Poisson process at different densities. The simulated RealSense D435 camera ($320 \times 180$ pixels, $87^\circ$ horizontal field of view, 0.1--10\,m range) was placed at random positions, with roll and pitch up to $\pm 45^\circ$ and uniform yaw, to cover the attitudes seen in flight. Frames with fewer than 5\% valid (in-range) pixels were discarded. For each image, the collision image was precomputed by inflating the obstacles by the drone's radius (Section~\ref{subsec:dce}). Depth $\tilde{d}$ is inverse-normalised as $d = 1 - \tilde{d}/d_{\max}$, with $d_{\max} = 7$\,m, so that near obstacles have large values. A convolutional VAE with a 32-dimensional latent is trained with a reconstruction loss that weights near obstacles more,
+We collected 85,000 depth images in the training environments, with obstacles placed by the task's Poisson process at different densities. The simulated RealSense D435 camera was placed at random positions, with roll and pitch up to $\pm 45^\circ$ and uniform yaw, to cover the attitudes seen in flight. Frames with fewer than 5\% valid (in-range) pixels were discarded. For each image, the collision image was precomputed by inflating the obstacles by the drone's radius (Section~\ref{subsec:dce}). Depth $\tilde{d}$ is inverse-normalised as $d = 1 - \tilde{d}/d_{\max}$, with $d_{\max} = 7$\,m, so that near obstacles have large values. A convolutional VAE with a 32-dimensional latent is trained with a reconstruction loss that weights near obstacles more,
 \begin{equation}
     \mathcal{L}_{\mathrm{recon}} = \frac{1}{N}\sum_{n=1}^{N} (1+\alpha d_n)(\hat{d}_n-d_n)^2 ,
     \label{eq:recon_loss}
 \end{equation}
 where $d_n$ is pixel $n$ of the collision image, $\hat{d}_n$ its reconstruction and $\alpha = 5$. The full loss is $\mathcal{L} = \mathcal{L}_{\mathrm{recon}} + \beta_{\mathrm{KL}} \mathcal{L}_{\mathrm{KL}}$ with $\beta_{\mathrm{KL}} = 0.001$.
-
-A first dataset of 43,000 images was rendered in a stand-alone environment that had drifted from the navigation task: it had no ground plane, lacked some obstacle classes, and used a $1280 \times 720$ camera downsampled offline. Re-collecting the data in the navigation environment itself, with the D435 camera model rendered natively at $320 \times 180$, reduced the validation loss from 0.0175 to 0.0125 ($-28\%$). \autoref{fig:DCE} shows example reconstructions.
 
 \subsubsection{ANN Teacher}
 \label{subsec:teacher}
