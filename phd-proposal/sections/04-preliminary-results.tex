@@ -8,7 +8,7 @@ Fully neuromorphic agile flight requires three parts: event-based sensing, a spi
 Training a spiking policy for this task raised two problems, each discussed in Section~\ref{sec:related_work} and addressed here:
 \begin{itemize}
     \item \textbf{RL from scratch stalls.} A population-coded spiking actor (PopSAN) trained with PPO from scratch does not progress through the curriculum, while an ANN with the same reward does (Section~\ref{subsec:scratch}). We therefore train an ANN teacher first and distil it into the SNN student, following proximal policy distillation (Section~\ref{subsec:distill}).
-    \item \textbf{Encoding continuous observations into spikes.} The observations are continuous, so they must be encoded into spikes, here by populations of neurons with Gaussian receptive fields. The encoding must keep every neuron active: a neuron whose receptive field lies where the observation never goes never fires and carries no information. We set the encoder ranges from the teacher's observation distribution, which leaves almost no neuron silent (Section~\ref{subsec:bounds}).
+    \item \textbf{Encoding continuous observations into spikes.} The observations are continuous, so they must be encoded into spikes, here by populations of neurons with Gaussian receptive fields. The encoding must keep every neuron active: a neuron whose receptive field lies where the observation never goes never fires and carries no information. We set the encoder ranges from the teacher's observation distribution, which leaves almost no neuron silent (Section~\ref{subsec:distill}).
 \end{itemize}
 The section first defines the problem (Section~\ref{subsec:problem}), then reports the training of each component (Section~\ref{subsec:training_results}), and finally the resulting student: its encoders, spiking activity and estimated energy (Section~\ref{subsec:final_results}).
 
@@ -59,9 +59,18 @@ Trained with PPO from scratch, PopSAN does not progress through the curriculum. 
 
 \subsubsection{Teacher--Student Distillation}
 \label{subsec:distill}
-The student is trained with proximal policy distillation~\eqref{eq:ppd_background}~\cite{spiglerProximalPolicyDistillation2025}: it collects its own rollouts and minimises the PPO loss plus the KL divergence between the teacher's and the student's Gaussian action distributions, weighted by $\lambda_{\mathrm{KD}}$. Training runs at curriculum level 30 with the teacher's reward, and the student's critic is initialised from the teacher's critic. The teacher term is annealed out as the student improves. $\lambda_{\mathrm{KD}}$ starts at 0.5 and is reduced by 5\% of its initial value at every curriculum check (every 16 rollouts) in which the student succeeds in at least half of its episodes. Guided by the teacher, the student learns quickly: its success rate reaches 75\% after 100 epochs and 83\% after 200, where PPO from scratch stalled at the lowest levels.
+\paragraph{Initialising the encoder.} The student's population encoder turns each observation dimension into spikes through Gaussian receptive fields (\autoref{fig:popsan_encoding}). A neuron fires only when the observation falls inside its field, so a field placed where the observation never goes stays silent and carries no information. We therefore place the fields from the teacher's experience: the trained teacher flies, we record its normalised observations, and for each dimension we spread the fields evenly, with overlapping widths, between a low and a high percentile of their distribution. This works because the student sees its observations through the teacher's normalisation and, during distillation, visits the states the teacher visits. A symmetric range around the mean, the natural choice after normalisation, leaves silent fields on skewed or one-sided dimensions such as the goal direction and the gravity direction (\autoref{fig:encoder_bounds}, left); the teacher's ranges place every field where observations occur (right). The means and widths are then learned with the rest of the student.
 
-With PPO's adaptive learning-rate schedule, the student collapsed once the teacher term was released; a constant learning rate was needed to stabilise the distillation and keep the student close to the teacher (\autoref{fig:distill_stability}).
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{encoder_bounds.png}
+    \caption{\textbf{Initial receptive fields under two choices of observation range.} Gray: histogram of the normalised observation during the student's flights; dashed lines: the observation range; curves: the Gaussian receptive fields of that dimension, dotted where the neuron never fires. Left: a symmetric range around the mean leaves the fields beyond the observed values silent. Right: a range taken from the teacher's observation distribution places every field where observations occur.}
+    \label{fig:encoder_bounds}
+\end{figure}
+
+\paragraph{Distillation.} The student is trained with proximal policy distillation~\eqref{eq:ppd_background}~\cite{spiglerProximalPolicyDistillation2025} at curriculum level 30, with the same reward as the teacher and a critic initialised from the teacher's critic. At every PPO epoch the student collects its own rollouts and minimises the PPO loss plus the KL divergence between the teacher's and its own Gaussian action distributions, weighted by $\lambda_{\mathrm{KD}}$. The teacher term is annealed out as the student improves: $\lambda_{\mathrm{KD}}$ starts at 0.5 and drops by 5\% of its initial value at every curriculum check (every 16 rollouts) in which the student succeeds in at least half of its episodes. Guided by the teacher, the student learns quickly: its success rate reaches 75\% after 100 epochs and 83\% after 200, where PPO from scratch stalled at the lowest levels.
+
+\paragraph{Stabilising the distillation.} With PPO's adaptive learning-rate schedule, the student collapsed once the teacher term was released. A constant learning rate keeps it close to the teacher (\autoref{fig:distill_stability}).
 
 \begin{figure}[htbp]
     \centering
@@ -70,25 +79,6 @@ With PPO's adaptive learning-rate schedule, the student collapsed once the teach
     \label{fig:distill_stability}
 \end{figure}
 
-\paragraph{Spreading the population encoder with the teacher's normalisation.}
-\label{subsec:bounds}
-The student's spiking actor needs its continuous observations encoded into spikes, and this is where the teacher helps a second time. Each encoder neuron $j$ of observation dimension $i$ has a Gaussian receptive field with mean $\mu_{ij}$ and width $\sigma_{ij}$, and receives the constant input current
-\begin{equation}
-    A_{ij} = \exp\!\left(-\frac{(o_i - \mu_{ij})^2}{2\sigma_{ij}^2}\right), \qquad o_i \in [o_i^{\min}, o_i^{\max}],
-    \label{eq:grf}
-\end{equation}
-which drives an integrate-and-fire neuron over the $T$ time steps of a control step. The neuron fires only if this current is large enough, so a field placed where the observation never goes stays silent and carries no information. Where the fields are placed is therefore decided by the range $[o_i^{\min}, o_i^{\max}]$ of each dimension.
-
-We take these ranges from the teacher. The student receives its observations through the teacher's input normalisation, and distillation keeps it close to the teacher, so the student visits the states the teacher visits. We therefore let the trained teacher fly, record its normalised observations, and set the range of each dimension to cover the bulk of their distribution, from a low to a high percentile. The fields are then spread evenly across this range with overlapping widths, so that every value in the range excites neighbouring neurons and every neuron covers values the policy actually encounters. The means and widths are learned afterwards with the rest of the student.
-
-A symmetric range around the mean, the natural choice after normalisation, is not enough, because many observation dimensions are skewed or one-sided, such as the goal direction or the gravity direction. On such dimensions the fields on the empty side of the range never fire (\autoref{fig:encoder_bounds}, left), while ranges taken from the teacher's distribution place every field where observations occur (right).
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=\linewidth]{encoder_bounds.png}
-    \caption{\textbf{Initial receptive fields under two choices of observation range.} Gray: histogram of the normalised observation during the student's flights; dashed lines: the observation range; curves: the Gaussian receptive fields of that dimension, dotted where the neuron never fires. Left: a symmetric range around the mean leaves the fields beyond the observed values silent. Right: a range taken from the teacher's observation distribution places every field where observations occur.}
-    \label{fig:encoder_bounds}
-\end{figure}
 
 \subsection{Final Results}
 \label{subsec:final_results}
