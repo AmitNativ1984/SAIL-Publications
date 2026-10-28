@@ -43,9 +43,9 @@
   \node[ann, trainable, anchor=west, minimum width=30mm] (pol) at ($(vout)+(9mm,0)$) {Policy\\[1.5pt]\mlpglyph};
   \trainmark{pol}
   \coordinate (atop) at ($(pol.east)+(10mm,2*3.6mm)$);
-  % ---------- action vector a_t = (T, phi, theta, psidot), drawn like o_t ----------
+  % ---------- action vector a_t = (f, phi, theta, psidot), drawn like o_t ----------
   \def\ah{3.6mm}\def\aw{6.5mm}
-  \foreach \k/\lab in {0/{$T$},1/{$\phi$},2/{$\theta$},3/{$\dot\psi$}} {
+  \foreach \k/\lab in {0/{$f$},1/{$\phi$},2/{$\theta$},3/{$\dot\psi$}} {
     \node[draw, line width=0.6pt, fill=white, minimum width=\aw, minimum height=\ah, inner sep=0pt,
           font=\scriptsize, anchor=north west] (a\k) at ($(atop)+(0,-\k*\ah)$) {\lab};
   }
