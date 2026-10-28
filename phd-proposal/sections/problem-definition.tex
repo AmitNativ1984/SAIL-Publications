@@ -6,7 +6,7 @@ The task is \emph{vision-based navigation through unknown clutter}: a quadrotor 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\linewidth]{ann_policy_overview.png}
-    \caption{\textbf{The navigation policy.} The depth image is compressed by a frozen deep collision encoder (DCE) into a latent $z_t \in \mathbb{R}^{32}$, which is concatenated with the drone state $s_t \in \mathbb{R}^{17}$ into the observation $o_t \in \mathbb{R}^{49}$. The policy maps $o_t$ to the attitude command $a_t \in \mathbb{R}^4$: collective thrust, roll, pitch and yaw rate. Shown here for the ANN teacher; the SNN student replaces the policy block.}
+    \caption{\textbf{The navigation policy.} The depth image is compressed by a frozen deep collision encoder (DCE) into a latent $z_t \in \mathbb{R}^{32}$, which is concatenated with the drone state $s_t \in \mathbb{R}^{17}$ into the observation $o_t \in \mathbb{R}^{49}$. The policy maps $o_t$ to the attitude command $\mathbf{a}_t \in \mathbb{R}^4$: collective thrust, roll, pitch and yaw rate. Shown here for the ANN teacher; the SNN student replaces the policy block.}
     \label{fig:policy_overview}
 \end{figure}
 
@@ -49,10 +49,10 @@ The depth latent $z_t$ is computed by deep collision encoding (DCE)~\cite{kulkar
 \label{subsec:actions}
 A flight controller is a cascade of controllers: position, velocity, attitude and motor control, each running faster than the one above it. For agile flight the policy should command as low a level as its own control rate allows. Our depth camera runs at 30 frames per second, so we choose attitude commands: low enough to exploit the agility of the vehicle, and high enough that the inner loop runs on the flight controller and absorbs motor-level model errors. The action is
 \begin{equation}
-    a_t = \left(f_t,\ \phi_t,\ \theta_t,\ \dot{\psi}_t\right),
+    \mathbf{a}_t = \left(f_t,\ \phi_t,\ \theta_t,\ \dot{\psi}_t\right),
     \label{eq:action}
 \end{equation}
-namely the collective thrust $f_t$, from zero to twice the hover thrust, the roll $\phi_t$ and pitch $\theta_t$, bounded to $\pm 45^\circ$, and the yaw rate $\dot{\psi}_t$, bounded to $\pm 60^\circ$/s. The policy outputs each component in $[-1, 1]$, and the command is scaled to these bounds; we write $\bar{a}_t \in [-1, 1]^4$ for the unscaled action.
+namely the collective thrust $f_t$, from zero to twice the hover thrust, the roll $\phi_t$ and pitch $\theta_t$, bounded to $\pm 45^\circ$, and the yaw rate $\dot{\psi}_t$, bounded to $\pm 60^\circ$/s. The policy outputs each component in $[-1, 1]$, and the command is scaled to these bounds; we write $\bar{\mathbf{a}}_t \in [-1, 1]^4$ for the unscaled action.
 
 \subsubsection{Reward}
 \label{subsec:reward}
@@ -71,8 +71,8 @@ where $\ell$ is the curriculum level, so that success in denser clutter is worth
 \begin{align}
     r^{\mathrm{prog}}_t &= \lambda_p \left(d_{t-1} - d_t\right), &
     r^{\mathrm{speed}}_t &= -\lambda_v\, v \max\left(0,\ v - v_{\max}\right), \nonumber\\
-    r^{\mathrm{jerk}}_t &= -\lambda_j \left\lVert \bar{a}_t - \bar{a}_{t-1} \right\rVert, &
-    r^{\mathrm{mag}}_t &= \lambda_m \left(e^{-\lVert \bar{a}_t \rVert^2 / 2} - 1\right), \label{eq:reward_terms}\\
+    r^{\mathrm{jerk}}_t &= -\lambda_j \left\lVert \bar{\mathbf{a}}_t - \bar{\mathbf{a}}_{t-1} \right\rVert, &
+    r^{\mathrm{mag}}_t &= \lambda_m \left(e^{-\lVert \bar{\mathbf{a}}_t \rVert^2 / 2} - 1\right), \label{eq:reward_terms}\\
     r^{\mathrm{fov}}_t &= -\lambda_{\mathrm{fov}}\, v^2\, r_{\mathrm{fov}}^2, \nonumber
 \end{align}
 with $r_{\mathrm{fov}}$ defined in \eqref{eq:rfov} and the weights listed in \autoref{tab:reward}.
