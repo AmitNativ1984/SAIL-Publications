@@ -10,30 +10,35 @@ The task is \emph{vision-based navigation through unknown clutter}: a quadrotor 
     \label{fig:policy_overview}
 \end{figure}
 
-\subsubsection{Markov Decision Process}
-\label{subsec:mdp}
-We model the task as a Markov decision process (MDP) $(\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma)$, where $\mathcal{S}$ is the state of the system, $\mathcal{A}$ the action space of the drone, $\mathcal{P}$ the transition probability, given by the low-level controller and the vehicle dynamics, $\mathcal{R}$ the reward function and $\gamma = 0.99$ the discount factor.
+We model the task as a Markov decision process (MDP) $(\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma)$, where $\mathcal{S}$ is the state of the system, $\mathcal{A}$ the action space of the drone, $\mathcal{P}$ the transition probability, given by the low-level controller and the vehicle dynamics, $\mathcal{R}$ the reward function and $\gamma = 0.99$ the discount factor. The observations, actions and rewards are defined in the following subsections.
 
-\paragraph{Environment.} We use the Aerial Gym Simulator~\cite{kulkarniAerialGymSimulator2025a}, which simulates thousands of aerial robots in parallel on the GPU, with efficient ray casting for onboard depth cameras, and its built-in attitude controller~\cite{leeControlComplexManeuvers2011}. The simulated vehicle is a digital twin of the lab's F450 quadrotor. In every episode the drone flies inside a bounded volume of $20 \times 20 \times [4, 6]$\,m that contains static obstacles (trees, panels, spheres, cylinders and perimeter walls), placed by a Poisson process. Every episode samples a new obstacle set together with a start $\mathbf{p}_s$ and a goal $\mathbf{p}_g$, so the policy is always evaluated on environments it has not seen. The obstacle density grows linearly over a curriculum of 30 levels, up to 0.08 obstacles/m$^3$ at level 30. The level rises by one when the success rate exceeds 70\% and drops by one when it falls below 60\%.
-
-\paragraph{Episodes.} An episode ends at the first step at which one of the following holds:
+\paragraph{Episodes.} Every episode starts from a new start position $\mathbf{p}_s$, goal $\mathbf{p}_g$ and obstacle set, and ends at the first step at which one of the following holds:
 \begin{itemize}
     \item \textbf{Success:} the drone is within $0.4$\,m of the goal;
-    \item \textbf{Crash:} the drone collides with an obstacle or leaves the volume;
+    \item \textbf{Crash:} the drone collides with an obstacle or leaves the flight volume;
     \item \textbf{Timeout:} 800 control steps (24\,s) have passed.
 \end{itemize}
-The objective is to maximise the probability of success over the distribution of environments at a given curriculum level, with time to goal as a secondary criterion, so that a policy that hovers safely does not count as a solution.
+The objective is to maximise the probability of success over the distribution of environments, with time to goal as a secondary criterion, so that a policy that hovers safely does not count as a solution.
 
-\paragraph{Partial observability.} The policy does not observe the full state, which includes the whole obstacle configuration; strictly, the problem is therefore a partially observable MDP. Three sources of partial observability are inherent to the problem rather than to a particular solution: (i) the field of view, since obstacles leave the image as the drone turns or moves sideways past them; (ii) the sensing range, which bounds how far ahead the drone can see; and (iii) the latency between capturing an image and executing the command it produces, so that the image describes where the drone \emph{was}. In the simulation, every command is delayed by a latency drawn from the measured capture-to-control latency of the onboard pipeline ($45 \pm 10$\,ms), and the policy runs at the measured control rate of $\sim$33\,Hz. Whether internal state helps the policy recover the missing history is the question of Objective~2; the policies in this section are reactive.
+\paragraph{Partial observability.} The policy does not observe the full state, which includes the whole obstacle configuration; strictly, the problem is therefore a partially observable MDP. Three sources of partial observability are inherent to the problem rather than to a particular solution: (i) the field of view, since obstacles leave the image as the drone turns or moves sideways past them; (ii) the sensing range, which bounds how far ahead the drone can see; and (iii) the latency between capturing an image and executing the command it produces, so that the image describes where the drone \emph{was}. Whether internal state helps the policy recover the missing history is the question of Objective~2; the policies in this section are reactive.
 
 \subsubsection{Observations}
 \label{subsec:observations}
-The observation $o_t = (z_t, s_t) \in \mathbb{R}^{49}$ concatenates two parts (\autoref{fig:policy_overview}):
+The observation $o_t = (s_t, z_t) \in \mathbb{R}^{49}$ concatenates the drone state $s_t$ and the depth latent $z_t$ (\autoref{fig:policy_overview}). The drone state comes from onboard state estimation:
+\begin{equation}
+    s_t = \left(\mathbf{n}_t,\ \bar{d}_t,\ \mathbf{v}_t,\ \boldsymbol{\omega}_t,\ \mathbf{g}_t,\ a_{t-1}\right) \in \mathbb{R}^{17},
+    \label{eq:drone_state}
+\end{equation}
+where
 \begin{itemize}
-    \item The \textbf{drone state} $s_t \in \mathbb{R}^{17}$ from onboard state estimation: the unit direction to the goal and the normalised distance to it, the linear velocity in the vehicle frame, the body rates, the gravity direction in the body frame, and the previous action $a_{t-1}$.
-    \item The \textbf{depth latent} $z_t \in \mathbb{R}^{32}$: the encoding of a $320 \times 180$ depth image from a forward-facing camera modelled on the Intel RealSense D435 ($87^\circ \times 56^\circ$ field of view, 0.1--10\,m range).
+    \item $\mathbf{n}_t \in \mathbb{R}^3$ is the unit vector from the drone to the goal, in the vehicle frame (the yaw-only, gravity-aligned heading frame);
+    \item $\bar{d}_t \in [0, 1]$ is the distance to the goal, divided by the diagonal of the flight volume;
+    \item $\mathbf{v}_t \in \mathbb{R}^3$ is the linear velocity in the vehicle frame;
+    \item $\boldsymbol{\omega}_t \in \mathbb{R}^3$ is the body rate measured by the gyroscope;
+    \item $\mathbf{g}_t \in \mathbb{R}^3$ is the unit gravity direction in the body frame, which encodes roll and pitch;
+    \item $a_{t-1} \in \mathbb{R}^4$ is the previous action \eqref{eq:action}.
 \end{itemize}
-Before entering the policy, each observation dimension is normalised by a running mean and standard deviation.
+The depth latent $z_t \in \mathbb{R}^{32}$ encodes a $320 \times 180$ depth image from a forward-facing camera modelled on the Intel RealSense D435 ($87^\circ \times 56^\circ$ field of view, 0.1--10\,m range). Before entering the policy, each of the 49 dimensions is normalised by a running mean and standard deviation.
 
 \paragraph{Deep collision encoding.}
 \label{subsec:dce}
@@ -53,25 +58,44 @@ A flight controller is a cascade of controllers: position, velocity, attitude an
     a_t = \left(f_t,\ \phi_t,\ \theta_t,\ \dot{\psi}_t\right),
     \label{eq:action}
 \end{equation}
-namely the collective thrust $f_t$, from zero to twice the hover thrust, the roll $\phi_t$ and pitch $\theta_t$, bounded to $\pm 45^\circ$, and the yaw rate $\dot{\psi}_t$, bounded to $\pm 60^\circ$/s. The policy outputs each component in $[-1, 1]$, and the command is scaled to these bounds.
+namely the collective thrust $f_t$, from zero to twice the hover thrust, the roll $\phi_t$ and pitch $\theta_t$, bounded to $\pm 45^\circ$, and the yaw rate $\dot{\psi}_t$, bounded to $\pm 60^\circ$/s. The policy outputs each component in $[-1, 1]$, and the command is scaled to these bounds; we write $\bar{a}_t \in [-1, 1]^4$ for the unscaled action.
 
 \subsubsection{Reward}
 \label{subsec:reward}
-The reward is that of the ANN teacher used for distillation (Section~\ref{subsec:teacher}). On termination, the drone receives $+10$ on success, rising linearly to $+15$ at curriculum level 30 so that success in denser clutter is worth more, $-10$ on a crash and $-2$ on a timeout. The timeout costs less than a crash, so that waiting is always better than colliding. At every other step the reward is the sum of five terms, listed in \autoref{tab:reward}.
+The reward is that of the ANN teacher used for distillation (Section~\ref{subsec:teacher}). It gives a terminal reward when the episode ends and a sum of five shaping terms at every other step:
+\begin{equation}
+    r_t =
+    \begin{cases}
+        10 + 5\,\ell/30 & \text{success}, \\
+        -10 & \text{crash}, \\
+        -2 & \text{timeout}, \\
+        r^{\mathrm{prog}}_t + r^{\mathrm{speed}}_t + r^{\mathrm{jerk}}_t + r^{\mathrm{mag}}_t + r^{\mathrm{fov}}_t & \text{otherwise},
+    \end{cases}
+    \label{eq:reward}
+\end{equation}
+where $\ell$ is the curriculum level, so that success in denser clutter is worth more. The timeout costs less than a crash, so that waiting is always better than colliding. With $d_t$ the distance to the goal and $v = \lVert \mathbf{v}_t \rVert$ the speed, the shaping terms are
+\begin{align}
+    r^{\mathrm{prog}}_t &= \lambda_p \left(d_{t-1} - d_t\right), &
+    r^{\mathrm{speed}}_t &= -\lambda_v\, v \max\left(0,\ v - v_{\max}\right), \nonumber\\
+    r^{\mathrm{jerk}}_t &= -\lambda_j \left\lVert \bar{a}_t - \bar{a}_{t-1} \right\rVert, &
+    r^{\mathrm{mag}}_t &= \lambda_m \left(e^{-\lVert \bar{a}_t \rVert^2 / 2} - 1\right), \label{eq:reward_terms}\\
+    r^{\mathrm{fov}}_t &= -\lambda_{\mathrm{fov}}\, v^2\, r_{\mathrm{fov}}^2, \nonumber
+\end{align}
+with $r_{\mathrm{fov}}$ defined in \eqref{eq:rfov} and the weights listed in \autoref{tab:reward}.
 
 \begin{table}[htbp]
     \centering
-    \caption{Per-step reward terms of the ANN teacher. $d_t$ is the distance to the goal, $v$ the linear speed, $\bar{a}$ the action scaled to $[-1,1]$ per channel, and $r_{\mathrm{fov}}$ the angle between the velocity and the camera axis, normalised by the half field of view (Eq.~\eqref{eq:rfov}).}
+    \caption{Parameters of the per-step reward terms \eqref{eq:reward_terms}.}
     \label{tab:reward}
     \begin{tabular}{llr}
         \hline
-        Term & Definition & Weight \\
+        Term & Purpose & Parameters \\
         \hline
-        Progress & $\lambda_p\,(d_{t-1} - d_t)$ & $\lambda_p = 0.5$ \\
-        Speed & $-\lambda_v\, v \max(0,\, v - v_{\max})$, \ $v_{\max} = 5$\,m/s & $\lambda_v = 0.1$ \\
-        Jerk & $-\lambda_j\, \lVert \bar{a}_t - \bar{a}_{t-1} \rVert$ & $\lambda_j = 0.01$ \\
-        Action magnitude & $\lambda_m \big(\exp(-\lVert \bar{a}_t \rVert^2 / 2) - 1\big)$ & $\lambda_m = 0.04$ \\
-        Field of view & $-\lambda_{\mathrm{fov}}\, v^2\, r_{\mathrm{fov}}^2$ & $\lambda_{\mathrm{fov}} = 0.015$ \\
+        Progress $r^{\mathrm{prog}}$ & approach the goal & $\lambda_p = 0.5$ \\
+        Speed $r^{\mathrm{speed}}$ & limit excessive speed & $\lambda_v = 0.1$, $v_{\max} = 5$\,m/s \\
+        Jerk $r^{\mathrm{jerk}}$ & smooth commands & $\lambda_j = 0.01$ \\
+        Action magnitude $r^{\mathrm{mag}}$ & avoid saturated commands & $\lambda_m = 0.04$ \\
+        Field of view $r^{\mathrm{fov}}$ & fly where the camera sees & $\lambda_{\mathrm{fov}} = 0.015$ \\
         \hline
     \end{tabular}
 \end{table}
