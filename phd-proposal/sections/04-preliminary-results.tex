@@ -103,23 +103,10 @@ The final student is the constant-learning-rate run of Section~\ref{subsec:disti
 \label{subsec:spikes}
 The spiking activity below is measured on the student flying at curriculum level 30 (128 environments, 2000 control steps, 1670 episodes).
 
-\paragraph{Encoder.} Training moves the receptive fields only slightly from their initial placement (\autoref{fig:encoder_learned}). Where the observations concentrate, as at the upper end of the goal direction, the fields narrow and crowd together, which gives finer resolution where the policy needs it. One encoder neuron of 490 remains silent.
+\paragraph{Encoder.} Training moves the receptive fields only slightly from their initial placement. Where the observations concentrate, as at the upper end of the goal direction, the fields narrow and crowd together, which gives finer resolution where the policy needs it. One encoder neuron of 490 remains silent.
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=\linewidth]{encoder_learned.png}
-    \caption{\textbf{Learned receptive fields} of the trained student, for two state dimensions, the goal direction and the gravity direction. Gray: histogram of the normalised observation during flights at level 30; dashed lines: the percentile range. The fields of the goal direction narrow towards its frequently visited upper end; those of gravity stay close to their initial placement.}
-    \label{fig:encoder_learned}
-\end{figure}
+\paragraph{Firing rates.} We measure the firing rate of every neuron: the fraction of the $T = 5$ time steps in which it spikes, averaged over all control steps. The network is sparse. The encoder fires at 16.9\% on average, the first hidden layer at 20.0\%, the second at 31.3\% and the output layer at 31.2\%, and only one neuron in each of the encoder and the second hidden layer is silent. No neuron fires at every time step, so no layer is saturated, and the activity is spread over the neurons rather than carried by a few.
 
-\paragraph{Firing rates.} \autoref{fig:spike_rates} shows, for every layer, the distribution of the firing rate: the fraction of the $T = 5$ time steps in which a neuron spikes, averaged over all control steps. The network is sparse. The encoder fires at 16.9\% on average, the first hidden layer at 20.0\% and the second at 31.3\%, and only one neuron in each of the encoder and the second hidden layer is silent. No neuron fires at every time step, so no layer is saturated, and the activity is spread over the neurons rather than carried by a few.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=\linewidth]{spike_rates.png}
-    \caption{\textbf{Firing rates of the SNN student} at curriculum level 30. Histogram over the neurons of each layer of the fraction of time steps in which the neuron spikes; the orange line is the layer mean (encoder 16.9\%, hidden 20.0\% and 31.3\%, output 31.2\%).}
-    \label{fig:spike_rates}
-\end{figure}
 
 \subsubsection{Energy Estimate}
 \label{subsec:energy}
