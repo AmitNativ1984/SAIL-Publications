@@ -74,9 +74,9 @@ Trained with PPO from scratch, PopSAN does not progress through the curriculum. 
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=\linewidth]{encoder_bounds.png}
-    \caption{\textbf{Initial receptive fields under two choices of observation range.} Gray: histogram of the normalised observation during the student's flights; dashed lines: the observation range; curves: the Gaussian receptive fields of that dimension, dotted where the neuron never fires. Left: a symmetric range around the mean leaves the fields beyond the observed values silent. Right: a range taken from the teacher's observation distribution places every field where observations occur.}
-    \label{fig:encoder_bounds}
+    \includegraphics[width=\linewidth]{encoder_trace.png}
+    \caption{\textbf{Population encoding in the trained student} for the three linear-velocity dimensions ($v_x, v_y, v_z$) and the first three dimensions of the depth latent $z_t$, recorded over ten flights at curriculum level 30 (1182 control steps). Left: the learned Gaussian receptive fields of the 10 encoder neurons of each dimension (blue) over the histogram of the normalised observation (gray). Right: spike raster of the same neurons over the first 100 control steps, $T = 5$ time steps each; the number above each raster is the fraction of time steps in which a neuron spikes. As the observation moves, the activity moves between neighbouring neurons.}
+    \label{fig:encoder_trace}
 \end{figure}
 
 
@@ -108,7 +108,7 @@ The spiking activity below is measured on the student flying at curriculum level
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\linewidth]{encoder_learned.png}
-    \caption{\textbf{Learned receptive fields} of the trained student, for the two dimensions of \autoref{fig:encoder_bounds}. Gray: histogram of the normalised observation during flights at level 30; dashed lines: the percentile range. The fields of the goal direction narrow towards its frequently visited upper end; those of gravity stay close to their initial placement.}
+    \caption{\textbf{Learned receptive fields} of the trained student, for two state dimensions, the goal direction and the gravity direction. Gray: histogram of the normalised observation during flights at level 30; dashed lines: the percentile range. The fields of the goal direction narrow towards its frequently visited upper end; those of gravity stay close to their initial placement.}
     \label{fig:encoder_learned}
 \end{figure}
 
