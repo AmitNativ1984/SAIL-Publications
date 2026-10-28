@@ -75,7 +75,7 @@ Trained with PPO from scratch, PopSAN does not progress through the curriculum. 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.6\linewidth]{distill_stability.png}
-    \caption{\textbf{Distillation of the SNN student at curriculum level 30.} Success rate, learning rate and policy entropy of the PopSAN student; dotted lines mark the release of the teacher term. With the adaptive learning-rate schedule (orange) the learning rate climbs to $10^{-3}$ after the release, the entropy runs away and the success rate falls from 0.85 to 0.57. With a constant learning rate of $10^{-4}$ (blue) the success rate holds at 0.79--0.84, close to the teacher (dashed), up to epoch 2000.}
+    \caption{\textbf{Distillation of the SNN student at curriculum level 30} with a constant learning rate of $10^{-4}$. Success rate of the PopSAN student; the dotted line marks the release of the teacher term (epoch 433). After the release the success rate holds at 0.79--0.84, close to the ANN teacher (dashed, 0.85), up to epoch 2000.}
     \label{fig:distill_stability}
 \end{figure}
 

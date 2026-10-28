@@ -62,26 +62,18 @@ save(fig, "scratch_curriculum")
 # reference for the distillation figure: the distillation teacher's level-30 training success
 b = load("f450_navigation_task__9c53czrl")
 
-# 3. Distillation: adaptive vs constant LR after the teacher term is released.
-runs = [("wavp4w4j", ORANGE, "adaptive LR"), ("bcqeahgz", BLUE, r"constant LR $10^{-4}$")]
+# 3. Distillation with a constant learning rate, through and after the release of the teacher term.
 teacher_succ = b["success_rate"].dropna().tail(50).mean()
-fig, axs = plt.subplots(3, 1, figsize=(3.4, 4.2), sharex=True)
-for rid, c, lab in runs:
-    d = load(f"popsan_ann_teacher_distillation__{rid}")
-    x, y = series(d, "success_rate"); axs[0].plot(x, smooth(y, 9), color=c, label=lab)
-    x, y = series(d, "info/last_lr"); axs[1].plot(x, y, color=c)
-    x, y = series(d, "losses/entropy"); axs[2].plot(x, smooth(y, 9), color=c)
-    xk, k = series(d, "distill/kd_actor_coeff_eff")
-    rel = xk[(k <= 0)].min()
-    for ax in axs:
-        ax.axvline(rel, color=c, lw=0.8, ls=":")
-axs[0].axhline(teacher_succ, color=MUTED, lw=0.8, ls="--")
-axs[0].text(1990, teacher_succ + 0.02, "ANN teacher", color=MUTED, fontsize=7, ha="right")
-axs[0].set_ylabel("Success rate"); axs[0].set_ylim(0, 1)
-axs[0].legend(loc="lower right")
-axs[1].set_yscale("log"); axs[1].set_ylabel("Learning rate")
-axs[2].set_ylabel("Policy entropy"); axs[2].set_xlabel("PPO epoch")
-axs[1].text(1950, 2e-6, "dotted: teacher term released", color=MUTED, fontsize=7, ha="right", va="bottom")
-axs[2].set_xlim(0, 2000)
+d = load("popsan_ann_teacher_distillation__bcqeahgz")
+fig, ax = plt.subplots(figsize=(3.4, 2.0))
+x, y = series(d, "success_rate"); ax.plot(x, smooth(y, 9), color=BLUE, label="SNN student")
+xk, k = series(d, "distill/kd_actor_coeff_eff")
+rel = xk[(k <= 0)].min()
+ax.axvline(rel, color=MUTED, lw=0.8, ls=":")
+ax.text(rel + 20, 0.05, "teacher term released", color=MUTED, fontsize=7, ha="left", va="bottom")
+ax.axhline(teacher_succ, color=MUTED, lw=0.8, ls="--")
+ax.text(1990, teacher_succ + 0.02, "ANN teacher", color=MUTED, fontsize=7, ha="right")
+ax.set_xlabel("PPO epoch"); ax.set_ylabel("Success rate")
+ax.set_ylim(0, 1); ax.set_xlim(0, 2000)
 save(fig, "distill_stability")
 print("ok")
