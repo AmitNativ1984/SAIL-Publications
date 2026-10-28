@@ -56,7 +56,7 @@ namely the collective thrust $f_t$, from zero to twice the hover thrust, the rol
 
 \subsubsection{Reward}
 \label{subsec:reward}
-The reward is that of the ANN teacher used for distillation (Section~\ref{subsec:teacher}). It gives a terminal reward when the episode ends in success, crash or timeout (Section~\ref{subsec:training_results}) and a sum of five shaping terms at every other step:
+The reward function gives a terminal reward when the episode ends in success, crash or timeout (Section~\ref{subsec:training_results}) and a sum of five shaping terms at every other step:
 \begin{equation}
     r_t =
     \begin{cases}
@@ -67,7 +67,7 @@ The reward is that of the ANN teacher used for distillation (Section~\ref{subsec
     \end{cases}
     \label{eq:reward}
 \end{equation}
-where $\ell$ is the curriculum level, so that success in denser clutter is worth more. The timeout costs less than a crash, so that waiting is always better than colliding. With $d_t$ the distance to the goal and $v = \lVert \mathbf{v}_t \rVert$ the speed, the shaping terms are
+where $\ell \in \{0, \dots, 30\}$ is the curriculum level, and 30 is the number of curriculum levels, so the success bonus grows from 10 to 15 as the clutter becomes denser. The timeout costs less than a crash, so that waiting is always better than colliding. With $d_t$ the distance to the goal and $v = \lVert \mathbf{v}_t \rVert$ the speed, the shaping terms are
 \begin{align}
     r^{\mathrm{prog}}_t &= \lambda_p \left(d_{t-1} - d_t\right), &
     r^{\mathrm{speed}}_t &= -\lambda_v\, v \max\left(0,\ v - v_{\max}\right), \nonumber\\
