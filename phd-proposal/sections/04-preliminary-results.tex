@@ -70,25 +70,23 @@ The training was unstable once the teacher was released (\autoref{fig:distill_st
     \label{fig:distill_stability}
 \end{figure}
 
-\subsubsection{Population Encoder Bounds}
+\paragraph{Spreading the population encoder with the teacher's normalisation.}
 \label{subsec:bounds}
-Each encoder neuron $j$ of observation dimension $i$ has a Gaussian receptive field with mean $\mu_{ij}$ and width $\sigma_{ij}$, and receives the constant input current
+The student's spiking actor needs its continuous observations encoded into spikes, and this is where the teacher helps a second time. Each encoder neuron $j$ of observation dimension $i$ has a Gaussian receptive field with mean $\mu_{ij}$ and width $\sigma_{ij}$, and receives the constant input current
 \begin{equation}
     A_{ij} = \exp\!\left(-\frac{(o_i - \mu_{ij})^2}{2\sigma_{ij}^2}\right), \qquad o_i \in [o_i^{\min}, o_i^{\max}],
     \label{eq:grf}
 \end{equation}
-which drives a non-leaky integrate-and-fire neuron with threshold 0.95 and reset by subtraction for $T = 5$ steps. The neuron fires within the window only if $5A_{ij} \geq 0.95$, i.e.\ $A_{ij} \geq 0.19$. A neuron whose field lies where the observation never goes is therefore silent and carries no information. The observation range $[o_i^{\min}, o_i^{\max}]$ decides where the fields are placed, and observations outside it are clipped.
+which drives an integrate-and-fire neuron over the $T$ time steps of a control step. The neuron fires only if this current is large enough, so a field placed where the observation never goes stays silent and carries no information. Where the fields are placed is therefore decided by the range $[o_i^{\min}, o_i^{\max}]$ of each dimension.
 
-The ranges are taken from the teacher. The trained teacher flew 200 episodes at curriculum level 30, and for every observation dimension we recorded the 1st and 99th percentiles of its observations, after the same normalisation the policy applies (Section~\ref{subsec:training_results}). These percentiles are the bounds $[o_i^{\min}, o_i^{\max}]$. A symmetric range around the mean, as used for input normalisation, misplaces the fields on the many skewed or one-sided dimensions, such as the distance to the goal or several depth latents. Percentiles of the teacher's own flights cover the states the student will visit, since distillation keeps the student close to the teacher.
+We take these ranges from the teacher. The student receives its observations through the teacher's input normalisation, and distillation keeps it close to the teacher, so the student visits the states the teacher visits. We therefore let the trained teacher fly, record its normalised observations, and set the range of each dimension to cover the bulk of their distribution, from a low to a high percentile. The fields are then spread evenly across this range with overlapping widths, so that every value in the range excites neighbouring neurons and every neuron covers values the policy actually encounters. The means and widths are learned afterwards with the rest of the student.
 
-Within each range, the 10 means are spaced evenly with spacing $\Delta_i = (o_i^{\max} - o_i^{\min})/9$, and the widths are initialised to $\sigma_{ij} = 0.75\,\Delta_i$, so that neighbouring fields overlap. A neuron then fires for any observation within $\sigma_{ij}\sqrt{2\ln(1/0.19)} = 1.37\,\Delta_i$ of its mean, so every value inside the range drives at least two neurons. Means and widths are learned during training.
-
-\autoref{fig:encoder_bounds} compares the two choices of range on two skewed dimensions. With a symmetric range of $\pm 3$ standard deviations, the fields beyond the observed values never reach the firing threshold: on the observations of the student's own flights at level 30, 16 of the 490 encoder neurons are silent, all of them in the 17 state dimensions. With the percentile ranges, only one neuron is silent.
+A symmetric range around the mean, the natural choice after normalisation, is not enough, because many observation dimensions are skewed or one-sided, such as the goal direction or the gravity direction. On such dimensions the fields on the empty side of the range never fire (\autoref{fig:encoder_bounds}, left), while ranges taken from the teacher's distribution place every field where observations occur (right).
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\linewidth]{encoder_bounds.png}
-    \caption{\textbf{Initial receptive fields under two choices of observation range.} Gray: histogram of the normalised observation during the student's flights at level 30; dashed lines: the observation range; curves: the 10 Gaussian receptive fields of that dimension, dotted where the neuron never fires. Left: symmetric range $\pm 3$; fields beyond the observed values are silent (3 neurons for the goal direction, 2 for gravity). Right: range from the teacher's 1st and 99th percentiles; every field covers observed values.}
+    \caption{\textbf{Initial receptive fields under two choices of observation range.} Gray: histogram of the normalised observation during the student's flights; dashed lines: the observation range; curves: the Gaussian receptive fields of that dimension, dotted where the neuron never fires. Left: a symmetric range around the mean leaves the fields beyond the observed values silent. Right: a range taken from the teacher's observation distribution places every field where observations occur.}
     \label{fig:encoder_bounds}
 \end{figure}
 
