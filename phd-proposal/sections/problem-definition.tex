@@ -26,10 +26,11 @@ where
     \item $\mathbf{n}_t \in \mathbb{R}^3$ is the unit vector from the drone to the goal, in the vehicle frame (the yaw-only, gravity-aligned heading frame);
     \item $\bar{d}_t \in [0, 1]$ is the distance to the goal, divided by the diagonal of the flight volume;
     \item $\mathbf{v}_t \in \mathbb{R}^3$ is the linear velocity in the vehicle frame;
-    \item $\boldsymbol{\omega}_t \in \mathbb{R}^3$ is the body rate measured by the gyroscope;
+    \item $\boldsymbol{\omega}_t \in \mathbb{R}^3$ is the body rate measured by the gyroscope, averaged over the control period;
     \item $\mathbf{g}_t \in \mathbb{R}^3$ is the unit gravity direction in the body frame, which encodes roll and pitch;
-    \item $a_{t-1} \in \mathbb{R}^4$ is the previous action \eqref{eq:action}.
+    \item $a_{t-1} \in \mathbb{R}^4$ is the previous command \eqref{eq:action} sent to the attitude controller.
 \end{itemize}
+The goal direction, distance and velocity come from a simulated state estimator rather than the true state: its position estimate has a per-episode offset ($\sigma = 0.05$\,m) that drifts as a random walk ($0.02$\,m/$\sqrt{\mathrm{s}}$), its velocity has white noise ($\sigma = 0.05$\,m/s), and its yaw has a per-episode bias ($\sigma = 0.05$\,rad), which rotates both the goal direction and the velocity. The reward is computed from the true state.
 The depth latent $z_t \in \mathbb{R}^{32}$ encodes a $320 \times 180$ depth image from a forward-facing camera modelled on the Intel RealSense D435 ($87^\circ \times 56^\circ$ field of view, 0.1--10\,m range). Before entering the policy, each of the 49 dimensions is normalised by a running mean and standard deviation.
 
 \paragraph{Deep collision encoding.}
