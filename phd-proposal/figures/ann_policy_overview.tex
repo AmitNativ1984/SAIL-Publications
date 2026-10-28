@@ -5,8 +5,8 @@
   \def\layers{{4,5,5,3}}
   \foreach \l/\n in {0/4,1/5,2/5,3/4} {\foreach \i in {1,...,\n} {\coordinate (m\l-\i) at (\l*6.5, {(\i-(\n+1)/2)*1.6});}}
   \foreach \l/\n/\m in {0/4/5,1/5/5,2/5/4} {\pgfmathtruncatemacro{\nl}{\l+1}
-    \foreach \i in {1,...,\n} {\foreach \j in {1,...,\m} {\draw[sfBlue!55, line width=0.2pt] (m\l-\i) -- (m\nl-\j);}}}
-  \foreach \l/\n in {0/4,1/5,2/5,3/4} {\foreach \i in {1,...,\n} {\fill[white] (m\l-\i) circle (0.55); \draw[sfBlue!90!black, line width=0.35pt] (m\l-\i) circle (0.55);}}
+    \foreach \i in {1,...,\n} {\foreach \j in {1,...,\m} {\draw[black!35, line width=0.2pt] (m\l-\i) -- (m\nl-\j);}}}
+  \foreach \l/\n in {0/4,1/5,2/5,3/4} {\foreach \i in {1,...,\n} {\fill[white] (m\l-\i) circle (0.55); \draw[black!75, line width=0.35pt] (m\l-\i) circle (0.55);}}
 }}
 \begin{document}
 \begin{tikzpicture}[sf, node distance=5mm and 8mm]
@@ -40,7 +40,7 @@
   \node[io, anchor=center, minimum width=18mm, font=\footnotesize] (state) at (img |- sin) {Drone state};
 
   % policy and output on the main row
-  \node[ann, trainable, anchor=west, minimum width=30mm] (pol) at ($(vout)+(9mm,0)$) {Policy\\[1.5pt]\mlpglyph};
+  \node[block, draw=black!75, fill=black!4, trainable, anchor=west, minimum width=30mm] (pol) at ($(vout)+(9mm,0)$) {Policy\\[1.5pt]\mlpglyph};
   \trainmark{pol}
   \coordinate (atop) at ($(pol.east)+(10mm,2*3.6mm)$);
   % ---------- action vector a_t = (f, phi, theta, psidot), drawn like o_t ----------
@@ -59,6 +59,6 @@
   \draw[data] (vout) -- (pol);
   \draw[data] (pol.east) -- (pol.east -| a1.west);
 
-  \sflegend{$(current bounding box.south west)+(0,-4mm)$}{ann,frozen,trained}
+  \sflegend{$(current bounding box.south west)+(0,-4mm)$}{frozen,trained}
 \end{tikzpicture}
 \end{document}
