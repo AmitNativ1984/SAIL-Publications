@@ -31,8 +31,6 @@ where
     \item $\mathbf{a}_{t-1} \in \mathbb{R}^4$ is the previous command \eqref{eq:action} sent to the attitude controller;
     \item $z_t \in \mathbb{R}^{32}$ is the latent encoding of the depth image, described below.
 \end{itemize}
-The goal direction, distance and velocity come from a simulated state estimator rather than the true state: its position estimate has a per-episode offset ($\sigma = 0.05$\,m) that drifts as a random walk ($0.02$\,m/$\sqrt{\mathrm{s}}$), its velocity has white noise ($\sigma = 0.05$\,m/s), and its yaw has a per-episode bias ($\sigma = 0.05$\,rad), which rotates both the goal direction and the velocity. The reward is computed from the true state.
-The depth latent $z_t \in \mathbb{R}^{32}$ encodes a $320 \times 180$ depth image from a forward-facing camera modelled on the Intel RealSense D435 ($87^\circ \times 56^\circ$ field of view, 0.1--10\,m range). Before entering the policy, each of the 49 dimensions is normalised by a running mean and standard deviation.
 
 \paragraph{Deep collision encoding.}
 \label{subsec:dce}
