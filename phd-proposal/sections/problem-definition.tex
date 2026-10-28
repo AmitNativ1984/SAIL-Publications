@@ -39,7 +39,7 @@ The depth latent $z_t$ is computed by deep collision encoding (DCE)~\cite{kulkar
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=\linewidth]{vae_collision_encoding.png}
+    \includegraphics[width=0.7\linewidth]{vae_collision_encoding.png}
     \caption{\textbf{Collision-aware depth encoding.} Left: raw $320 \times 180$ depth image from the simulated RealSense D435. Middle: collision image, in which every obstacle is inflated by the drone's collision sphere, so each pixel reports the depth at which the drone's centre would first make contact. Right: reconstruction from the 32-dimensional VAE latent. Gaps narrower than the airframe close in the collision image, so the latent encodes where the drone can fly rather than what the scene looks like.}
     \label{fig:DCE}
 \end{figure}
